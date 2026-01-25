@@ -1,0 +1,59 @@
+<p-table #table [value]="selectAllData" [tableStyle]="{ 'min-width': 'auto' }"
+    [globalFilterFields]="['activityType', 'activityTime', 'description']"
+    [rowHover]="true" [scrollable]="true" scrollHeight="500px">
+    <ng-template #caption>
+        <div class="flex items-center justify-between w-full relative">
+            <p-breadcrumb [model]="breadcrumbItems" [home]="breadcrumbHome" class="flex-1"></p-breadcrumb>
+            <p-datepicker [(ngModel)]="selectedDateRange" selectionMode="range" dateFormat="dd-M-yy" iconDisplay="input"
+                placeholder="Select date range" [showIcon]="true" (onSelect)="onDateRangeSelected()" [style]="{ width: '250px' }">
+            </p-datepicker>
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+        <tr>
+            <th style="width: 3rem"></th>
+            <th style="width: 18rem" pSortableColumn="activityTime">Activity Time
+                <p-sortIcon field="activityTime" />
+            </th>
+            <th style="width: 10rem" pSortableColumn="activityType">Activity Type
+                <p-sortIcon field="activityType" />
+            </th>
+            <th pSortableColumn="description">Description
+                <p-sortIcon field="description" />
+            </th>
+        </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-data let-i="rowIndex">
+        <tr class="hover-row">
+            <td>{{ i + 1 }}</td>
+            <td>{{ data.activityTime }}</td>
+            <td>
+                <p-tag 
+    [value]="getActivityTypeLabel(data.activityType)" 
+    [styleClass]="getActivityTypeClass(data.activityType)">
+  </p-tag>
+            </td>
+            <td>{{ data.description }}</td>
+        </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+        <ng-container *ngIf="isgridloading">
+            <tr *ngFor="let _ of [].constructor(8)">
+                <td *ngFor="let _ of [].constructor(4)">
+                    <p-skeleton width="100%" height="1.25rem"></p-skeleton>
+                </td>
+            </tr>
+        </ng-container>
+        <tr *ngIf="!isgridloading">
+            <td colspan="4">
+                <div class="flex flex-col items-center justify-center p-6 text-gray-500 animate-fade-in">
+                    <i class="pi pi-database text-5xl text-gray-400 mb-3"></i>
+                    <div class="mb-2 text-lg">No records found</div>
+                </div>
+            </td>
+        </tr>
+    </ng-template>
+</p-table>

@@ -1,0 +1,129 @@
+<p-dialog header="Shuffle Picker" [(visible)]="visible" [modal]="true" [closable]="true" [style]="{ width: '680px' }"
+    contentStyleClass="shuffle-dialog-content" (onHide)="stopShuffle()">
+
+    <!-- Controls -->
+    <div class="flex items-center gap-3 mb-3">
+        <div class="flex items-center gap-2">
+            <button *ngIf="!isShuffling" pButton type="button"
+                class="p-button p-button-success flex items-center gap-2 px-3 py-2" (click)="startShuffle()"
+                [disabled]="isShuffling || items.length === 0">
+                <i class="pi pi-play-circle"></i>
+                Start
+            </button>
+            <button *ngIf="isShuffling" pButton type="button"
+                class="p-button p-button-secondary flex items-center gap-2 px-3 py-2" (click)="stopShuffle()">
+                <i class="pi pi-stop-circle"></i>
+                Stop
+            </button>
+            <button pButton type="button" class="p-button p-button-warning flex items-center gap-2 px-3 py-2"
+                (click)="shuffleItems()" [disabled]="isShuffling || items.length < 2">
+                <i class="pi pi-sync"></i>
+                Shuffle
+            </button>
+            <button *ngIf="selectedItem" pButton type="button"
+                class="p-button p-button-secondary flex items-center gap-2 px-3 py-2" (click)="resetSelection()">
+                <i class="pi pi-eraser"></i>
+                Clear
+            </button>
+        </div>
+        <div class="flex items-center gap-2 ml-auto">
+            <input #addInput type="text" pInputText placeholder="Add name" [(ngModel)]="newItem" (keydown.enter)="addItem()"
+                (keydown.space)="$event.stopPropagation()" [disabled]="isShuffling" class="px-3 py-2 rounded-md" />
+    
+            <button pButton type="button" class="p-button p-button-success px-3 py-2" (click)="addItem()"
+                [disabled]="!newItem.trim() || isShuffling">
+                <i class="pi pi-plus"></i>
+                Add
+            </button>
+        </div>
+    </div>
+
+    <!-- List -->
+    <div class="overflow-auto rounded-lg p-2" style="max-height: 30rem" #listContainer>
+        <ul class="p-0 m-0" role="listbox">
+            <li *ngFor="let it of items; let i = index; trackBy: trackByIndex" #listItem role="option" tabindex="-1"
+                [attr.aria-selected]="selectedItem === it" [ngClass]="{
+                'flex items-center gap-3 p-3 rounded-md mb-2 border': true,
+                'transform scale-102 bg-slate-800/50 shadow-lg border-slate-600': i === highlightedIndex,
+                'bg-slate-800/60 border-slate-500 animate-winner': selectedItem === it,
+                'rolling': isShuffling && i === highlightedIndex
+                }">
+
+                <!-- Avatar -->
+                <div class="flex items-center">
+                    <div *ngIf="getAvatarUrl(it) as url; else initialsTpl"
+                        class="w-10 h-10 rounded-md overflow-hidden border flex items-center justify-center">
+                        <img [src]="url" class="w-full h-full object-cover" />
+                    </div>
+
+                    <ng-template #initialsTpl>
+                        <div class="w-10 h-10 rounded-md flex items-center justify-center font-bold border">
+                            {{ getInitials(it) }}
+                        </div>
+                    </ng-template>
+                </div>
+
+                <!-- Label -->
+                <div class="flex-1">
+                    <ng-container *ngIf="editingIndex !== i; else editTpl">
+                        <div class="font-semibold truncate">{{ display(it) }}</div>
+                    </ng-container>
+
+                    <ng-template #editTpl>
+                        <input #editInput pInputText [(ngModel)]="editingValue" (keydown.enter)="saveEdit(i)"
+                            (keydown.escape)="cancelEdit()" (blur)="saveEdit(i)" class="w-full rounded-md px-2 py-1" />
+                    </ng-template>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex items-center gap-2">
+                    <button *ngIf="editingIndex !== i" pButton class="p-button-rounded" (click)="startEdit(i)"
+                        [disabled]="isShuffling || editingIndex !== null">
+                        <i class="pi pi-pencil"></i>
+                    </button>
+
+                    <button *ngIf="editingIndex === i" pButton class="p-button-rounded" (click)="saveEdit(i)"
+                        [disabled]="!editingValue.trim()">
+                        <i class="pi pi-check"></i>
+                    </button>
+
+                    <button *ngIf="editingIndex === i" pButton class="p-button-rounded p-button-secondary"
+                        (click)="cancelEdit()">
+                        <i class="pi pi-times"></i>
+                    </button>
+
+                    <button pButton class="p-button-rounded p-button-danger" (click)="removeItem(i)"
+                        [disabled]="isShuffling">
+                        <i class="pi pi-trash"></i>
+                    </button>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Selected -->
+    <div class="mt-4 flex flex-col gap-3 items-start">
+        <div class="flex items-center gap-2 text-sm font-semibold">
+            <span *ngIf="isShuffling" class="flex items-center gap-2">
+                <i class="pi pi-spin pi-spinner"></i> Running…
+            </span>
+
+            <span *ngIf="!isShuffling && selectedItem">Selected:</span>
+            <span *ngIf="!isShuffling && !selectedItem">No selection yet</span>
+        </div>
+
+        <div class="w-full flex">
+            <div class="flex items-center gap-3 rounded-full px-4 py-2 min-w-[260px] font-semibold shadow-md"
+                [ngClass]="{ border: true, 'opacity-60': !selectedItem && !isShuffling }">
+                <span class="flex-1 truncate">
+                    {{ selectedItem ? display(selectedItem) : '— no selection —' }}
+                </span>
+
+                <button pButton class="p-button-rounded w-9 h-9" [disabled]="isShuffling || !selectedItem"
+                    (click)="copySelected()">
+                    <i class="pi" [ngClass]="copySuccess ? 'pi-check' : 'pi-copy'"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</p-dialog>

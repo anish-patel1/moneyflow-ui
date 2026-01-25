@@ -1,0 +1,152 @@
+<p-table #table [value]="userData" dataKey="userId" [tableStyle]="{ 'min-width': 'auto' }"
+    [globalFilterFields]="['userName', 'userDisplayName']" [rows]="5" [paginator]="true"
+    [rowsPerPageOptions]="[5, 8, 10, 20, 30]" [rowHover]="true">
+    <ng-template #caption>
+        <div class="flex items-center justify-between">
+            <p-iconfield>
+                <p-inputicon styleClass="pi pi-search" />
+                <input pInputText type="text" placeholder="Search..." (input)="search(table, $event)" />
+            </p-iconfield>
+            <p-button label="New" icon="pi pi-plus" severity="secondary" class="mr-2" (onClick)="openDialog()" />
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+        <tr>
+            <th pSortableColumn="userName">User Name
+                <p-sortIcon field="userName" />
+            </th>
+            <th pSortableColumn="userDisplayName">Display Name
+                <p-sortIcon field="userDisplayName" />
+            </th>
+            <th style="width: 5rem">Status</th>
+            <th style="width: 5rem"></th>
+        </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-data>
+        <tr class="hover-row">
+            <td>{{ data.userName }}</td>
+            <td>{{ data.userDisplayName }}</td>
+            <td>
+                <p-tag [value]="data.statusText"
+                    [severity]="
+                        data.status === 'I' ? 'info' :
+                        data.status === 'D' ? 'danger' :
+                        'primary'
+                    ">
+                </p-tag>
+            </td>
+            <td>
+                <p-menu #menu [model]="items" [popup]="true" appendTo="body"></p-menu>
+                <p-button icon="pi pi-ellipsis-h" styleClass="p-button-text p-button-rounded p-button-sm"
+                    (click)="openMenu(menu, $event, data.userId, data.userName, data.status)">
+                </p-button>
+            </td>
+        </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+        <ng-container *ngIf="isgridloading">
+            <tr *ngFor="let _ of [].constructor(5)">
+                <td *ngFor="let _ of [].constructor(4)">
+                    <p-skeleton width="100%" height="1.25rem"></p-skeleton>
+                </td>
+            </tr>
+        </ng-container>
+        <tr *ngIf="!isgridloading">
+            <td colspan="4">
+                <div class="flex flex-col items-center justify-center p-6 text-gray-500 animate-fade-in">
+                    <i class="pi pi-database text-5xl text-gray-400 mb-3"></i>
+                    <div class="mb-2 text-lg">No records found</div>
+                </div>
+            </td>
+        </tr>
+    </ng-template>
+</p-table>
+
+<!-- ADD DIALOG -->
+<p-dialog [(visible)]="addDialog" [style]="{ width: '450px' }" [modal]="true"
+    [header]="editId ? 'Edit User' : 'Add User'">
+    <form [formGroup]="addForm" class="p-4">
+        <div class="flex flex-col gap-6">
+            <div>
+                <label for="userName" class="block font-bold mb-2">User Name</label>
+                <input pInputText id="userName" formControlName="UserName" class="w-full" placeholder="Enter user name" autofocus />
+                <small class="text-red-500" *ngIf="submitted && addForm.controls['UserName'].invalid">
+                    User name is required.
+                </small>
+            </div>
+            <div>
+                <label for="userDisplayName" class="block font-semibold mb-2">Display Name</label>
+                <input pInputText id="userDisplayName" formControlName="UserDisplayName" class="w-full" placeholder="Enter display name" autofocus />
+                <small class="text-red-500" *ngIf="submitted && addForm.controls['UserDisplayName'].invalid">
+                    Display name is required.
+                </small>
+            </div>
+            <div>
+                <label for="password" class="block font-bold mb-2">Password</label>
+                <input pInputText id="password" formControlName="Password" class="w-full" placeholder="Enter password" autofocus />
+                <small class="text-red-500" *ngIf="submitted && addForm.controls['Password'].invalid">
+                    Password is required.
+                </small>
+            </div>
+        </div>
+    </form>
+    <ng-template pTemplate="footer">
+        <div class="flex justify-end gap-2 px-4 pb-3">
+            <p-button label="Cancel" icon="pi pi-times" text (click)="closeDialog()"></p-button>
+            <p-button label="Save" icon="pi pi-check" (click)="editId ? btnUpdate() : btnSave()"
+                [disabled]="addForm.invalid && submitted">
+            </p-button>
+        </div>
+    </ng-template>
+</p-dialog>
+
+<!-- VIEW DIALOG -->
+<p-dialog [(visible)]="viewDialog" [style]="{ width: '500px' }" [modal]="true" [closable]="false">
+    <ng-template pTemplate="header">
+        <div class="flex flex-col">
+            <div class="flex items-center gap-3">
+                <i class="pi pi-user text-blue-500 text-xl"></i>
+                <span class="font-bold text-lg">{{ viewData?.userDisplayName }}</span>
+                <p-tag [value]="viewData?.userTypeText"
+                    [severity]="
+                        viewData?.userTypeText === 'User' ? 'info' :
+                        'primary'
+                    ">
+                </p-tag>
+            </div>
+            <small class="text-gray-500 ml-7">
+                Last Login : {{ viewData?.lastLoginDate }}
+            </small>
+        </div>
+    </ng-template>
+    <div *ngIf="viewData" class="p-4 space-y-5">
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-400 mb-1">User Name</label>
+                <span class="font-medium">{{ viewData.userName }}</span>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-400 mb-1">Password</label>
+                <span class="font-medium">{{ viewData.password }}</span>
+            </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-400 mb-1">Failed Login Attempts</label>
+                <span class="font-medium">{{ viewData.failedLoginAttempts }}</span>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-400 mb-1">Is Locked</label>
+                <span class="font-medium">{{ viewData.isLocked ? 'Yes' : 'No' }}</span>
+            </div>
+        </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <button pButton type="button" label="Close" icon="pi pi-times" 
+                class="p-button-text" (click)="viewDialog=false"></button>
+    </ng-template>
+</p-dialog>
