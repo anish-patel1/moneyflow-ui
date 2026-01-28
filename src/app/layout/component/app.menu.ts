@@ -29,10 +29,49 @@ export class AppMenu {
             this.menuItem = [
                 {
                     items: [
-                        { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] }
+                        {
+                            label: 'Dashboard',
+                            icon: 'pi pi-fw pi-home',
+                            routerLink: ['/']
+                        },
+                        {
+                            label: 'Accounts',
+                            icon: 'pi pi-wallet',
+                            routerLink: ['/accounts']
+                        },
+                        {
+                            label: 'Categories',
+                            icon: 'pi pi-folder',
+                            routerLink: ['/categories']
+                        },
+                        {
+                            label: 'Transactions',
+                            icon: 'pi pi-sync',
+                            routerLink: ['/transactions']
+                        },
+                        {
+                            label: 'Budgets',
+                            icon: 'pi pi-calendar-plus',
+                            routerLink: ['/budgets']
+                        },
+                        {
+                            label: 'Installments (EMI)',
+                            icon: 'pi pi-credit-card',
+                            routerLink: ['/installments']
+                        },
+                        {
+                            label: 'Transfers',
+                            icon: 'pi pi-arrow-right-arrow-left',
+                            routerLink: ['/transfers']
+                        },
+                        {
+                            label: 'Reports',
+                            icon: 'pi pi-chart-bar',
+                            routerLink: ['/reports']
+                        }
                     ]
-                },
-            ];
+                }
+            ]
         } else if (userType === 'S') {
             this.menuItem = [
                 {
