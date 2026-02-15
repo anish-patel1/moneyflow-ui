@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { API } from '../apis/accounts-api';
+import { API } from '../apis/api-endpoints';
 import { UntypedFormGroup, Validators } from '@angular/forms';
 import { CommonService } from '../common/service/common.service';
 import { NotificationService } from '../common/service/notification.service';

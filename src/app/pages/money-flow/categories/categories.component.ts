@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { API } from '../apis/accounts-api';
+import { API } from '../apis/api-endpoints';
 import { UntypedFormGroup, Validators } from '@angular/forms';
 import { ConfirmationService, MenuItem } from 'primeng/api';
 import { CommonService } from '../common/service/common.service';
