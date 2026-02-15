@@ -37,6 +37,7 @@ import { ProgressBarModule } from 'primeng/progressbar';
 import { PasswordModule } from 'primeng/password';
 import { PanelModule } from 'primeng/panel';
 import { ImageModule } from 'primeng/image';
+import { PopoverModule } from 'primeng/popover';
 
 @NgModule({
   declarations: [],
@@ -79,7 +80,8 @@ import { ImageModule } from 'primeng/image';
     ProgressBarModule,
     PasswordModule,
     PanelModule,
-    ImageModule
+    ImageModule,
+    PopoverModule
   ],
   exports: [
     TableModule,
@@ -119,7 +121,8 @@ import { ImageModule } from 'primeng/image';
     ProgressBarModule,
     PasswordModule,
     PanelModule,
-    ImageModule
+    ImageModule,
+    PopoverModule
   ]
 })
 export class CommonRefModule { }
