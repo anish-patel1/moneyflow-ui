@@ -50,8 +50,15 @@
                     </div>
                 </p-popover>
             </div>
-            <p-button label="New" icon="pi pi-plus" severity="secondary" class="mr-2" (click)="openDialog()"
-                [style]="{ marginRight: '0.25em' }" />
+            <div class="flex items-center gap-3">
+                <p-button icon="pi pi-arrow-right-arrow-left" label="Transfer" severity="secondary" outlined class="px-4 py-2"
+                    (click)="openTransferDialog()">
+                </p-button>
+                <span class="h-6 w-px bg-gray-300 dark:bg-gray-600"></span>
+                <p-button icon="pi pi-plus" label="New" severity="primary" class="px-4 py-2 shadow-sm"
+                    (click)="openDialog()">
+                </p-button>
+            </div>
         </div>
     </ng-template>
 
@@ -173,7 +180,7 @@
         <div>
             <label class="block text-sm font-medium mb-3">Amount</label>
             <div class="relative">
-                <p-inputNumber formControlName="Amount" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2"
+                <p-inputNumber formControlName="Amount" mode="decimal" [min]="0.01" [minFractionDigits]="2" [maxFractionDigits]="2"
                     inputStyleClass="pl-10 w-full text-2xl font-semibold" class="w-full" placeholder="e.g. 1500.00">
                 </p-inputNumber>
             </div>
@@ -227,4 +234,91 @@
             </p-button>
         </div>
     </ng-template>
+</p-dialog>
+
+<!-- TRANSFER DRAWER -->
+<p-dialog [(visible)]="transferDialog" [modal]="true" [draggable]="false" [resizable]="false" [closable]="true"
+    [style]="{ width: '520px', maxWidth: '95vw' }" contentStyleClass="p-0 overflow-hidden">
+
+    <ng-template pTemplate="header">
+        <div class="p-3 bg-transparent flex items-center gap-3">
+            <div class="flex items-center justify-center w-9 h-9 rounded-full bg-blue-500/10">
+                <i class="pi pi-arrow-right-arrow-left text-blue-400 text-sm"></i>
+            </div>
+            <div>
+                <div class="text-xl font-semibold tracking-tight">
+                    Transfer Money
+                </div>
+                <div class="text-sm text-gray-400 mt-1">
+                    Move funds between your accounts
+                </div>
+            </div>
+        </div>
+    </ng-template>
+
+    <form [formGroup]="transferForm" class="px-3 space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+            <div class="md:col-span-2">
+                <label class="block text-sm font-medium mb-2">
+                    From
+                </label>
+                <p-dropdown [options]="fromAccountData" optionLabel="accountName" optionValue="accountId"
+                    formControlName="FromAccountId" [filter]="true" placeholder="Select source" class="w-full"
+                    appendTo="body" (onChange)="changeFromAccount($event)">
+                </p-dropdown>
+            </div>
+            <div class="flex justify-center self-end mb-1">
+                <div class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 
+                            flex items-center justify-center">
+                    <i class="pi pi-arrow-right text-blue-400"></i>
+                </div>
+            </div>
+            <div class="md:col-span-2">
+                <label class="block text-sm font-medium mb-2">
+                    To
+                </label>
+                <p-dropdown [options]="toAccountData" optionLabel="accountName" optionValue="accountId"
+                    formControlName="ToAccountId" [filter]="true" placeholder="Select destination" class="w-full"
+                    appendTo="body" (onChange)="changeToAccount($event)">
+                </p-dropdown>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+            <div class="md:col-span-3">
+                <label class="block text-sm font-medium mb-3">
+                    Amount
+                </label>
+                <p-inputNumber formControlName="Amount" mode="decimal" [min]="0.01" [minFractionDigits]="2" [maxFractionDigits]="2"
+                    class="w-full" placeholder="e.g. 1500.00">
+                </p-inputNumber>
+            </div>
+            <div class="md:col-span-2">
+                <label class="block text-sm font-medium mb-2">
+                    Date
+                </label>
+                <p-datepicker formControlName="TransferDate" [showIcon]="true" dateFormat="dd-mm-yy" appendTo="body"
+                    class="w-full" placeholder="DD-MM-YYYY" (onSelect)="onDateSelect($event)">
+                </p-datepicker>
+            </div>
+        </div>
+        <div>
+            <label class="block text-sm font-medium mb-2">
+                Description
+            </label>
+            <textarea pInputTextarea rows="3" formControlName="Description" class="w-full"
+                placeholder="Add a short note (optional)">
+            </textarea>
+        </div>
+    </form>
+
+    <ng-template pTemplate="footer">
+        <div class="px-3 py-3 bg-transparent flex justify-end gap-3">
+            <p-button label="Cancel" severity="secondary" text (click)="closeTransferDialog()">
+            </p-button>
+            <p-button label="Save Transfer" icon="pi pi-check" [disabled]="transferForm.invalid" [loading]="isSaving"
+                (click)="saveTransfer()">
+            </p-button>
+        </div>
+    </ng-template>
+
 </p-dialog>

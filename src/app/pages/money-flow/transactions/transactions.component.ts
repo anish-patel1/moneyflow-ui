@@ -11,6 +11,7 @@ import { Transactions } from '../models/transactions.model';
 import { Dropdown } from '../common/model/dropdown.model';
 import { lastValueFrom } from 'rxjs';
 import { Categories } from '../models/categories.model';
+import { Transfer } from '../models/transfer.model';
 
 @Component({
   selector: 'app-transactions',
@@ -23,6 +24,7 @@ export class TransactionsComponent {
   COMMON_API = API.Transactions;
   Account_API = API.Accounts;
   Category_API = API.Categories;
+  TRANSFER_API = API.Transfer;
   
   // Select All Data
   selectAllData: any = [];
@@ -43,7 +45,13 @@ export class TransactionsComponent {
 
   // For View
   viewDialog: boolean = false;
-  viewData: any = null
+  viewData: any = null;
+
+  // For Transfer
+  transferDialog: boolean = false;
+  transferForm!: UntypedFormGroup;
+  transferSubmitted: boolean = false;
+  // transactionDate: any = null;
 
   // Current User
   userId: any = null;
@@ -55,6 +63,8 @@ export class TransactionsComponent {
     { name: 'Income', value: 'Income' },
     { name: 'Expense', value: 'Expense' }
   ];
+  fromAccountData: any[] = [];
+  toAccountData: any[] = [];
 
   // Menu Data
   items: MenuItem[] = [];
@@ -76,6 +86,13 @@ export class TransactionsComponent {
       TransactionType: [null, Validators.required],
       CategoryId: [null, Validators.required],
       Amount: [null, Validators.required],
+      Description: [null]
+    });
+    this.transferForm = this.commonService.formBuilder.group({
+      FromAccountId: [null, Validators.required],
+      ToAccountId: [null, Validators.required],
+      Amount: [null, Validators.required],
+      TransferDate: [null, Validators.required],
       Description: [null]
     });
 
@@ -329,6 +346,50 @@ export class TransactionsComponent {
   }
 
   // ======================================================
+  // For Transfer
+  // ======================================================
+
+  // Open Drawer
+  openTransferDialog() {
+    // this.editId = null;
+    this.resetTransferForm();
+    this.accountDrpdown();
+    this.transferDialog = true;
+  }
+
+  saveTransfer() {
+    debugger;
+    if (this.transferForm.valid) {
+      let obj = <Transfer>{};
+      obj = this.transferForm.value;
+      obj.TransferDate = this.transactionDate;
+      obj.UserId = this.userId;
+
+      this.isSaving = true;
+
+      this.commonService.postData(this.TRANSFER_API + "Insert", obj).subscribe({
+        next: (data: any) => {
+            this.isSaving = false;
+            this.notification.showToast("success", data.message);
+            this.closeTransferDialog();
+            this.selectAll();
+          },
+          error: (err) => {
+            this.isSaving = false;
+            this.notification.showToast("error", err.message);
+          }
+        });
+    } else this.transferSubmitted = true;
+  }
+
+  // Close Add Dialog
+  closeTransferDialog() {
+    // this.editId = null;
+    this.resetTransferForm();
+    this.transferDialog = false;
+  }
+
+  // ======================================================
   // Dropdown
   // ======================================================
 
@@ -343,6 +404,11 @@ export class TransactionsComponent {
       );
 
       this.accountData = response;
+      
+      if (this.transferDialog) {
+        this.fromAccountData = response;
+        this.toAccountData = response;
+      }
     }
   }
 
@@ -369,6 +435,26 @@ export class TransactionsComponent {
     }
   }
 
+  // Change : From Account
+  async changeFromAccount(event: any) {
+    debugger;
+    const selectedValue = event.value;
+
+    this.toAccountData = this.accountData.filter(
+      acc => acc.accountId !== selectedValue
+    );
+  }
+
+  // Change : To Account
+  async changeToAccount(event: any) {
+    debugger;
+    const selectedValue = event.value;
+
+    this.fromAccountData = this.accountData.filter(
+      acc => acc.accountId !== selectedValue
+    );
+  }
+
   // ======================================================
   // Get Formatted Date 
   // ======================================================
@@ -384,6 +470,11 @@ export class TransactionsComponent {
   resetForm() {
     this.addForm.reset();
     this.submitted = false;
+  }
+
+  resetTransferForm() {
+    this.transferForm.reset();
+    this.transferSubmitted = false;
   }
 
   // ======================================================
@@ -410,4 +501,6 @@ export class TransactionsComponent {
       }
     ];
   }
+
+  
 }
