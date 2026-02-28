@@ -369,16 +369,20 @@ export class TransactionsComponent {
 
       this.commonService.postData(this.TRANSFER_API + "Insert", obj).subscribe({
         next: (data: any) => {
-            this.isSaving = false;
+          this.isSaving = false;
+
+          if (data.success) {
             this.notification.showToast("success", data.message);
             this.closeTransferDialog();
             this.selectAll();
-          },
-          error: (err) => {
-            this.isSaving = false;
-            this.notification.showToast("error", err.message);
-          }
-        });
+          } else
+            this.notification.showToast("warn", data.message);
+        },
+        error: () => {
+          this.isSaving = false;
+          this.notification.showToast("error", "Unexpected system error.");
+        }
+      });
     } else this.transferSubmitted = true;
   }
 
