@@ -5,7 +5,6 @@ import { CategoriesComponent } from "./categories/categories.component";
 import { TransactionsComponent } from "./transactions/transactions.component";
 import { BudgetsComponent } from "./budgets/budgets.component";
 import { InstallmentsComponent } from "./installments/installments.component";
-import { TransfersComponent } from "./transfers/transfers.component";
 import { ReportsComponent } from "./reports/reports.component";
 
 export default [
@@ -16,6 +15,5 @@ export default [
     { path: 'transactions', component: TransactionsComponent },
     { path: 'budgets', component: BudgetsComponent },
     { path: 'installments', component: InstallmentsComponent },
-    { path: 'transfers', component: TransfersComponent },
     { path: 'reports', component: ReportsComponent },
 ] as Routes;

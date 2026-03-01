@@ -60,11 +60,6 @@ export class AppMenu {
                             routerLink: ['/installments']
                         },
                         {
-                            label: 'Transfers',
-                            icon: 'pi pi-arrow-right-arrow-left',
-                            routerLink: ['/transfers']
-                        },
-                        {
                             label: 'Reports',
                             icon: 'pi pi-chart-bar',
                             routerLink: ['/reports']
