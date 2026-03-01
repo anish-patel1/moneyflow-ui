@@ -25,7 +25,7 @@ export class TransactionsComponent {
   Account_API = API.Accounts;
   Category_API = API.Categories;
   TRANSFER_API = API.Transfer;
-  
+
   // Select All Data
   selectAllData: any = [];
   transactionData: any = [];
@@ -68,13 +68,15 @@ export class TransactionsComponent {
 
   // Menu Data
   items: MenuItem[] = [];
-  selectedRowId: number | null = null;
+  selectedTransactionId: number | null = null;
+  selectedTransferGroupId: string | null = null;
+  isTransfer: boolean = false;
 
   constructor(
     public commonService: CommonService,
     private notification: NotificationService,
     private confirmationService: ConfirmationService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.userId = this.commonService.GetUserData().userId;
@@ -106,7 +108,7 @@ export class TransactionsComponent {
   search(table: Table, event: Event) {
     table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
   }
-  
+
   // ======================================================
   // Date Range Filter
   // ======================================================
@@ -162,7 +164,6 @@ export class TransactionsComponent {
 
   // Filter Data
   filterData() {
-    debugger;
     this.transactionData = this.selectAllData.filter((row: any) =>
       (!this.filter.accountId || row.accountId === this.filter.accountId) &&
       (!this.filter.transactionType || row.transactionType === this.filter.transactionType) &&
@@ -177,7 +178,7 @@ export class TransactionsComponent {
     this.selectAllData = [];
     this.transactionData = [];
     this.isgridloading = true;
-    
+
     let obj = <Transactions>{};
     obj.UserId = this.userId;
     obj.FromDate = fromDate;
@@ -220,16 +221,16 @@ export class TransactionsComponent {
 
       this.commonService.postData(this.COMMON_API + "Insert", obj).subscribe({
         next: (data: any) => {
-            this.isSaving = false;
-            this.notification.showToast("success", data.message);
-            this.closeDialog();
-            this.selectAll();
-          },
-          error: (err) => {
-            this.isSaving = false;
-            this.notification.showToast("error", err.message);
-          }
-        });
+          this.isSaving = false;
+          this.notification.showToast("success", data.message);
+          this.closeDialog();
+          this.selectAll();
+        },
+        error: (err) => {
+          this.isSaving = false;
+          this.notification.showToast("error", err.message);
+        }
+      });
     } else this.submitted = true;
   }
 
@@ -295,7 +296,7 @@ export class TransactionsComponent {
       this.isSaving = true;
 
       this.commonService.postData(this.COMMON_API + "Update", obj).subscribe({
-      next: (data: any) => {
+        next: (data: any) => {
           this.isSaving = false;
           this.notification.showToast("success", data.message);
           this.closeDialog();
@@ -316,7 +317,7 @@ export class TransactionsComponent {
   // Open Delete Confirmation
   btnDelete(id: any) {
     this.confirmationService.confirm({
-      message: 'Are you sure you want to delete this item?',
+      message: 'Are you sure you want to delete this transaction?',
       header: 'Confirm Delete',
       acceptLabel: 'Yes',
       rejectLabel: 'Cancel',
@@ -345,20 +346,21 @@ export class TransactionsComponent {
     });
   }
 
+  // === For Transfer =====================================================================================
+
   // ======================================================
-  // For Transfer
+  // Insert Transfer
   // ======================================================
 
   // Open Drawer
   openTransferDialog() {
-    // this.editId = null;
+    this.editTransferId = null;
     this.resetTransferForm();
     this.accountDrpdown();
     this.transferDialog = true;
   }
 
   saveTransfer() {
-    debugger;
     if (this.transferForm.valid) {
       let obj = <Transfer>{};
       obj = this.transferForm.value;
@@ -388,10 +390,132 @@ export class TransactionsComponent {
 
   // Close Add Dialog
   closeTransferDialog() {
-    // this.editId = null;
+    this.editTransferId = null;
     this.resetTransferForm();
     this.transferDialog = false;
   }
+
+  // ======================================================
+  // Update Transfer
+  // ======================================================
+  editTransferId: any = null;
+  openTransferEditDialog(id: any) {
+    this.editTransferId = id;
+    this.resetTransferForm();
+    this.accountDrpdown();
+    this.transferDialog = true;
+    this.fillControlTransfer(id);
+  }
+
+  // Get Select Data
+  fillControlTransfer(id: any) {
+    let obj = <Transfer>{};
+    obj.TransferGroupId = id;
+    obj.UserId = this.userId;
+
+    this.commonService.postData(this.TRANSFER_API + "Select", obj).subscribe({
+      next: (response: any) => {
+        if (!response || response.length === 0) {
+          this.notification.showToast('warning', 'Transaction not found');
+          return;
+        }
+
+        const data = response[0];
+
+        this.transactionDate = data.transferDate;
+        const dateObject = new Date(this.transactionDate);
+
+        this.transferForm.patchValue({
+          FromAccountId: data.fromAccountId,
+          ToAccountId: data.toAccountId,
+          Amount: data.amount,
+          TransferDate: dateObject,
+          Description: data.description
+        });
+
+        // To filter accounts
+        this.toAccountData = this.accountData.filter(
+          acc => acc.accountId !== data.fromAccountId
+        );
+
+        this.fromAccountData = this.accountData.filter(
+          acc => acc.accountId !== data.toAccountId
+        );
+      },
+      error: (err) => {
+        this.notification.showToast("error", err.message);
+      },
+    });
+  }
+
+  // Update
+  updateTransfer() {
+    if (this.transferForm.valid) {
+      let obj = <Transfer>{};
+      obj = this.transferForm.value;
+      obj.TransferDate = this.transactionDate;
+      obj.TransferGroupId = this.editTransferId;
+      obj.UserId = this.userId;
+
+      this.isSaving = true;
+
+      this.commonService.postData(this.TRANSFER_API + "Update", obj).subscribe({
+        next: (data: any) => {
+          this.isSaving = false;
+
+          if (data.success) {
+            this.notification.showToast("success", data.message);
+            this.closeTransferDialog();
+            this.selectAll();
+          } else
+            this.notification.showToast("warn", data.message);
+        },
+        error: (err) => {
+          this.isSaving = false;
+          this.notification.showToast("error", err.message);
+        }
+      });
+    } else this.submitted = true;
+  }
+
+  // ======================================================
+  // Delete Transfer
+  // ======================================================
+
+  // Open Delete Confirmation
+  deleteTransfer(id: any) {
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to delete this transfer?',
+      header: 'Confirm Delete',
+      acceptLabel: 'Yes',
+      rejectLabel: 'Cancel',
+      acceptButtonStyleClass: 'p-button-danger',
+      rejectButtonStyleClass: 'p-button-secondary',
+      accept: () => {
+        this.deleteTransferClick(id);
+      }
+    });
+  }
+
+  deleteTransferClick(id: any) {
+    let obj = <Transfer>{};
+    obj.TransferGroupId = id;
+    obj.UserId = this.userId;
+
+    this.commonService.postData(this.TRANSFER_API + "Delete", obj).subscribe({
+      next: (data: any) => {
+        if (data.success) {
+        this.notification.showToast("success", data.message);
+        this.selectAll();
+        } else this.notification.showToast("warn", data.message);
+      },
+      error: (err) => {
+        this.notification.showToast("error", err.message);
+      }
+    });
+  }
+
+  // ======================================================================================================
 
   // ======================================================
   // Dropdown
@@ -408,7 +532,7 @@ export class TransactionsComponent {
       );
 
       this.accountData = response;
-      
+
       if (this.transferDialog) {
         this.fromAccountData = response;
         this.toAccountData = response;
@@ -441,7 +565,6 @@ export class TransactionsComponent {
 
   // Change : From Account
   async changeFromAccount(event: any) {
-    debugger;
     const selectedValue = event.value;
 
     this.toAccountData = this.accountData.filter(
@@ -451,7 +574,6 @@ export class TransactionsComponent {
 
   // Change : To Account
   async changeToAccount(event: any) {
-    debugger;
     const selectedValue = event.value;
 
     this.fromAccountData = this.accountData.filter(
@@ -484,8 +606,18 @@ export class TransactionsComponent {
   // ======================================================
   // For Menu
   // ======================================================
-  openMenu(menu: any, event: Event, id: number) {
-    this.selectedRowId = id;
+  openMenu(menu: any, event: Event, transactionId: number | null, transferGroupId: string | null) {
+    // Reset first
+    this.selectedTransactionId = null;
+    this.selectedTransferGroupId = null;
+    this.isTransfer = false;
+
+    if (transferGroupId) {
+      this.selectedTransferGroupId = transferGroupId;
+      this.isTransfer = true;
+    } else {
+      this.selectedTransactionId = transactionId;
+    }
 
     this.setMenuItems();
     menu.toggle(event);
@@ -496,15 +628,25 @@ export class TransactionsComponent {
       {
         label: 'Edit',
         icon: 'pi pi-pencil',
-        command: () => this.openEditDialog(this.selectedRowId!)
+        command: () => {
+          if (this.isTransfer) {
+            this.openTransferEditDialog(this.selectedTransferGroupId!);
+          } else {
+            this.openEditDialog(this.selectedTransactionId!);
+          }
+        }
       },
       {
         label: 'Delete',
         icon: 'pi pi-trash',
-        command: () => this.btnDelete(this.selectedRowId!)
+        command: () => {
+          if (this.isTransfer) {
+            this.deleteTransfer(this.selectedTransferGroupId!);
+          } else {
+            this.btnDelete(this.selectedTransactionId!);
+          }
+        }
       }
     ];
   }
-
-  
 }
