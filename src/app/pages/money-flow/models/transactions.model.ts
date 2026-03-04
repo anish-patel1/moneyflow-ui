@@ -11,4 +11,5 @@ export interface Transactions extends BaseClass {
     Amount: any;
     TransactionType: any;
     Description: any;
+    PageSize: any;
 }

@@ -1,1 +1,138 @@
-<p>dashboard works!</p>
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+    <!-- Total Balance -->
+    <div class="p-4 rounded-xl bg-surface-800 shadow hover:bg-surface-700 transition">
+        <div class="flex items-center justify-between">
+            <div class="text-sm text-gray-400">Total Balance</div>
+            <i class="pi pi-wallet text-gray-400"></i>
+        </div>
+        <div class="text-2xl font-semibold mt-2">
+            {{ summaryData?.totalBalance | number:'1.2-2' }}
+        </div>
+    </div>
+
+    <!-- Income -->
+    <div class="p-4 rounded-xl bg-surface-800 shadow hover:bg-surface-700 transition">
+        <div class="flex items-center justify-between">
+            <div class="text-sm text-gray-400">Income (This Month)</div>
+            <i class="pi pi-arrow-down text-green-400"></i>
+        </div>
+        <div class="text-2xl font-semibold text-green-400 mt-2">
+            + {{ summaryData?.monthlyIncome | number:'1.2-2' }}
+        </div>
+    </div>
+
+    <!-- Expense -->
+    <div class="p-4 rounded-xl bg-surface-800 shadow hover:bg-surface-700 transition">
+        <div class="flex items-center justify-between">
+            <div class="text-sm text-gray-400">Expense (This Month)</div>
+            <i class="pi pi-arrow-up text-red-400"></i>
+        </div>
+        <div class="text-2xl font-semibold text-red-400 mt-2">
+            - {{ summaryData?.monthlyExpense | number:'1.2-2' }}
+        </div>
+    </div>
+
+    <!-- Net Flow -->
+    <div class="p-4 rounded-xl bg-surface-800 shadow hover:bg-surface-700 transition">
+        <div class="flex items-center justify-between">
+            <div class="text-sm text-gray-400">Net Flow</div>
+            <i class="pi pi-chart-line text-blue-400"></i>
+        </div>
+        <div
+            class="text-2xl font-semibold mt-2"
+            [ngClass]="(summaryData?.netFlow ?? 0) >= 0 ? 'text-blue-400' : 'text-red-400'">
+            {{ (summaryData?.netFlow ?? 0) ? '+' : '' }}
+            {{ summaryData?.netFlow | number:'1.2-2' }}
+        </div>
+    </div>
+</div>
+
+<div class="rounded-xl bg-surface-800 shadow overflow-hidden">
+    <div class="flex items-center justify-between px-4 py-3 border-b border-gray-700">
+        <h3 class="text-lg font-semibold flex items-center gap-2">
+            <i class="pi pi-history text-gray-400"></i>
+            Recent Transactions
+        </h3>
+        <a routerLink="/transactions" class="text-sm text-blue-400 hover:text-blue-300 transition flex items-center gap-1">
+            View All
+            <i class="pi pi-arrow-right text-xs"></i>
+        </a>
+    </div>
+
+    <p-table #table [value]="transactionData" dataKey="transactionId" [rows]="5" [rowHover]="true"
+        styleClass="p-datatable-sm">
+
+        <ng-template pTemplate="header">
+            <tr class="text-gray-400 text-sm border-b border-gray-700">
+                <th class="py-3">Date</th>
+                <th>Account</th>
+                <th>Category</th>
+                <th class="text-right pr-4">Amount</th>
+            </tr>
+        </ng-template>
+
+        <!-- Body -->
+        <ng-template pTemplate="body" let-data>
+            <tr class="border-b border-gray-800 hover:bg-surface-700 transition">
+                <!-- Date -->
+                <td class="py-3 text-gray-400 whitespace-nowrap">
+                    {{ data.transactionDate }}
+                </td>
+
+                <!-- Account -->
+                <td>
+                    <!-- Transfer -->
+                    <ng-container *ngIf="data.transferGroupId; else normalAccount">
+                        <div class="flex items-center gap-2 font-medium">
+                            <span class="text-gray-400">
+                                {{ data.fromAccountName }}
+                            </span>
+                            <i class="pi pi-arrow-right text-xs text-gray-500"></i>
+                            <span class="text-gray-200">
+                                {{ data.toAccountName }}
+                            </span>
+                            <span class="ml-2 px-2 py-0.5 text-xs rounded-full bg-blue-500/20 text-blue-400">
+                                Transfer
+                            </span>
+                        </div>
+                    </ng-container>
+
+                    <ng-template #normalAccount>
+                        {{ data.accountName }}
+                    </ng-template>
+                </td>
+
+                <!-- Category -->
+                <td class="text-gray-300">
+                    <ng-container *ngIf="data.transferGroupId; else normalCategory">
+                        <span class="text-gray-500">—</span>
+                    </ng-container>
+                    <ng-template #normalCategory>
+                        {{ data.categoryName }}
+                    </ng-template>
+                </td>
+
+                <!-- Amount -->
+                <td class="text-right pr-4 font-semibold">
+                    <ng-container *ngIf="data.transferGroupId; else normalAmount">
+                        <span class="text-blue-400">
+                            {{ data.amount | number:'1.2-2' }}
+                        </span>
+                    </ng-container>
+
+                    <ng-template #normalAmount>
+                        <!-- Income -->
+                        <span *ngIf="data.transactionType === 'Income'" class="text-green-400">
+                            + {{ data.amount | number:'1.2-2' }}
+                        </span>
+
+                        <!-- Expense -->
+                        <span *ngIf="data.transactionType === 'Expense'" class="text-gray-200">
+                            {{ data.amount | number:'1.2-2' }}
+                        </span>
+                    </ng-template>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
