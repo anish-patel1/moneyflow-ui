@@ -67,7 +67,11 @@
             <th>Date</th>
             <th>Account</th>
             <th>Category</th>
-            <th>Amount</th>
+            <th class="w-32">
+                <div class="flex justify-end items-center gap-1">
+                    Amount
+                </div>
+            </th>
             <th style="width: 5rem"></th>
         </tr>
     </ng-template>
@@ -116,22 +120,24 @@
                 </ng-template>
             </td>
 
-            <td class="text-right font-semibold">
-                <ng-container *ngIf="data.transferGroupId; else normalAmount">
-                    <span class="text-blue-400">
-                        {{ data.amount | number:'1.2-2' }}
-                    </span>
-                </ng-container>
-                <ng-template #normalAmount>
-                    <!-- Income -->
-                    <span *ngIf="data.transactionType === 'Income'" class="text-green-400">
-                        + {{ data.amount | number:'1.2-2' }}
-                    </span>
-                    <!-- Expense -->
-                    <span *ngIf="data.transactionType === 'Expense'">
-                        {{ data.amount | number:'1.2-2' }}
-                    </span>
-                </ng-template>
+            <td class="w-32">
+                <div class="text-right font-semibold whitespace-nowrap tabular-nums">
+                    <ng-container *ngIf="data.transferGroupId; else normalAmount">
+                        <span class="text-blue-400">
+                            {{ data.amount | number:'1.2-2' }}
+                        </span>
+                    </ng-container>
+                    <ng-template #normalAmount>
+                        <!-- Income -->
+                        <span *ngIf="data.transactionType === 'Income'" class="text-green-400">
+                            + {{ data.amount | number:'1.2-2' }}
+                        </span>
+                        <!-- Expense -->
+                        <span *ngIf="data.transactionType === 'Expense'">
+                            {{ data.amount | number:'1.2-2' }}
+                        </span>
+                    </ng-template>
+                </div>
             </td>
 
             <td>

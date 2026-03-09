@@ -33,7 +33,8 @@ export class AccountsComponent {
   // Dropdown Data
   accountTypeData = [
     { name: 'Cash', value: 'Cash' },
-    { name: 'Bank', value: 'Bank' }
+    { name: 'Bank', value: 'Bank' },
+    { name: 'FD', value: 'FD' }
   ];
 
   // Current User

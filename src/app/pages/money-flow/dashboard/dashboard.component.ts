@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { CommonRefModule } from '../common/module/common-ref.module';
 import { NotificationService } from '../common/service/notification.service';
 import { DashboardSummary } from '../models/dashboardSummary.model';
+import { Accounts } from '../models/accounts.model';
 
 @Component({
   selector: 'app-dashboard',
@@ -16,10 +17,12 @@ import { DashboardSummary } from '../models/dashboardSummary.model';
 export class DashboardComponent {
   // API
   COMMON_API = API.Dashboard;
+  Accounts_API = API.Accounts;
   Transactions_API = API.Transactions;
 
   // Select All Data
   summaryData: DashboardSummary | null = null;
+  accountData: any = [];
   transactionData: any = [];
 
   // Current User
@@ -30,14 +33,14 @@ export class DashboardComponent {
 
   constructor(
     public commonService: CommonService,
-    private notification: NotificationService,
-    // private confirmationService: ConfirmationService
+    private notification: NotificationService
   ) { }
   
   ngOnInit() {
     this.userId = this.commonService.GetUserData().userId;
     this.loadSummary();
     this.getTransactions();
+    this.getAccountBalances();
   }
 
   loadSummary() {
@@ -56,6 +59,21 @@ export class DashboardComponent {
     });
   }
 
+  getAccountBalances() {
+    this.accountData = [];
+    this.isgridloading = true;
+    
+    let obj = <Accounts>{};
+    obj.UserId = this.userId;
+
+    this.commonService.postData(this.Accounts_API + "SelectAll", obj).subscribe({
+      next: (data: any) => {
+        this.isgridloading = false;
+        this.accountData = data;
+      }
+    });
+  }
+
   getTransactions() {
     this.transactionData = [];
     this.isgridloading = true;
@@ -71,8 +89,6 @@ export class DashboardComponent {
           ...item,
           amount: Number(item.amount).toFixed(2)
         }));
-
-        console.log(this.transactionData);
       }
     });
   }

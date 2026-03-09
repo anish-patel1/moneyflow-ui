@@ -36,7 +36,7 @@ export class AppMenu {
                         },
                         {
                             label: 'Accounts',
-                            icon: 'pi pi-wallet',
+                            icon: 'pi pi-credit-card',
                             routerLink: ['/accounts']
                         },
                         {
