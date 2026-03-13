@@ -29,6 +29,7 @@ export class AccountsComponent {
   addDialog: boolean = false;
   addForm!: UntypedFormGroup;
   submitted: boolean = false;
+  openingDate: any = null;
 
   // Dropdown Data
   accountTypeData = [
@@ -45,6 +46,10 @@ export class AccountsComponent {
   selectedRowId: number | null = null;
   accountStatus: any = null;
 
+  // For Existing Account
+  enableOpeningBalance: boolean = false;
+  today: Date = new Date();
+
   constructor(
     public commonService: CommonService,
     private notification: NotificationService,
@@ -57,7 +62,10 @@ export class AccountsComponent {
     // For Group
     this.addForm = this.commonService.formBuilder.group({
       AccountName: ['', Validators.required],
-      AccountType: [null, Validators.required]
+      AccountType: [null, Validators.required],
+      EnableOpeningBalance: [false],
+      OpeningBalance: [null],
+      OpeningDate: [null]
     });
 
     this.selectAll();
@@ -214,6 +222,39 @@ export class AccountsComponent {
         this.notification.showToast("error", err.message);
       },
     });
+  }
+
+  // ======================================================
+  // Change Event
+  // ======================================================
+  changeOpBalToggle(event: any) {
+    const isEnable = event.checked;
+
+    if (isEnable) {
+      this.addForm.patchValue({
+        OpeningDate: this.today
+      });
+      this.onDateSelect(this.today);
+      this.addForm.get('OpeningBalance')?.setValidators([
+        Validators.required,
+        Validators.min(0.01)
+      ]);
+    } else {
+      this.addForm.patchValue({
+        OpeningBalance: null,
+        OpeningDate: null
+      });
+      this.openingDate = null;
+      this.addForm.get('OpeningBalance')?.clearValidators();
+    }
+  }
+
+  // ======================================================
+  // Get Formatted Date 
+  // ======================================================
+  onDateSelect(date: Date): void {
+    const fDate = this.commonService.formatDate(date);
+    this.openingDate = fDate;
   }
 
   // ======================================================

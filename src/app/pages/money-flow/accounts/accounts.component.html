@@ -25,7 +25,6 @@
                     <p-sortIcon field="balance"></p-sortIcon>
                 </div>
             </th>
-            <!-- <th style="width: 5rem">Status</th> -->
             <th style="width: 5rem"></th>
         </tr>
     </ng-template>
@@ -39,9 +38,6 @@
                     {{ data.balance | number:'1.2-2' }}
                 </div>
             </td>
-            <!-- <td >
-                <p-tag [value]="data.statusText" />
-            </td> -->
             <td>
                 <p-menu #menu [model]="items" [popup]="true" appendTo="body"></p-menu>
                 <p-button icon="pi pi-ellipsis-h" styleClass="p-button-text p-button-rounded p-button-sm"
@@ -71,7 +67,7 @@
 </p-table>
 
 <!-- ADD DIALOG -->
-<p-dialog [(visible)]="addDialog" [style]="{ width: '450px' }" [modal]="true"
+<!-- <p-dialog [(visible)]="addDialog" [style]="{ width: '450px' }" [modal]="true"
     [header]="editId ? 'Edit Account' : 'Add Account'">
     <form [formGroup]="addForm" class="p-4">
         <div class="flex flex-col gap-6">
@@ -92,6 +88,23 @@
                     Type is required.
                 </small>
             </div>
+            <div *ngIf="!editId">
+                <label for="accountName" class="block font-bold mb-2">Name</label>
+                <input pInputText id="accountName" formControlName="AccountName" class="w-full" placeholder="Enter name" autofocus />
+                <small class="text-red-500" *ngIf="submitted && addForm.controls['AccountName'].invalid">
+                    Name is required.
+                </small>
+            </div>
+            <div *ngIf="!editId">
+                <label for="accountType" class="block font-bold mb-2">Type</label>
+                <p-dropdown inputId="accountType" [options]="accountTypeData" optionLabel="name"
+                    optionValue="value" formControlName="AccountType" [placeholder]="'Select...'"
+                    [filter]="false" [showClear]="false" class="w-full" appendTo="body">
+                </p-dropdown>
+                <small class="text-red-500 mt-1" *ngIf="submitted && addForm.controls['AccountType'].invalid">
+                    Type is required.
+                </small>
+            </div>
         </div>
     </form>
     <ng-template pTemplate="footer">
@@ -99,6 +112,82 @@
             <p-button label="Cancel" icon="pi pi-times" text (click)="closeDialog()"></p-button>
             <p-button label="Save" icon="pi pi-check" (click)="editId ? btnUpdate() : btnSave()"
                 [disabled]="addForm.invalid && submitted">
+            </p-button>
+        </div>
+    </ng-template>
+</p-dialog> -->
+<p-dialog [(visible)]="addDialog" [modal]="true" [draggable]="false" [resizable]="false" [closable]="true"
+    [style]="{ width: '450px', maxWidth: '95vw' }" contentStyleClass="p-0">
+    <ng-template pTemplate="header">
+        <div class="px-5 py-2">
+            <div class="text-lg font-semibold">
+                {{ editId ? 'Edit Account' : 'Add Account' }}
+            </div>
+            <div class="text-sm text-gray-400 mt-1">
+                Manage your financial accounts
+            </div>
+        </div>
+    </ng-template>
+    <form [formGroup]="addForm" class="px-5 py-4 space-y-5">
+        <div>
+            <label class="block text-sm font-medium mb-2">
+                Account Name
+            </label>
+            <input pInputText formControlName="AccountName" class="w-full" placeholder="e.g. HDFC Savings Account"
+                autofocus />
+            <small class="text-red-500" *ngIf="submitted && addForm.controls['AccountName'].invalid">
+                Name is required
+            </small>
+        </div>
+        <div>
+            <label class="block text-sm font-medium mb-2">
+                Account Type
+            </label>
+            <p-dropdown [options]="accountTypeData" optionLabel="name" optionValue="value" formControlName="AccountType"
+                placeholder="Select account type" class="w-full" appendTo="body">
+            </p-dropdown>
+            <small class="text-red-500" *ngIf="submitted && addForm.controls['AccountType'].invalid">
+                Type is required
+            </small>
+        </div>
+        <div *ngIf="!editId">
+            <div class="flex items-center gap-2">
+                <p-checkbox formControlName="EnableOpeningBalance" binary="true" inputId="openingToggle"
+                    (onChange)="changeOpBalToggle($event)">
+                </p-checkbox>
+                <label for="openingToggle" class="text-sm">
+                    This account already has money
+                </label>
+            </div>
+        </div>
+        <div *ngIf="addForm.get('EnableOpeningBalance')?.value && !editId" class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+            <div>
+                <label class="block text-sm font-medium mb-2">
+                    Opening Balance
+                </label>
+                <p-inputNumber formControlName="OpeningBalance" mode="decimal" [min]="0" [minFractionDigits]="2"
+                    [maxFractionDigits]="2" class="w-full" placeholder="e.g. 5000.00">
+                </p-inputNumber>
+                <small class="text-red-500" *ngIf="submitted && addForm.get('OpeningBalance')?.invalid">
+                    Opening balance must be greater than zero.
+                </small>
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-2">
+                    Opening Date
+                </label>
+                <p-datepicker formControlName="OpeningDate" [showIcon]="true" dateFormat="dd-mm-yy" class="w-full"
+                    appendTo="body" [maxDate]="today" (onSelect)="onDateSelect($event)">
+                </p-datepicker>
+            </div>
+        </div>
+    </form>
+    <ng-template pTemplate="footer">
+        <div class="flex justify-end gap-3 px-5 py-3">
+            <p-button label="Cancel" severity="secondary" text (click)="closeDialog()">
+            </p-button>
+            <p-button label="Save" icon="pi pi-check" (click)="editId ? btnUpdate() : btnSave()"
+                [disabled]="addForm.invalid">
             </p-button>
         </div>
     </ng-template>

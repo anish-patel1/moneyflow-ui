@@ -51,7 +51,7 @@ export class TransactionsComponent {
   transferDialog: boolean = false;
   transferForm!: UntypedFormGroup;
   transferSubmitted: boolean = false;
-  // transactionDate: any = null;
+  today: Date =  new Date();
 
   // Current User
   userId: any = null;
