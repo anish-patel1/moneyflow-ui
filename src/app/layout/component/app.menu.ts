@@ -50,14 +50,14 @@ export class AppMenu {
                             routerLink: ['/transactions']
                         },
                         {
+                            label: 'Installments (EMI)',
+                            icon: 'pi pi-calculator',
+                            routerLink: ['/installments']
+                        },
+                        {
                             label: 'Budgets',
                             icon: 'pi pi-calendar-plus',
                             routerLink: ['/budgets']
-                        },
-                        {
-                            label: 'Installments (EMI)',
-                            icon: 'pi pi-credit-card',
-                            routerLink: ['/installments']
                         },
                         {
                             label: 'Reports',
