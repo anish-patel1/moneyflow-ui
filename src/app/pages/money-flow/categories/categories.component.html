@@ -60,8 +60,18 @@
 </p-table>
 
 <!-- ADD DIALOG -->
-<p-dialog [(visible)]="addDialog" [style]="{ width: '450px' }" [modal]="true"
-    [header]="editId ? 'Edit Category' : 'Add Category'">
+<p-dialog [(visible)]="addDialog" [modal]="true" [draggable]="false" [resizable]="false" [closable]="true"
+    [style]="{ width: '450px', maxWidth: '95vw' }" contentStyleClass="p-0">
+    <ng-template pTemplate="header">
+        <div class="px-5 py-2">
+            <div class="text-lg font-semibold">
+                {{ editId ? 'Edit Category' : 'Add Category' }}
+            </div>
+            <div class="text-sm text-gray-400 mt-1">
+                Manage your income / expense categories
+            </div>
+        </div>
+    </ng-template>
     <form [formGroup]="addForm" class="p-4">
         <div class="flex flex-col gap-6">
             <div>

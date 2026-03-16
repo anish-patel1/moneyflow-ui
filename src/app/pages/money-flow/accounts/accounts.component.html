@@ -67,55 +67,6 @@
 </p-table>
 
 <!-- ADD DIALOG -->
-<!-- <p-dialog [(visible)]="addDialog" [style]="{ width: '450px' }" [modal]="true"
-    [header]="editId ? 'Edit Account' : 'Add Account'">
-    <form [formGroup]="addForm" class="p-4">
-        <div class="flex flex-col gap-6">
-            <div>
-                <label for="accountName" class="block font-bold mb-2">Name</label>
-                <input pInputText id="accountName" formControlName="AccountName" class="w-full" placeholder="Enter name" autofocus />
-                <small class="text-red-500" *ngIf="submitted && addForm.controls['AccountName'].invalid">
-                    Name is required.
-                </small>
-            </div>
-            <div>
-                <label for="accountType" class="block font-bold mb-2">Type</label>
-                <p-dropdown inputId="accountType" [options]="accountTypeData" optionLabel="name"
-                    optionValue="value" formControlName="AccountType" [placeholder]="'Select...'"
-                    [filter]="false" [showClear]="false" class="w-full" appendTo="body">
-                </p-dropdown>
-                <small class="text-red-500 mt-1" *ngIf="submitted && addForm.controls['AccountType'].invalid">
-                    Type is required.
-                </small>
-            </div>
-            <div *ngIf="!editId">
-                <label for="accountName" class="block font-bold mb-2">Name</label>
-                <input pInputText id="accountName" formControlName="AccountName" class="w-full" placeholder="Enter name" autofocus />
-                <small class="text-red-500" *ngIf="submitted && addForm.controls['AccountName'].invalid">
-                    Name is required.
-                </small>
-            </div>
-            <div *ngIf="!editId">
-                <label for="accountType" class="block font-bold mb-2">Type</label>
-                <p-dropdown inputId="accountType" [options]="accountTypeData" optionLabel="name"
-                    optionValue="value" formControlName="AccountType" [placeholder]="'Select...'"
-                    [filter]="false" [showClear]="false" class="w-full" appendTo="body">
-                </p-dropdown>
-                <small class="text-red-500 mt-1" *ngIf="submitted && addForm.controls['AccountType'].invalid">
-                    Type is required.
-                </small>
-            </div>
-        </div>
-    </form>
-    <ng-template pTemplate="footer">
-        <div class="flex justify-end gap-2 px-4 pb-3">
-            <p-button label="Cancel" icon="pi pi-times" text (click)="closeDialog()"></p-button>
-            <p-button label="Save" icon="pi pi-check" (click)="editId ? btnUpdate() : btnSave()"
-                [disabled]="addForm.invalid && submitted">
-            </p-button>
-        </div>
-    </ng-template>
-</p-dialog> -->
 <p-dialog [(visible)]="addDialog" [modal]="true" [draggable]="false" [resizable]="false" [closable]="true"
     [style]="{ width: '450px', maxWidth: '95vw' }" contentStyleClass="p-0">
     <ng-template pTemplate="header">
