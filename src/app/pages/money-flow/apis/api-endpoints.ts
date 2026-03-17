@@ -4,4 +4,5 @@ export const API =  {
     Categories: localStorage.getItem('baseUrl') + 'Categories/',
     Transactions: localStorage.getItem('baseUrl') + 'Transactions/',
     Transfer: localStorage.getItem('baseUrl') + 'Transfer/',
+    Installments: localStorage.getItem('baseUrl') + 'Installments/',
 }

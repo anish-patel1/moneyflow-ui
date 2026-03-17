@@ -1,1 +1,136 @@
-<p>installments works!</p>
+<p-table #table [value]="installmentData" dataKey="installmentId" [tableStyle]="{ 'min-width': 'auto' }"
+    [globalFilterFields]="['installmentName']" [rows]="5" [paginator]="true" [rowsPerPageOptions]="[5, 8, 10, 20, 30]"
+    [rowHover]="true">
+    <ng-template #caption>
+        <div class="flex items-center justify-between">
+            <p-iconfield>
+                <p-inputicon styleClass="pi pi-search" />
+                <input pInputText type="text" placeholder="Search..." (input)="search(table, $event)" />
+            </p-iconfield>
+            <p-button label="New" icon="pi pi-plus" severity="secondary" class="mr-2" (onClick)="openDialog()" />
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+        <tr>
+            <th pSortableColumn="installmentName">Name
+                <p-sortIcon field="installmentName" />
+            </th>
+            <th>Amount</th>
+            <th style="width: 5rem"></th>
+        </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-data>
+        <tr class="hover-row">
+            <td>{{ data.installmentName }}</td>
+            <td>{{ data.totalAmount }}</td>
+            <td>
+                <p-menu #menu [model]="items" [popup]="true" appendTo="body"></p-menu>
+                <p-button icon="pi pi-ellipsis-h" styleClass="p-button-text p-button-rounded p-button-sm"
+                    (click)="openMenu(menu, $event, data.installmentId, data.status)">
+                </p-button>
+            </td>
+        </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+        <ng-container *ngIf="isgridloading">
+            <tr *ngFor="let _ of [].constructor(5)">
+                <td *ngFor="let _ of [].constructor(3)">
+                    <p-skeleton width="100%" height="1.25rem"></p-skeleton>
+                </td>
+            </tr>
+        </ng-container>
+        <tr *ngIf="!isgridloading">
+            <td colspan="3">
+                <div class="flex flex-col items-center justify-center p-6 text-gray-500 animate-fade-in">
+                    <i class="pi pi-database text-5xl text-gray-400 mb-3"></i>
+                    <div class="mb-2 text-lg">No records found</div>
+                </div>
+            </td>
+        </tr>
+    </ng-template>
+</p-table>
+
+<!-- ADD DIALOG -->
+<p-dialog [(visible)]="addDialog" [modal]="true" [draggable]="false" [resizable]="false"
+    [style]="{ width: '520px', maxWidth: '95vw' }" contentStyleClass="p-0 overflow-hidden">
+    <ng-template pTemplate="header">
+        <div class="p-3">
+            <div class="text-xl font-semibold">
+                {{ editId ? 'Edit Installment' : 'Add Installment' }}
+            </div>
+            <div class="text-sm text-gray-400 mt-1">
+                Track your EMI or loan payments
+            </div>
+        </div>
+    </ng-template>
+    <form [formGroup]="addForm" class="px-3 space-y-6">
+        <div>
+            <label class="block text-sm font-medium mb-2">
+                Installment Name
+            </label>
+            <input pInputText formControlName="InstallmentName" class="w-full" placeholder="e.g. Laptop EMI">
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium mb-2">
+                    Total Amount
+                </label>
+                <p-inputNumber formControlName="TotalAmount" class="w-full" placeholder="e.g. 22000"
+                    mode="decimal" [min]="0.01" [minFractionDigits]="2" [maxFractionDigits]="2">
+                </p-inputNumber>
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-2">
+                    Duration (Months)
+                </label>
+                <p-inputNumber formControlName="DurationMonths" class="w-full" placeholder="e.g. 12">
+                </p-inputNumber>
+            </div>
+        </div>
+        <div>
+            <label class="block text-sm font-medium mb-2">
+                Estimated EMI
+            </label>
+            <p-inputNumber formControlName="MonthlyAmount" class="w-full" [readonly]="true" placeholder="0.00"></p-inputNumber>
+            <small class="text-gray-400 text-xs">
+                Based on total amount and duration
+            </small>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium mb-2">
+                    Start Date
+                </label>
+                <p-datepicker formControlName="StartDate" class="w-full" [showIcon]="true" dateFormat="dd-mm-yy"
+                    appendTo="body" placeholder="dd-mm-yyyy">
+                </p-datepicker>
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-2">
+                    Billing Day
+                </label>
+                <p-inputNumber formControlName="BillingDay" class="w-full" [min]="1" [max]="31" placeholder="1 to 31">
+                </p-inputNumber>
+            </div>
+        </div>
+        <div>
+            <label class="block text-sm font-medium mb-2">
+                Description
+            </label>
+            <textarea pInputTextarea rows="3" formControlName="Description" class="w-full"
+                placeholder="Add a short note (optional)">
+            </textarea>
+        </div>
+    </form>
+    <ng-template pTemplate="footer">
+        <div class="px-3 py-3 flex justify-end gap-3">
+            <p-button label="Cancel" text (click)="closeDialog()"></p-button>
+            <p-button label="Save" icon="pi pi-check" (click)="editId ? btnUpdate() : btnSave()"
+                [disabled]="addForm.invalid">
+            </p-button>
+        </div>
+    </ng-template>
+</p-dialog>

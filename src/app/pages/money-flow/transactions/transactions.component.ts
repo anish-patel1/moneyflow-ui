@@ -222,9 +222,13 @@ export class TransactionsComponent {
       this.commonService.postData(this.COMMON_API + "Insert", obj).subscribe({
         next: (data: any) => {
           this.isSaving = false;
-          this.notification.showToast("success", data.message);
-          this.closeDialog();
-          this.selectAll();
+
+          if (data.success) {
+            this.notification.showToast("success", data.message);
+            this.closeDialog();
+            this.selectAll();
+          } else
+            this.notification.showToast("warn", data.message);
         },
         error: (err) => {
           this.isSaving = false;
@@ -298,9 +302,13 @@ export class TransactionsComponent {
       this.commonService.postData(this.COMMON_API + "Update", obj).subscribe({
         next: (data: any) => {
           this.isSaving = false;
-          this.notification.showToast("success", data.message);
-          this.closeDialog();
-          this.selectAll();
+
+          if (data.success) {
+            this.notification.showToast("success", data.message);
+            this.closeDialog();
+            this.selectAll();
+          } else
+            this.notification.showToast("warn", data.message);
         },
         error: (err) => {
           this.isSaving = false;
@@ -337,8 +345,10 @@ export class TransactionsComponent {
     // this.loader = true;
     this.commonService.postData(this.COMMON_API + "Delete", obj).subscribe({
       next: (data: any) => {
-        this.notification.showToast("success", data.message);
-        this.selectAll();
+        if (data.success) {
+          this.notification.showToast("success", data.message);
+          this.selectAll();
+        } else this.notification.showToast("warn", data.message);
       },
       error: (err) => {
         this.notification.showToast("error", err.message);
@@ -505,8 +515,8 @@ export class TransactionsComponent {
     this.commonService.postData(this.TRANSFER_API + "Delete", obj).subscribe({
       next: (data: any) => {
         if (data.success) {
-        this.notification.showToast("success", data.message);
-        this.selectAll();
+          this.notification.showToast("success", data.message);
+          this.selectAll();
         } else this.notification.showToast("warn", data.message);
       },
       error: (err) => {
