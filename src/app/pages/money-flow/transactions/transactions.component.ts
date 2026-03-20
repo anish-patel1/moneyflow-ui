@@ -23,6 +23,7 @@ export class TransactionsComponent {
   // API
   COMMON_API = API.Transactions;
   Account_API = API.Accounts;
+  Installment_API = API.Installments;
   Category_API = API.Categories;
   TRANSFER_API = API.Transfer;
 
@@ -58,6 +59,7 @@ export class TransactionsComponent {
 
   // Dropdown Data
   accountData: any[] = [];
+  installmentData: any[] = [];
   categoryData: any[] = [];
   transactionTypeData = [
     { name: 'Income', value: 'Income' },
@@ -85,8 +87,10 @@ export class TransactionsComponent {
     this.addForm = this.commonService.formBuilder.group({
       AccountId: [null, Validators.required],
       TransactionDate: [null, Validators.required],
+      InstallmentId: [null],
       TransactionType: [null, Validators.required],
       CategoryId: [null, Validators.required],
+      Category: ['EMI'],
       Amount: [null, Validators.required],
       Description: [null]
     });
@@ -205,6 +209,7 @@ export class TransactionsComponent {
     this.editId = null;
     this.resetForm();
     this.accountDrpdown();
+    this.installmentDrpdown();
     this.addDialog = true;
   }
 
@@ -212,7 +217,7 @@ export class TransactionsComponent {
   btnSave() {
     if (this.addForm.valid) {
       let obj = <Transactions>{};
-      obj = this.addForm.value;
+      obj = this.addForm.getRawValue();
       obj.TransactionDate = this.transactionDate;
       obj.UserId = this.userId;
       obj.CreatedBy = this.userId;
@@ -253,6 +258,7 @@ export class TransactionsComponent {
     this.editId = id;
     this.resetForm();
     this.accountDrpdown();
+    this.installmentDrpdown();
     this.addDialog = true;
     this.fillControl(id);
   }
@@ -271,16 +277,18 @@ export class TransactionsComponent {
         this.transactionDate = data.transactionDate;
         const dateObject = new Date(this.transactionDate);
 
-        this.categoryDrpdown(data.transactionType);
-
         this.addForm.patchValue({
           TransactionDate: dateObject,
           AccountId: data.accountId,
+          InstallmentId: data.installmentId,
           TransactionType: data.transactionType,
           CategoryId: data.categoryId,
           Amount: data.amount,
           Description: data.description
         });
+
+        if (data.installmentId) this.changeInstallment(data.installmentId);
+        else this.categoryDrpdown(data.transactionType);
       },
       error: (err) => {
         this.notification.showToast("error", err.message);
@@ -292,7 +300,7 @@ export class TransactionsComponent {
   btnUpdate() {
     if (this.addForm.valid) {
       let obj = <Transactions>{};
-      obj = this.addForm.value;
+      obj = this.addForm.getRawValue();
       obj.TransactionDate = this.transactionDate;
       obj.TransactionId = this.editId;
       obj.UserId = this.userId;
@@ -550,6 +558,41 @@ export class TransactionsComponent {
     }
   }
 
+  // Installment Dropdown
+  async installmentDrpdown() {
+    this.installmentData = [];
+    if (this.userId) {
+      let obj = <Dropdown>{};
+      obj.UserId = this.userId;
+      const response = await lastValueFrom(
+        this.commonService.postData(this.Installment_API + "DropDown", obj)
+      );
+
+      this.installmentData = response;
+    }
+  }
+
+  // Change : Installment
+  async changeInstallment(id: number) {
+    if (!id) {
+      this.categoryData = [];
+
+      this.addForm.get('TransactionType')?.enable();
+      this.addForm.get('CategoryId')?.enable();
+
+      this.addForm.patchValue({
+        TransactionType: null,
+        CategoryId: null
+      });
+
+      return;
+    }
+
+    this.addForm.get('TransactionType')?.disable();
+    this.addForm.get('CategoryId')?.disable();
+    this.addForm.get('Category')?.disable();
+  }
+
   // Change : Transaction Type
   async changeTransactionType(event: any) {
     const selectedValue = event.value;
@@ -606,6 +649,8 @@ export class TransactionsComponent {
   resetForm() {
     this.addForm.reset();
     this.submitted = false;
+    this.addForm.get('TransactionType')?.enable();
+    this.addForm.get('CategoryId')?.enable();
   }
 
   resetTransferForm() {

@@ -201,25 +201,42 @@
             <div>
                 <label class="block text-sm font-medium mb-2">Account</label>
                 <p-dropdown [options]="accountData" optionLabel="accountName" optionValue="accountId"
-                    formControlName="AccountId" [filter]="true" placeholder="Select account" class="w-full"
+                    formControlName="AccountId" [filter]="true" [showClear]="true" placeholder="Select account" class="w-full"
                     appendTo="body">
                 </p-dropdown>
             </div>
         </div>
+        <div>
+            <label class="block text-sm font-medium mb-2">Installment</label>
+            <p-dropdown [options]="installmentData" optionLabel="installmentName" optionValue="installmentId" formControlName="InstallmentId"
+                [filter]="true" [showClear]="true" placeholder="Select installment" class="w-full" appendTo="body" (onChange)="changeInstallment($event.value)">
+            </p-dropdown>
+            <small class="text-gray-400 text-xs">Select in case this is an EMI payment.</small>
+        </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
                 <label class="block text-sm font-medium mb-2">Type</label>
-                <p-dropdown [options]="transactionTypeData" optionLabel="name" optionValue="value"
-                    formControlName="TransactionType" placeholder="Select type" class="w-full" appendTo="body"
-                    (onChange)="changeTransactionType($event)">
-                </p-dropdown>
+                <ng-container *ngIf="addForm.value.InstallmentId; else normalType">
+                    <input pInputText formControlName="TransactionType" class="w-full" placeholder="Expense" readonly />
+                </ng-container>
+                <ng-template #normalType>
+                    <p-dropdown [options]="transactionTypeData" optionLabel="name" optionValue="value"
+                        formControlName="TransactionType" placeholder="Select type" class="w-full" appendTo="body"
+                        [disabled]="addForm.value.InstallmentId" [showClear]="true" (onChange)="changeTransactionType($event)">
+                    </p-dropdown>
+                </ng-template>
             </div>
             <div>
                 <label class="block text-sm font-medium mb-2">Category</label>
-                <p-dropdown [options]="categoryData" optionLabel="categoryName" optionValue="categoryId"
-                    formControlName="CategoryId" [filter]="true" placeholder="Select category" class="w-full"
-                    appendTo="body">
-                </p-dropdown>
+                <ng-container *ngIf="addForm.value.InstallmentId; else normalCategory">
+                    <input pInputText formControlName="Category" class="w-full" placeholder="EMI" readonly />
+                </ng-container>
+                <ng-template #normalCategory>
+                    <p-dropdown [options]="categoryData" optionLabel="categoryName" optionValue="categoryId"
+                        formControlName="CategoryId" [filter]="true" [showClear]="true" placeholder="Select category" class="w-full"
+                        appendTo="body">
+                    </p-dropdown>
+                </ng-template>
             </div>
         </div>
         <div>

@@ -64,7 +64,6 @@ export class RegisterComponent {
   // Register User
   // ======================================================
   registerUser() {
-    debugger;
     this.submitted = true;
 
     if (this.registerForm.invalid) {
