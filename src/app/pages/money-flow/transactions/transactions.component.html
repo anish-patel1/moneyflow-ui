@@ -207,9 +207,9 @@
             </div>
         </div>
         <div>
-            <label class="block text-sm font-medium mb-2">Installment</label>
+            <label class="block text-sm font-medium mb-2">Loan</label>
             <p-dropdown [options]="installmentData" optionLabel="installmentName" optionValue="installmentId" formControlName="InstallmentId"
-                [filter]="true" [showClear]="true" placeholder="Select installment" class="w-full" appendTo="body" (onChange)="changeInstallment($event.value)">
+                [filter]="true" [showClear]="true" placeholder="Select loan" class="w-full" appendTo="body" (onChange)="changeInstallment($event.value)">
             </p-dropdown>
             <small class="text-gray-400 text-xs">Select in case this is an EMI payment.</small>
         </div>
