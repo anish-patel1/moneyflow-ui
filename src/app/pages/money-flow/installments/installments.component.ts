@@ -33,6 +33,7 @@ export class InstallmentsComponent {
 
   // Current User
   userId: any = null;
+  selectedStatus: string = 'A';
 
   // Menu Data
   items: MenuItem[] = [];
@@ -73,6 +74,14 @@ export class InstallmentsComponent {
   }
 
   // ======================================================
+  // Change Status
+  // ======================================================
+  changeStatus(status: string) {
+    this.selectedStatus = status;
+    this.selectAll();
+  }
+
+  // ======================================================
   // Select All
   // ======================================================
   selectAll() {
@@ -81,6 +90,7 @@ export class InstallmentsComponent {
     
     let obj = <Installments>{};
     obj.UserId = this.userId;
+    obj.Status = this.selectedStatus;
 
     this.commonService.postData(this.COMMON_API + "SelectAll", obj).subscribe({
       next: (data: any) => {

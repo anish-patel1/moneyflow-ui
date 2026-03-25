@@ -4,7 +4,6 @@ import { AccountsComponent } from "./accounts/accounts.component";
 import { CategoriesComponent } from "./categories/categories.component";
 import { TransactionsComponent } from "./transactions/transactions.component";
 import { BudgetsComponent } from "./budgets/budgets.component";
-import { InstallmentsComponent } from "./installments/installments.component";
 import { ReportsComponent } from "./reports/reports.component";
 
 export default [
@@ -14,6 +13,6 @@ export default [
     { path: 'categories', component: CategoriesComponent },
     { path: 'transactions', component: TransactionsComponent },
     { path: 'budgets', component: BudgetsComponent },
-    { path: 'installments', component: InstallmentsComponent },
+    { path: 'loans', loadChildren: () => import('./installments/installments.routes') },
     { path: 'reports', component: ReportsComponent },
 ] as Routes;

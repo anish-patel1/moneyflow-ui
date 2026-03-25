@@ -50,9 +50,9 @@ export class AppMenu {
                             routerLink: ['/transactions']
                         },
                         {
-                            label: 'Loans & EMIs',
+                            label: 'Loans',
                             icon: 'pi pi-calculator',
-                            routerLink: ['/installments']
+                            routerLink: ['/loans']
                         },
                         {
                             label: 'Budgets',
