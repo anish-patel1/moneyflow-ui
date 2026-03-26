@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { UntypedFormBuilder } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -12,7 +12,8 @@ export class CommonService {
   constructor(
     public formBuilder: UntypedFormBuilder,
     public http: HttpClient,
-    public route: ActivatedRoute
+    public route: ActivatedRoute,
+    public router: Router
   ) { }
 
   // Common API Methods ==========================================================================

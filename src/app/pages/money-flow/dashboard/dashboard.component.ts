@@ -7,6 +7,7 @@ import { CommonRefModule } from '../common/module/common-ref.module';
 import { NotificationService } from '../common/service/notification.service';
 import { DashboardSummary } from '../models/dashboardSummary.model';
 import { Accounts } from '../models/accounts.model';
+import { Installments } from '../models/installments.model';
 
 @Component({
   selector: 'app-dashboard',
@@ -19,11 +20,28 @@ export class DashboardComponent {
   COMMON_API = API.Dashboard;
   Accounts_API = API.Accounts;
   Transactions_API = API.Transactions;
+  Loans_API = API.Installments;
 
   // Select All Data
   summaryData: DashboardSummary | null = null;
   accountData: any = [];
   transactionData: any = [];
+  loanData: any = [
+    {
+      installmentId   :1,
+      installmentName :'Laptop Loan',
+      monthlyAmount   :'5,000.00',
+      durationMonths  : 12,
+      paidMonths      : 3,
+      remainingMonths:   9 },
+      {
+      installmentId   :2,
+      installmentName :'Home Loan',
+      monthlyAmount   :'30,000.00',
+      durationMonths  : 240,
+      paidMonths      : 12,
+      remainingMonths:   228 }
+  ];
 
   // Current User
   userId: any = null;
@@ -39,8 +57,9 @@ export class DashboardComponent {
   ngOnInit() {
     this.userId = this.commonService.GetUserData().userId;
     this.loadSummary();
-    this.getTransactions();
     this.getAccountBalances();
+    this.getLoans();
+    this.getTransactions();
   }
 
   loadSummary() {
@@ -70,6 +89,22 @@ export class DashboardComponent {
       next: (data: any) => {
         this.isgridloading = false;
         this.accountData = data;
+      }
+    });
+  }
+
+  getLoans() {
+    this.loanData = [];
+    this.isgridloading = true;
+    
+    let obj = <Installments>{};
+    obj.UserId = this.userId;
+    obj.Status = 'A';
+
+    this.commonService.postData(this.Loans_API + "SelectAll", obj).subscribe({
+      next: (data: any) => {
+        this.isgridloading = false;
+        this.loanData = data;
       }
     });
   }

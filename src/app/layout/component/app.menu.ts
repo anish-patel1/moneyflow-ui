@@ -51,7 +51,7 @@ export class AppMenu {
                         },
                         {
                             label: 'Loans',
-                            icon: 'pi pi-calculator',
+                            icon: 'pi pi-chart-line',
                             routerLink: ['/loans']
                         },
                         {

@@ -1,8 +1,8 @@
 <div class="flex items-center mb-3">
     <button class="flex items-center gap-2 text-sm text-gray-400 hover:text-gray-200 transition"
-        [routerLink]="'/loans'">
+        (click)="backNav()">
         <i class="pi pi-arrow-left text-xs"></i>
-        <span>Back to Loans</span>
+        <span>Back to {{pageFrom}}</span>
     </button>
 </div>
 
@@ -59,24 +59,17 @@
 </div>
 
 <div class="bg-surface-800 rounded-2xl shadow overflow-hidden">
-
-    <!-- Header -->
     <div class="flex items-center justify-between px-4 py-3 border-b border-gray-700">
         <h3 class="text-lg font-semibold flex items-center gap-2">
             <i class="pi pi-list text-gray-400"></i>
             Payments
         </h3>
-
         <span class="text-xs text-gray-400">
             {{ transactionData?.length || 0 }} records
         </span>
     </div>
-
-    <!-- Table -->
     <p-table #table [value]="transactionData" dataKey="transactionId" [rows]="10" [rowHover]="true" [scrollable]="true"
         scrollHeight="65vh" styleClass="p-datatable-sm">
-
-        <!-- Header -->
         <ng-template pTemplate="header">
             <tr class="text-gray-400 text-sm border-b border-gray-700">
                 <th class="py-3">Date</th>
@@ -85,18 +78,12 @@
                 <th class="text-right pr-4">Amount</th>
             </tr>
         </ng-template>
-
-        <!-- Body -->
         <ng-template pTemplate="body" let-data let-i="rowIndex">
             <tr class="border-b border-gray-800 hover:bg-surface-700 transition"
                 [ngClass]="i === 0 ? 'bg-green-500/10' : ''">
-
-                <!-- Date -->
                 <td class="py-3 text-gray-400 whitespace-nowrap">
                     {{ data.transactionDate }}
                 </td>
-
-                <!-- Account -->
                 <td>
                     <ng-container *ngIf="data.transferGroupId; else normalAccount">
                         <div class="flex items-center gap-2 font-medium">
@@ -109,13 +96,10 @@
                             </span>
                         </div>
                     </ng-container>
-
                     <ng-template #normalAccount>
                         {{ data.accountName }}
                     </ng-template>
                 </td>
-
-                <!-- Category -->
                 <td class="text-gray-300">
                     <ng-container *ngIf="data.transferGroupId; else normalCategory">
                         —
@@ -125,30 +109,21 @@
                         {{ data.categoryName }}
                     </ng-template>
                 </td>
-
-                <!-- Amount -->
                 <td class="text-right pr-4 font-semibold whitespace-nowrap tabular-nums">
-
-                    <!-- Transfer -->
                     <ng-container *ngIf="data.transferGroupId; else normalAmount">
                         <span class="text-blue-400">
                             {{ data.amount | number:'1.2-2' }}
                         </span>
                     </ng-container>
-
-                    <!-- Normal -->
                     <ng-template #normalAmount>
                         <span class="text-red-300">
                             {{ data.amount | number:'1.2-2' }}
                         </span>
                     </ng-template>
-
                 </td>
-
             </tr>
         </ng-template>
 
-        <!-- Empty / Loading -->
         <ng-template pTemplate="emptymessage">
             <ng-container *ngIf="isgridloading">
                 <tr *ngFor="let _ of [].constructor(5)">

@@ -23,6 +23,7 @@ export class InstallmentDetailComponent {
 
   // Parameters
   installmentId: any = null;
+  pageFrom: any = 'Loans';
 
   // Loadeer
   isgridloading: boolean = false;
@@ -32,8 +33,7 @@ export class InstallmentDetailComponent {
 
   constructor(
     public commonService: CommonService,
-    private notification: NotificationService,
-    // private confirmationService: ConfirmationService
+    private notification: NotificationService
   ) {}
 
   ngOnInit(): void {
@@ -41,6 +41,7 @@ export class InstallmentDetailComponent {
     
     this.commonService.route.queryParams.subscribe((params) => {
       if (params["id"]) this.installmentId = params["id"];
+      if (params["pageFrom"]) this.pageFrom = params["pageFrom"];
     });
 
     if (this.installmentId) {
@@ -91,5 +92,15 @@ export class InstallmentDetailComponent {
         console.table(data);
       }
     });
+  }
+
+  // ======================================================
+  // Back Navigation
+  // ======================================================
+  backNav() {
+    if(this.pageFrom === 'Dashboard')
+      this.commonService.router.navigate(['/']);
+    else
+      this.commonService.router.navigate(['/loans']);
   }
 }
