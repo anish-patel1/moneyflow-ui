@@ -3,8 +3,8 @@ import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { lastValueFrom } from 'rxjs';
 import { CommonService } from './app/pages/money-flow/common/service/common.service';
+import { environment } from './environments/environment';
 
 @Component({
     selector: 'app-root',
@@ -28,14 +28,8 @@ export class AppComponent {
 
     // Get Data From JSON File
     async getApiPath(): Promise<void> {
-        const response = await lastValueFrom(
-            this.http.get<any>('/assets/configuration/appsetting.json')
-        );
-
-        if (response) {
-            localStorage.setItem("baseUrl", response.baseUrl);
-            this.getVersion(response.baseUrl);
-        }
+        localStorage.setItem("baseUrl", environment.apiUrl);
+        this.getVersion(environment.apiUrl);
     }
 
     getVersion(baseUrl: any) {
