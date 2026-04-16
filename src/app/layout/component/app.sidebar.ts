@@ -64,7 +64,7 @@ export class AppSidebar {
         this.userType = userDate.userType;
 
         this.userMenuItems = [
-            { label: 'Profile', icon: 'pi pi-user', command: () => this.onProfile() },
+            // { label: 'Profile', icon: 'pi pi-user', command: () => this.onProfile() },
             ...(this.userType === 'U'
                 ? [{ label: 'Settings', icon: 'pi pi-cog', command: () => this.onSettings() }]
                 : []),
