@@ -147,6 +147,46 @@
                 Based on total amount and duration
             </small>
         </div>
+        <div class="border-surface-700">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <p-checkbox formControlName="EnableInitialPaid" [disabled]="!addForm.get('DurationMonths')?.value"
+                        binary="true" inputId="initialPaidToggle" (onChange)="changeInitialPaidToggle($event)">
+                    </p-checkbox>
+        
+                    <label for="initialPaidToggle" class="text-sm font-medium">
+                        Already paid some EMIs?
+                    </label>
+                </div>
+        
+                <span class="text-xs text-gray-400">
+                    Optional
+                </span>
+            </div>
+            <div *ngIf="addForm.get('EnableInitialPaid')?.value"
+                class="mt-4 p-4 rounded-xl bg-surface-900 border border-surface-700 space-y-3">
+                <div>
+                    <label class="block text-sm font-medium mb-2">
+                        Paid Installments
+                    </label>
+                    <p-inputNumber formControlName="InitialPaidMonths" class="w-full" [min]="1" [useGrouping]="false"
+                        placeholder="e.g. 6">
+                    </p-inputNumber>
+                </div>
+                <div class="text-xs text-gray-400 leading-relaxed">
+                    These payments were made before using this app.
+                    They will only adjust progress, not create transactions.
+                </div>
+                <div *ngIf="addForm.get('InitialPaidMonths')?.errors" class="text-red-400 text-xs">
+                    <span *ngIf="addForm.get('InitialPaidMonths')?.errors?.['min']">
+                        Must be at least 1.
+                    </span>
+                    <span *ngIf="addForm.get('InitialPaidMonths')?.errors?.['max']">
+                        Cannot exceed total duration.
+                    </span>
+                </div>
+            </div>
+        </div>
         <div class="grid grid-cols-2 gap-4">
             <div>
                 <label class="block text-sm font-medium mb-2">

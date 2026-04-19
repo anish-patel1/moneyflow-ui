@@ -55,13 +55,29 @@ export class InstallmentsComponent {
       TotalAmount: [null, Validators.required],
       DurationMonths: [null, Validators.required],
       MonthlyAmount: [0],
+      EnableInitialPaid: [false],
+      InitialPaidMonths: [null],
       StartDate: [null, Validators.required],
       BillingDay: [null, Validators.required],
       Description: [null]
     });
 
     this.addForm.get('TotalAmount')?.valueChanges.subscribe(() => this.calculateEmi());
-    this.addForm.get('DurationMonths')?.valueChanges.subscribe(() => this.calculateEmi());
+    this.addForm.get('DurationMonths')?.valueChanges.subscribe((duration) => {
+      this.calculateEmi();
+
+      const initialPaidControl = this.addForm.get('InitialPaidMonths');
+
+      if (this.addForm.get('EnableInitialPaid')?.value) {
+        initialPaidControl?.setValidators([
+          Validators.required,
+          Validators.min(1),
+          Validators.max(duration || 999)
+        ]);
+
+        initialPaidControl?.updateValueAndValidity();
+      }
+    });
 
     this.selectAll();
   }
@@ -166,12 +182,14 @@ export class InstallmentsComponent {
 
         this.startDate = data.startDate;
         const dateObject = new Date(this.startDate);
-
+        debugger;
         this.addForm.patchValue({
           InstallmentName: data.installmentName,
           TotalAmount: data.totalAmount,
           DurationMonths: data.durationMonths,
           MonthlyAmount: data.monthlyAmount,
+          EnableInitialPaid: data.initialPaidMonths > 0 ? true : false,
+          InitialPaidMonths: data.initialPaidMonths,
           StartDate: dateObject,
           BillingDay: data.billingDay,
           Description: data.description
@@ -257,6 +275,44 @@ export class InstallmentsComponent {
       estimatedEMI = total / months;
 
     this.addForm.get('MonthlyAmount')?.setValue(estimatedEMI, { emitEvent: false });
+  }
+
+  // ======================================================
+  // Change Event
+  // ======================================================
+  changeInitialPaidToggle(event: any) {
+    const isEnable = event.checked;
+    const duration = this.addForm.get('DurationMonths')?.value;
+
+    if (isEnable) {
+      if (!duration) {
+        this.addForm.patchValue({
+          EnableInitialPaid: false,
+          InitialPaidMonths: null
+        });
+        
+        this.notification.showToast("info", "Please enter duration first");
+        this.addForm.patchValue({ EnableInitialPaid: false });
+        return;
+      }
+
+      this.addForm.get('InitialPaidMonths')?.setValidators([
+        Validators.required,
+        Validators.min(1),
+        Validators.max(duration)
+      ]);
+    } else {
+      this.addForm.patchValue({
+        InitialPaidMonths: null
+      });
+
+      const control = this.addForm.get('InitialPaidMonths');
+      control?.clearValidators();
+      control?.markAsUntouched();
+      control?.updateValueAndValidity();
+    }
+
+    this.addForm.get('InitialPaidMonths')?.updateValueAndValidity();
   }
 
   // ======================================================
