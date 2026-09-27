@@ -1,65 +1,53 @@
 <app-floating-configurator />
 
-<!-- =====================================================================
-     Cold-start full-screen overlay — Tailwind-first, minimal custom CSS.
-     Only mf-card-in / mf-ring-pulse / mf-progress-bar use custom @keyframes.
-     ===================================================================== -->
+<!-- Loading Interface -->
 <ng-container *ngIf="{ waking: isWaking$ | async } as overlay">
-  <div *ngIf="overlay.waking"
-      class="fixed inset-0 z-[9999] flex items-center justify-center">
+    <div *ngIf="overlay.waking" class="fixed inset-0 z-[9999] flex items-center justify-center">
 
-    <!-- Blurred backdrop (Tailwind backdrop-blur + bg opacity) -->
-    <div class="absolute inset-0 backdrop-blur-md bg-black/40"></div>
+        <div class="absolute inset-0 backdrop-blur-md bg-black/40"></div>
 
-    <!-- Glass card — spring entrance via mf-card-in -->
-    <div class="mf-card-in relative z-10 flex flex-col items-center gap-4 px-12 py-10 rounded-[28px] border border-white/[0.14]"
-        style="background:rgba(255,255,255,0.07); box-shadow:0 24px 64px rgba(0,0,0,0.4);">
+        <div class="mf-card-in relative z-10 flex flex-col items-center gap-4 px-12 py-10 rounded-[28px] border border-white/[0.14]"
+            style="background:rgba(255,255,255,0.07); box-shadow:0 24px 64px rgba(0,0,0,0.4);">
 
-      <!-- Pulsing logo ring -->
-      <div class="relative w-20 h-20 flex items-center justify-center mb-1">
-        <!-- Outer ring radiates outward: mf-ring-pulse custom keyframe -->
-        <div class="mf-ring-pulse absolute inset-0 rounded-full border-2 opacity-0"
-            style="border-color:var(--primary-color)"></div>
-        <!-- Inner circle: Tailwind animate-pulse for breathing glow -->
-        <div class="w-16 h-16 rounded-full flex items-center justify-center animate-pulse"
-            style="background:rgba(33,150,243,0.12); border:1.5px solid rgba(33,150,243,0.35);">
-          <!-- Money-flow coin-stack icon -->
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
-              class="w-8 h-8" style="color:var(--primary-color)">
-            <ellipse cx="12" cy="6" rx="8" ry="3"/>
-            <path d="M4 6v4c0 1.657 3.582 3 8 3s8-1.343 8-3V6"/>
-            <path d="M4 10v4c0 1.657 3.582 3 8 3s8-1.343 8-3v-4"/>
-          </svg>
+            <div class="relative w-20 h-20 flex items-center justify-center mb-1">
+                <div class="mf-ring-pulse absolute inset-0 rounded-full border-2 opacity-0"
+                    style="border-color:var(--primary-color)"></div>
+                <div class="w-16 h-16 rounded-full flex items-center justify-center animate-pulse"
+                    style="background:rgba(33,150,243,0.12); border:1.5px solid rgba(33,150,243,0.35);">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8"
+                        style="color:var(--primary-color)">
+                        <ellipse cx="12" cy="6" rx="8" ry="3" />
+                        <path d="M4 6v4c0 1.657 3.582 3 8 3s8-1.343 8-3V6" />
+                        <path d="M4 10v4c0 1.657 3.582 3 8 3s8-1.343 8-3v-4" />
+                    </svg>
+                </div>
+            </div>
+
+            <p class="m-0 text-lg font-semibold tracking-tight text-white/90">Just a moment&hellip;</p>
+            <p class="m-0 text-xs tracking-tight text-white/50">We&rsquo;re getting everything ready for you.</p>
+
+            <div class="flex items-center gap-2 mt-0.5">
+                <span class="w-[7px] h-[7px] rounded-full animate-bounce"
+                    style="background:var(--primary-color); animation-delay:0s"></span>
+                <span class="w-[7px] h-[7px] rounded-full animate-bounce"
+                    style="background:var(--primary-color); animation-delay:.15s"></span>
+                <span class="w-[7px] h-[7px] rounded-full animate-bounce"
+                    style="background:var(--primary-color); animation-delay:.3s"></span>
+            </div>
+
+            <div class="w-44 mt-1">
+                <div class="w-full h-[3px] rounded-full overflow-hidden bg-white/10">
+                    <div class="mf-progress-bar h-full rounded-full"
+                        style="background:linear-gradient(90deg,transparent,var(--primary-color),transparent)"></div>
+                </div>
+            </div>
+
         </div>
-      </div>
-
-      <!-- Text -->
-      <p class="m-0 text-lg font-semibold tracking-tight text-white/90">Just a moment&hellip;</p>
-      <p class="m-0 text-xs tracking-tight text-white/50">We&rsquo;re getting everything ready for you.</p>
-
-      <!-- Bouncing dots — Tailwind animate-bounce, stagger via inline delay -->
-      <div class="flex items-center gap-2 mt-0.5">
-        <span class="w-[7px] h-[7px] rounded-full animate-bounce"
-            style="background:var(--primary-color); animation-delay:0s"></span>
-        <span class="w-[7px] h-[7px] rounded-full animate-bounce"
-            style="background:var(--primary-color); animation-delay:.15s"></span>
-        <span class="w-[7px] h-[7px] rounded-full animate-bounce"
-            style="background:var(--primary-color); animation-delay:.3s"></span>
-      </div>
-
-      <!-- Indeterminate progress bar: track via Tailwind, shimmer via mf-progress-bar -->
-      <div class="w-44 mt-1">
-        <div class="w-full h-[3px] rounded-full overflow-hidden bg-white/10">
-          <div class="mf-progress-bar h-full rounded-full"
-              style="background:linear-gradient(90deg,transparent,var(--primary-color),transparent)"></div>
-        </div>
-      </div>
-
     </div>
-  </div>
 </ng-container>
 
+<!-- Login Form -->
 <div
     class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-[100vw] overflow-hidden">
     <div class="flex flex-col items-center justify-center">
@@ -78,9 +66,11 @@
                         User Name
                     </label>
                     <div class="mb-8">
-                        <input pInputText id="username" type="text" placeholder="Enter user name" class="w-full md:w-[30rem]"
-                            name="username" [(ngModel)]="username" #usernameModel="ngModel" required />
-                        <small class="block text-red-500 text-xs mt-1" *ngIf="usernameModel.invalid && usernameModel.touched">
+                        <input pInputText id="username" type="text" placeholder="Enter user name"
+                            class="w-full md:w-[30rem]" name="username" [(ngModel)]="username" #usernameModel="ngModel"
+                            required />
+                        <small class="block text-red-500 text-xs mt-1"
+                            *ngIf="usernameModel.invalid && usernameModel.touched">
                             Username is required
                         </small>
                     </div>
@@ -89,28 +79,26 @@
                         Password
                     </label>
                     <div class="relative mb-6">
-                        <p-password id="password" name="password" [(ngModel)]="password" placeholder="Enter password" [toggleMask]="true"
-                            [fluid]="true" [feedback]="false" required #passwordModel="ngModel">
+                        <p-password id="password" name="password" [(ngModel)]="password" placeholder="Enter password"
+                            [toggleMask]="true" [fluid]="true" [feedback]="false" required #passwordModel="ngModel">
                         </p-password>
-                    
-                        <small class="absolute text-red-500 text-xs mt-1" *ngIf="passwordModel.invalid && passwordModel.touched">
+
+                        <small class="absolute text-red-500 text-xs mt-1"
+                            *ngIf="passwordModel.invalid && passwordModel.touched">
                             Password is required
                         </small>
                     </div>
-                
+
                     <div class="flex justify-end mb-8">
                         <span class="font-medium no-underline cursor-pointer text-primary">Forgot password?</span>
                     </div>
-                
-                    <!-- The overlay handles the waiting UX — button stays disabled silently -->
+
                     <ng-container *ngIf="{ waking: isWaking$ | async } as state">
-                        <p-button label="Sign In" styleClass="w-full mb-4"
-                            (onClick)="login()"
-                            [disabled]="!username || !password || !!state.waking"
-                            [loading]="btnLoading">
+                        <p-button label="Sign In" styleClass="w-full mb-4" (onClick)="login()"
+                            [disabled]="!username || !password || !!state.waking" [loading]="btnLoading">
                         </p-button>
                     </ng-container>
-                
+
                     <div class="text-center">
                         <span class="text-muted-color">Don't have an account?</span>
                         <a routerLink="/auth/register" class="font-medium text-primary cursor-pointer ml-2">
