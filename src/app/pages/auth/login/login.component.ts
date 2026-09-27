@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { NotificationService } from '../../money-flow/common/service/notification.service';
 import { ButtonModule } from 'primeng/button';
@@ -10,17 +10,17 @@ import { RippleModule } from 'primeng/ripple';
 import { AppFloatingConfigurator } from '../../../layout/component/app.floatingconfigurator';
 import { CommonService } from '../../money-flow/common/service/common.service';
 import { Auth_API } from '../auth-api';
-import { CommonModule } from '@angular/common';
-import { AppFooter } from '../../../layout/component/app.footer';
+import { AsyncPipe, CommonModule } from '@angular/common';
 import { AuthService } from '../services/auth.service';
+import { ColdStartService } from '../services/cold-start.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-login',
-  imports: [CommonModule, ButtonModule, CheckboxModule, InputTextModule, PasswordModule, FormsModule, RouterModule, RippleModule, AppFloatingConfigurator],
-  templateUrl: './login.component.html',
-  styles: ``
+  imports: [CommonModule, AsyncPipe, ButtonModule, CheckboxModule, InputTextModule, PasswordModule, FormsModule, RouterModule, RippleModule, AppFloatingConfigurator],
+  templateUrl: './login.component.html'
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   // API
   COMMON_API = Auth_API.Auth_API;
 
@@ -34,12 +34,20 @@ export class LoginComponent {
   // Version
   version = localStorage.getItem("version");
 
+  /** Emits true while the cold-start retry loop is active. */
+  isWaking$!: Observable<boolean>;
+
   constructor(
       private router: Router,
       private notification: NotificationService,
       public commonService: CommonService,
-      private authService: AuthService
+      private authService: AuthService,
+      public coldStartService: ColdStartService
   ) {}
+
+  ngOnInit(): void {
+    this.isWaking$ = this.coldStartService.isWaking$;
+  }
 
   // ======================================================
   // Log In

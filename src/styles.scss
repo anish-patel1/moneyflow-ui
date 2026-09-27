@@ -60,3 +60,36 @@ td.editable-cell:focus-within {
     transform: rotate(360deg);
   }
 }
+
+// ── Cold-start overlay: only the @keyframes Tailwind cannot express ──────────
+
+// Card entrance spring animation
+.mf-card-in {
+  animation: mf-card-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes mf-card-in {
+  from { opacity: 0; transform: scale(0.92) translateY(12px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0);    }
+}
+
+// Expanding ring pulse (radiates outward then fades)
+.mf-ring-pulse {
+  animation: mf-ring-pulse 2s ease-out infinite;
+}
+
+@keyframes mf-ring-pulse {
+  0%   { transform: scale(0.85); opacity: 0.7; }
+  100% { transform: scale(1.45); opacity: 0;   }
+}
+
+// Indeterminate progress bar shimmer
+.mf-progress-bar {
+  animation: mf-progress-slide 1.6s ease-in-out infinite;
+}
+
+@keyframes mf-progress-slide {
+  0%   { transform: translateX(-100%) scaleX(0.5); }
+  50%  { transform: translateX(50%)   scaleX(1.2); }
+  100% { transform: translateX(200%)  scaleX(0.5); }
+}
