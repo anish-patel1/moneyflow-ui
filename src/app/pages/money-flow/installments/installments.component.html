@@ -8,17 +8,17 @@
                 <input pInputText type="text" placeholder="Search..." (input)="search(table, $event)" />
             </p-iconfield>
             <div class="flex items-center gap-2">
-                <div class="flex bg-surface-700 rounded-lg overflow-hidden">
-                    <button class="px-3 py-1 text-sm"
+                <div class="flex bg-surface-100 dark:bg-surface-800 rounded-lg overflow-hidden">
+                    <button class="px-3 py-1 text-sm transition"
                         [ngClass]="selectedStatus === 'A' 
-                            ? 'bg-blue-500 text-white' 
-                            : 'text-gray-400'" (click)="changeStatus('A')">
+                            ? 'bg-primary text-primary-contrast' 
+                            : 'text-color-secondary hover:bg-surface-200 dark:hover:bg-surface-700'" (click)="changeStatus('A')">
                         Active
                     </button>
-                    <button class="px-3 py-1 text-sm"
+                    <button class="px-3 py-1 text-sm transition"
                         [ngClass]="selectedStatus === 'C' 
                             ? 'bg-green-500 text-white' 
-                            : 'text-gray-400'" (click)="changeStatus('C')">
+                            : 'text-color-secondary hover:bg-surface-200 dark:hover:bg-surface-700'" (click)="changeStatus('C')">
                         Completed
                     </button>
                 </div>
@@ -28,7 +28,7 @@
     </ng-template>
 
     <ng-template pTemplate="header">
-        <tr class="text-gray-400 text-sm border-b border-gray-700">
+        <tr class="text-color-secondary text-sm border-b border-surface-200 dark:border-surface-700">
             <th pSortableColumn="installmentName">Loan
                 <p-sortIcon field="installmentName" />
             </th>
@@ -39,15 +39,15 @@
     </ng-template>
 
     <ng-template pTemplate="body" let-data>
-        <tr class="cursor-pointer transition border-b border-gray-800 hover:bg-surface-700"
+        <tr class="cursor-pointer transition border-b border-surface-200 dark:border-surface-700 hover:bg-surface-50 dark:hover:bg-surface-700"
             [routerLink]="'./loan-detail'" [queryParams]="{ id: data.installmentId }">
             <td>
                 <div class="flex items-start justify-between">
                     <div>
-                        <div class="font-semibold text-gray-200 flex items-center gap-2">
+                        <div class="font-semibold text-color flex items-center gap-2">
                             {{ data.installmentName }}
                         </div>
-                        <div class="text-xs text-gray-400 mt-1">
+                        <div class="text-xs text-color-secondary mt-1">
                             ₹ {{ data.monthlyAmount }} × {{ data.durationMonths }}
                         </div>
                     </div>
@@ -61,11 +61,11 @@
                     <div class="flex gap-1">
                         <div *ngFor="let i of [].constructor(data.durationMonths); let idx = index"
                             class="flex-1 h-2 rounded" [ngClass]="idx < data.paidMonths 
-                                    ? 'bg-green-400' 
-                                    : 'bg-gray-700'">
+                                    ? 'bg-green-500' 
+                                    : 'bg-surface-300 dark:bg-surface-600'">
                         </div>
                     </div>
-                    <div class="flex justify-between text-xs text-gray-400">
+                    <div class="flex justify-between text-xs text-color-secondary">
                         <span>{{ data.paidMonths }} / {{ data.durationMonths }}</span>
                         <span>{{ data.remainingMonths }} left</span>
                     </div>
@@ -91,8 +91,8 @@
         </ng-container>
         <tr *ngIf="!isgridloading">
             <td colspan="4">
-                <div class="flex flex-col items-center justify-center p-6 text-gray-500 animate-fade-in">
-                    <i class="pi pi-database text-5xl text-gray-400 mb-3"></i>
+                <div class="flex flex-col items-center justify-center p-6 text-color-secondary animate-fade-in">
+                    <i class="pi pi-database text-5xl mb-3 opacity-50"></i>
                     <div class="mb-2 text-lg">No records found</div>
                 </div>
             </td>
@@ -108,7 +108,7 @@
             <div class="text-xl font-semibold">
                 {{ editId ? 'Edit Loan' : 'Add Loan' }}
             </div>
-            <div class="text-sm text-gray-400 mt-1">
+            <div class="text-sm text-color-secondary mt-1">
                 Track your EMI or loan payments
             </div>
         </div>
@@ -143,11 +143,11 @@
             </label>
             <p-inputNumber formControlName="MonthlyAmount" class="w-full" [readonly]="true"
                 placeholder="0.00"></p-inputNumber>
-            <small class="text-gray-400 text-xs">
+            <small class="text-color-secondary text-xs mt-1 block">
                 Based on total amount and duration
             </small>
         </div>
-        <div class="border-surface-700">
+        <div>
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
                     <p-checkbox formControlName="EnableInitialPaid" [disabled]="!addForm.get('DurationMonths')?.value"
@@ -159,12 +159,12 @@
                     </label>
                 </div>
         
-                <span class="text-xs text-gray-400">
+                <span class="text-xs text-color-secondary">
                     Optional
                 </span>
             </div>
             <div *ngIf="addForm.get('EnableInitialPaid')?.value"
-                class="mt-4 p-4 rounded-xl bg-surface-900 border border-surface-700 space-y-3">
+                class="mt-4 p-4 rounded-xl bg-surface-50 dark:bg-surface-900 border border-surface-200 dark:border-surface-700 space-y-3">
                 <div>
                     <label class="block text-sm font-medium mb-2">
                         Paid Installments
@@ -173,11 +173,11 @@
                         placeholder="e.g. 6">
                     </p-inputNumber>
                 </div>
-                <div class="text-xs text-gray-400 leading-relaxed">
+                <div class="text-xs text-color-secondary leading-relaxed">
                     These payments were made before using this app.
                     They will only adjust progress, not create transactions.
                 </div>
-                <div *ngIf="addForm.get('InitialPaidMonths')?.errors" class="text-red-400 text-xs">
+                <div *ngIf="addForm.get('InitialPaidMonths')?.errors" class="text-red-500 text-xs">
                     <span *ngIf="addForm.get('InitialPaidMonths')?.errors?.['min']">
                         Must be at least 1.
                     </span>

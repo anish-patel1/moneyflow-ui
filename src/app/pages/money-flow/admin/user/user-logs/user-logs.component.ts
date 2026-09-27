@@ -91,56 +91,36 @@ export class UserLogsComponent {
   // ======================================================
   // Log Activity - Tags
   // ======================================================
-  // getActivityTypeLabel(type: string): string {
-  //   switch (type) {
-  //     case 'LOGIN_SUCCESS': return 'Login Success';
-  //     case 'LOGOUT_SUCCESS': return 'Logout Success';
-  //     case 'FAIL_WRONG_PASSWORD': return 'Wrong Password';
-  //     case 'FAIL_INVALID_USER': return 'Invalid User';
-  //     case 'FAIL_ACCOUNT_LOCKED': return 'Account Locked';
-  //     case 'FAIL_INACTIVE_ACCOUNT': return 'Inactive Account';
-  //     default: return '-';
-  //   }
-  // }
-
-  // getActivityTypeSeverity(type: string): string {
-  //   switch (type) {
-  //     case 'LOGIN_SUCCESS':
-  //     case 'LOGOUT_SUCCESS':
-  //       return 'success';
-  //     case 'FAIL_WRONG_PASSWORD':
-  //     case 'FAIL_INVALID_USER':
-  //       return 'warn';
-  //     case 'FAIL_ACCOUNT_LOCKED':
-  //     case 'FAIL_INACTIVE_ACCOUNT':
-  //       return 'danger';
-  //     default:
-  //       return 'info';
-  //   }
-  // }
+  // ======================================================
+  // Log Activity - Tags
+  // ======================================================
   getActivityTypeLabel(type: string): string {
-  switch (type) {
-    case 'LOGIN_SUCCESS': return 'Login Success';
-    case 'LOGOUT_SUCCESS': return 'Logout Success';
-    case 'FAIL_WRONG_PASSWORD': return 'Wrong Password';
-    case 'FAIL_INVALID_USER': return 'Invalid User';
-    case 'FAIL_ACCOUNT_LOCKED': return 'Account Locked';
-    case 'FAIL_INACTIVE_ACCOUNT': return 'Inactive Account';
-    default: return '-';
+    switch (type) {
+      case 'LOGIN_SUCCESS': return 'Login Success';
+      case 'LOGOUT_SUCCESS': return 'Logout Success';
+      case 'FAIL_WRONG_PASSWORD': return 'Wrong Password';
+      case 'FAIL_INVALID_USER': return 'Invalid User';
+      case 'FAIL_ACCOUNT_LOCKED': return 'Account Locked';
+      case 'FAIL_INACTIVE_ACCOUNT': return 'Inactive Account';
+      default: return '-';
+    }
   }
-}
 
-getActivityTypeClass(type: string): string {
-  switch (type) {
-    case 'LOGIN_SUCCESS': return 'login-success';
-    case 'LOGOUT_SUCCESS': return 'logout-success';
-    case 'FAIL_WRONG_PASSWORD': return 'fail-warning';
-    case 'FAIL_INVALID_USER': return 'fail-warning';
-    case 'FAIL_ACCOUNT_LOCKED': return 'fail-danger';
-    case 'FAIL_INACTIVE_ACCOUNT': return 'fail-danger';
-    default: return 'info-default';
+  getActivityTypeSeverity(type: string): string {
+    switch (type) {
+      case 'LOGIN_SUCCESS':
+      case 'LOGOUT_SUCCESS':
+        return 'success';
+      case 'FAIL_WRONG_PASSWORD':
+      case 'FAIL_INVALID_USER':
+        return 'warn';
+      case 'FAIL_ACCOUNT_LOCKED':
+      case 'FAIL_INACTIVE_ACCOUNT':
+        return 'danger';
+      default:
+        return 'secondary';
+    }
   }
-}
 
 
 }

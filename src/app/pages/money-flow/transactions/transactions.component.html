@@ -42,7 +42,7 @@
                                 [showClear]="true" class="w-full">
                             </p-dropdown>
                         </div>
-                        <div class="flex justify-end gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+                        <div class="flex justify-end gap-2 pt-2 border-t border-surface-200 dark:border-surface-700">
                             <p-button label="Clear" severity="secondary" size="small" (click)="clearFilter()" />
                             <p-button label="Apply" severity="primary" size="small"
                                 (click)="applyFilter(); filterPanel.hide()" />
@@ -54,7 +54,7 @@
                 <p-button icon="pi pi-arrow-right-arrow-left" label="Transfer" severity="secondary" outlined class="px-4 py-2"
                     (click)="openTransferDialog()">
                 </p-button>
-                <span class="h-6 w-px bg-gray-300 dark:bg-gray-600"></span>
+                <span class="h-6 w-px bg-surface-300 dark:bg-surface-600"></span>
                 <p-button icon="pi pi-plus" label="New" severity="primary" class="px-4 py-2 shadow-sm"
                     (click)="openDialog()">
                 </p-button>
@@ -89,15 +89,15 @@
                 <!-- Transfer Row -->
                 <ng-container *ngIf="data.transferGroupId; else normalAccount">
                     <div class="flex items-center gap-2 font-medium">
-                        <span class="text-gray-400">
+                        <span class="text-color-secondary">
                             {{ data.fromAccountName }}
                         </span>
-                        <i class="pi pi-arrow-right text-xs text-gray-500"></i>
-                        <span class="text-gray-200">
+                        <i class="pi pi-arrow-right text-xs text-color-secondary opacity-75"></i>
+                        <span class="text-color">
                             {{ data.toAccountName }}
                         </span>
                         <span class="ml-2 px-2 py-0.5 text-xs rounded-full
-                           bg-blue-500/20 text-blue-400">
+                           bg-primary/10 text-primary">
                             Transfer
                         </span>
                     </div>
@@ -123,13 +123,13 @@
             <td class="w-32">
                 <div class="text-right font-semibold whitespace-nowrap tabular-nums">
                     <ng-container *ngIf="data.transferGroupId; else normalAmount">
-                        <span class="text-blue-400">
+                        <span class="text-primary">
                             {{ data.amount | number:'1.2-2' }}
                         </span>
                     </ng-container>
                     <ng-template #normalAmount>
                         <!-- Income -->
-                        <span *ngIf="data.transactionType === 'Income'" class="text-green-400">
+                        <span *ngIf="data.transactionType === 'Income'" class="text-green-500">
                             + {{ data.amount | number:'1.2-2' }}
                         </span>
                         <!-- Expense -->
@@ -167,8 +167,8 @@
         </ng-container>
         <tr *ngIf="!isgridloading">
             <td colspan="5">
-                <div class="flex flex-col items-center justify-center p-6 text-gray-500 animate-fade-in">
-                    <i class="pi pi-database text-5xl text-gray-400 mb-3"></i>
+                <div class="flex flex-col items-center justify-center p-6 text-color-secondary animate-fade-in">
+                    <i class="pi pi-database text-5xl mb-3 opacity-50"></i>
                     <div class="mb-2 text-lg">No records found</div>
                 </div>
             </td>
@@ -184,7 +184,7 @@
             <div class="text-xl font-semibold tracking-tight">
                 {{ editId ? 'Edit Transaction' : 'Add Transaction' }}
             </div>
-            <div class="text-sm text-gray-400 mt-1">
+            <div class="text-sm text-color-secondary mt-1">
                 Record your income or expense
             </div>
         </div>
@@ -219,7 +219,7 @@
             <p-dropdown [options]="installmentData" optionLabel="installmentName" optionValue="installmentId" formControlName="InstallmentId"
                 [filter]="true" [showClear]="true" placeholder="Select loan" class="w-full" appendTo="body" (onChange)="changeInstallment($event.value)">
             </p-dropdown>
-            <small class="text-gray-400 text-xs">Select in case this is an EMI payment.</small>
+            <small class="text-color-secondary text-xs">Select in case this is an EMI payment.</small>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
@@ -273,14 +273,14 @@
 
     <ng-template pTemplate="header">
         <div class="p-3 bg-transparent flex items-center gap-3">
-            <div class="flex items-center justify-center w-9 h-9 rounded-full bg-blue-500/10">
-                <i class="pi pi-arrow-right-arrow-left text-blue-400 text-sm"></i>
+            <div class="flex items-center justify-center w-9 h-9 rounded-full bg-primary/10">
+                <i class="pi pi-arrow-right-arrow-left text-primary text-sm"></i>
             </div>
             <div>
                 <div class="text-xl font-semibold tracking-tight">
                     Transfer Money
                 </div>
-                <div class="text-sm text-gray-400 mt-1">
+                <div class="text-sm text-color-secondary mt-1">
                     Move funds between your accounts
                 </div>
             </div>
@@ -299,9 +299,9 @@
                 </p-dropdown>
             </div>
             <div class="flex justify-center self-end mb-1">
-                <div class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 
+                <div class="w-10 h-10 rounded-full bg-surface-100 dark:bg-surface-700 
                             flex items-center justify-center">
-                    <i class="pi pi-arrow-right text-blue-400"></i>
+                    <i class="pi pi-arrow-right text-primary"></i>
                 </div>
             </div>
             <div class="md:col-span-2">

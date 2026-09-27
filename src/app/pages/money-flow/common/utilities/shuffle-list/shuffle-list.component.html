@@ -39,13 +39,13 @@
     </div>
 
     <!-- List -->
-    <div class="overflow-auto rounded-lg p-2" style="max-height: 30rem" #listContainer>
+    <div class="overflow-auto rounded-lg p-2 max-h-[30rem]" #listContainer>
         <ul class="p-0 m-0" role="listbox">
             <li *ngFor="let it of items; let i = index; trackBy: trackByIndex" #listItem role="option" tabindex="-1"
                 [attr.aria-selected]="selectedItem === it" [ngClass]="{
                 'flex items-center gap-3 p-3 rounded-md mb-2 border': true,
-                'transform scale-102 bg-slate-800/50 shadow-lg border-slate-600': i === highlightedIndex,
-                'bg-slate-800/60 border-slate-500 animate-winner': selectedItem === it,
+                'transform scale-102 bg-surface-hover shadow-lg border-surface-border': i === highlightedIndex,
+                'bg-surface-section border-primary animate-winner': selectedItem === it,
                 'rolling': isShuffling && i === highlightedIndex
                 }">
 

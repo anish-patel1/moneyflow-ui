@@ -1,46 +1,46 @@
 <div class="flex items-center mb-3">
-    <button class="flex items-center gap-2 text-sm text-gray-400 hover:text-gray-200 transition"
+    <button class="flex items-center gap-2 text-sm text-color-secondary hover:text-color transition"
         (click)="backNav()">
         <i class="pi pi-arrow-left text-xs"></i>
         <span>Back to {{pageFrom}}</span>
     </button>
 </div>
 
-<div class="bg-surface-800 rounded-2xl shadow p-5 mb-5">
+<div class="bg-surface-0 dark:bg-surface-800 rounded-2xl shadow p-5 mb-5">
     <div class="flex justify-between items-start">
         <div>
             <div class="text-xl font-semibold">
                 {{ installmentData?.installmentName }}
             </div>
-            <div class="text-sm text-gray-400 mt-1">
+            <div class="text-sm text-color-secondary mt-1">
                 ₹ {{ installmentData?.monthlyAmount }} × {{ installmentData?.durationMonths }}
             </div>
         </div>
         <span *ngIf="installmentData?.paidMonths >= installmentData?.durationMonths"
-            class="px-3 py-1 text-xs rounded-full bg-green-500/20 text-green-400">
+            class="px-3 py-1 text-xs rounded-full bg-green-500/10 text-green-500">
             Completed
         </span>
         <span *ngIf="installmentData?.paidMonths < installmentData?.durationMonths"
-            class="px-3 py-1 text-xs rounded-full bg-blue-500/20 text-blue-400">
+            class="px-3 py-1 text-xs rounded-full bg-primary/10 text-primary">
             Active
         </span>
     </div>
     <div class="grid grid-cols-3 gap-4 mt-4 text-m">
         <div>
-            <div class="text-gray-400">Total</div>
+            <div class="text-color-secondary">Total</div>
             <div class="font-semibold">
                 ₹ {{ installmentData?.totalAmount | number:'1.2-2' }}
             </div>
         </div>
         <div>
-            <div class="text-gray-400">Paid</div>
-            <div class="font-semibold text-green-400">
+            <div class="text-color-secondary">Paid</div>
+            <div class="font-semibold text-green-500">
                 {{ installmentData?.paidMonths }}
             </div>
         </div>
         <div>
-            <div class="text-gray-400">Remaining</div>
-            <div class="font-semibold text-red-400">
+            <div class="text-color-secondary">Remaining</div>
+            <div class="font-semibold text-red-500">
                 {{ installmentData?.remainingMonths }}
             </div>
         </div>
@@ -48,30 +48,30 @@
     <div class="mt-5 flex gap-1">
         <div *ngFor="let i of [].constructor(installmentData?.durationMonths); let idx = index"
             class="flex-1 h-2 rounded" [ngClass]="idx < installmentData?.paidMonths 
-                        ? 'bg-green-400' 
-                        : 'bg-gray-700'">
+                        ? 'bg-green-500' 
+                        : 'bg-surface-300 dark:bg-surface-600'">
         </div>
     </div>
-    <div class="flex justify-between text-xs text-gray-400 mt-2">
+    <div class="flex justify-between text-xs text-color-secondary mt-2">
         <span>{{ installmentData?.paidMonths }} / {{ installmentData?.durationMonths }} paid</span>
         <span>{{ installmentData?.remainingMonths }} left</span>
     </div>
 </div>
 
-<div class="bg-surface-800 rounded-2xl shadow overflow-hidden">
-    <div class="flex items-center justify-between px-4 py-3 border-b border-gray-700">
+<div class="bg-surface-0 dark:bg-surface-800 rounded-2xl shadow overflow-hidden">
+    <div class="flex items-center justify-between px-4 py-3 border-b border-surface-200 dark:border-surface-700">
         <h3 class="text-lg font-semibold flex items-center gap-2">
-            <i class="pi pi-list text-gray-400"></i>
+            <i class="pi pi-list text-color-secondary"></i>
             Payments
         </h3>
-        <span class="text-xs text-gray-400">
+        <span class="text-xs text-color-secondary">
             {{ transactionData?.length || 0 }} records
         </span>
     </div>
     <p-table #table [value]="transactionData" dataKey="transactionId" [rows]="10" [rowHover]="true" [scrollable]="true"
         scrollHeight="65vh" styleClass="p-datatable-sm">
         <ng-template pTemplate="header">
-            <tr class="text-gray-400 text-sm border-b border-gray-700">
+            <tr class="text-color-secondary text-sm border-b border-surface-200 dark:border-surface-700">
                 <th class="py-3">Date</th>
                 <th>Account</th>
                 <th>Category</th>
@@ -79,19 +79,19 @@
             </tr>
         </ng-template>
         <ng-template pTemplate="body" let-data let-i="rowIndex">
-            <tr class="border-b border-gray-800 hover:bg-surface-700 transition"
+            <tr class="border-b border-surface-200 dark:border-surface-700 hover:bg-surface-50 dark:hover:bg-surface-700 transition"
                 [ngClass]="i === 0 ? 'bg-green-500/10' : ''">
-                <td class="py-3 text-gray-400 whitespace-nowrap">
+                <td class="py-3 text-color-secondary whitespace-nowrap">
                     {{ data.transactionDate }}
                 </td>
                 <td>
                     <ng-container *ngIf="data.transferGroupId; else normalAccount">
                         <div class="flex items-center gap-2 font-medium">
-                            <span class="text-gray-400">
+                            <span class="text-color-secondary">
                                 {{ data.fromAccountName }}
                             </span>
-                            <i class="pi pi-arrow-right text-xs text-gray-500"></i>
-                            <span class="text-gray-200">
+                            <i class="pi pi-arrow-right text-xs text-color-secondary opacity-75"></i>
+                            <span class="text-color">
                                 {{ data.toAccountName }}
                             </span>
                         </div>
@@ -100,7 +100,7 @@
                         {{ data.accountName }}
                     </ng-template>
                 </td>
-                <td class="text-gray-300">
+                <td class="text-color">
                     <ng-container *ngIf="data.transferGroupId; else normalCategory">
                         —
                     </ng-container>
@@ -111,12 +111,12 @@
                 </td>
                 <td class="text-right pr-4 font-semibold whitespace-nowrap tabular-nums">
                     <ng-container *ngIf="data.transferGroupId; else normalAmount">
-                        <span class="text-blue-400">
+                        <span class="text-primary">
                             {{ data.amount | number:'1.2-2' }}
                         </span>
                     </ng-container>
                     <ng-template #normalAmount>
-                        <span class="text-red-300">
+                        <span class="text-red-500">
                             {{ data.amount | number:'1.2-2' }}
                         </span>
                     </ng-template>
@@ -134,10 +134,10 @@
             </ng-container>
             <tr *ngIf="!isgridloading">
                 <td colspan="4">
-                    <div class="flex flex-col items-center justify-center p-6 text-gray-500">
-                        <i class="pi pi-inbox text-5xl text-gray-400 mb-3"></i>
+                    <div class="flex flex-col items-center justify-center p-6 text-color-secondary">
+                        <i class="pi pi-inbox text-5xl mb-3 opacity-50"></i>
                         <div class="mb-1 text-lg">No payments yet</div>
-                        <div class="text-sm text-gray-400">
+                        <div class="text-sm text-color-secondary">
                             Add your first EMI payment to track progress
                         </div>
                     </div>

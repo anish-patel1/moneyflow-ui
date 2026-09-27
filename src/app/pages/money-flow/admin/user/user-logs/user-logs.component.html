@@ -30,10 +30,10 @@
             <td>{{ i + 1 }}</td>
             <td>{{ data.activityTime }}</td>
             <td>
-                <p-tag 
-    [value]="getActivityTypeLabel(data.activityType)" 
-    [styleClass]="getActivityTypeClass(data.activityType)">
-  </p-tag>
+                <p-tag
+                    [value]="getActivityTypeLabel(data.activityType)"
+                    [severity]="getActivityTypeSeverity(data.activityType)">
+                </p-tag>
             </td>
             <td>{{ data.description }}</td>
         </tr>

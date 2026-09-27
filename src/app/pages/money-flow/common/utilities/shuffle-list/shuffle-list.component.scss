@@ -1,16 +1,15 @@
 :host {
   display: block;
-  --bg: #0f1113;
 }
 
 .shuffle-dialog-content {
-  background: var(--bg) !important;
-  color: #e9eef1 !important;
-  padding: 1rem !important;
+  background: var(--surface-overlay);
+  color: var(--text-color);
+  padding: 1rem;
 }
 
 .shuffle-dialog-content :focus {
-  outline: 2px solid rgba(59, 130, 246, 0.25);
+  outline: 2px solid color-mix(in srgb, var(--primary-color) 25%, transparent);
   outline-offset: 2px;
   border-radius: 6px;
 }
@@ -32,18 +31,18 @@
 
 .animate-winner {
   animation: winnerPulse 600ms ease-out;
-  border-color: #facc15;
+  border-color: var(--p-yellow-400);
   box-shadow:
-    0 0 0 2px rgba(250, 204, 21, 0.4),
-    0 0 25px rgba(250, 204, 21, 0.3);
+    0 0 0 2px color-mix(in srgb, var(--p-yellow-400) 40%, transparent),
+    0 0 25px color-mix(in srgb, var(--p-yellow-400) 30%, transparent);
 }
 
 /* Rolling shimmer */
 .rolling {
   background: linear-gradient(90deg,
-      rgba(255, 255, 255, 0.04),
-      rgba(255, 255, 255, 0.10),
-      rgba(255, 255, 255, 0.04));
+      color-mix(in srgb, var(--text-color) 4%, transparent),
+      color-mix(in srgb, var(--text-color) 10%, transparent),
+      color-mix(in srgb, var(--text-color) 4%, transparent));
   background-size: 200% 100%;
   animation: shimmer 0.7s linear infinite;
 }

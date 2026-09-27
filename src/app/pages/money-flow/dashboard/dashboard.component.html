@@ -1,9 +1,9 @@
 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
     <!-- Total Balance -->
-    <div class="p-4 rounded-xl bg-surface-800 shadow hover:bg-surface-700 transition">
+    <div class="p-4 rounded-xl bg-surface-0 dark:bg-surface-800 shadow hover:bg-surface-50 dark:hover:bg-surface-700 transition">
         <div class="flex items-center justify-between">
-            <div class="text-sm text-gray-400">Total Balance</div>
-            <i class="pi pi-calculator text-gray-400"></i>
+            <div class="text-sm text-color-secondary">Total Balance</div>
+            <i class="pi pi-calculator text-color-secondary"></i>
         </div>
         <div class="text-2xl font-semibold mt-2">
             {{ summaryData?.totalBalance | number:'1.2-2' }}
@@ -11,103 +11,104 @@
     </div>
 
     <!-- Income -->
-    <div class="p-4 rounded-xl bg-surface-800 shadow hover:bg-surface-700 transition">
+    <div class="p-4 rounded-xl bg-surface-0 dark:bg-surface-800 shadow hover:bg-surface-50 dark:hover:bg-surface-700 transition">
         <div class="flex items-center justify-between">
-            <div class="text-sm text-gray-400">Income (This Month)</div>
-            <i class="pi pi-arrow-down text-green-400"></i>
+            <div class="text-sm text-color-secondary">Income (This Month)</div>
+            <i class="pi pi-arrow-down text-green-500"></i>
         </div>
-        <div class="text-2xl font-semibold text-green-400 mt-2">
+        <div class="text-2xl font-semibold text-green-500 mt-2">
             + {{ summaryData?.monthlyIncome | number:'1.2-2' }}
         </div>
     </div>
 
     <!-- Expense -->
-    <div class="p-4 rounded-xl bg-surface-800 shadow hover:bg-surface-700 transition">
+    <div class="p-4 rounded-xl bg-surface-0 dark:bg-surface-800 shadow hover:bg-surface-50 dark:hover:bg-surface-700 transition">
         <div class="flex items-center justify-between">
-            <div class="text-sm text-gray-400">Expense (This Month)</div>
-            <i class="pi pi-arrow-up text-red-400"></i>
+            <div class="text-sm text-color-secondary">Expense (This Month)</div>
+            <i class="pi pi-arrow-up text-red-500"></i>
         </div>
-        <div class="text-2xl font-semibold text-red-400 mt-2">
+        <div class="text-2xl font-semibold text-red-500 mt-2">
             - {{ summaryData?.monthlyExpense | number:'1.2-2' }}
         </div>
     </div>
 
     <!-- Net Flow -->
-    <div class="p-4 rounded-xl bg-surface-800 shadow hover:bg-surface-700 transition">
+    <div class="p-4 rounded-xl bg-surface-0 dark:bg-surface-800 shadow hover:bg-surface-50 dark:hover:bg-surface-700 transition">
         <div class="flex items-center justify-between">
-            <div class="text-sm text-gray-400">Net Flow</div>
-            <i class="pi pi-chart-bar text-blue-400"></i>
+            <div class="text-sm text-color-secondary">Net Flow</div>
+            <i class="pi pi-chart-bar text-primary"></i>
         </div>
         <div class="text-2xl font-semibold mt-2"
-            [ngClass]="(summaryData?.netFlow ?? 0) >= 0 ? 'text-blue-400' : 'text-red-400'">
+            [ngClass]="(summaryData?.netFlow ?? 0) >= 0 ? 'text-primary' : 'text-red-500'">
             {{ (summaryData?.netFlow ?? 0) > 0 ? '+' : '' }}
             {{ summaryData?.netFlow | number:'1.2-2' }}
         </div>
     </div>
+
 </div>
 
 <!-- ACCOUNT BALANCES -->
 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
     <div *ngFor="let acc of accountData"
-        class="flex items-center justify-between px-4 py-3 rounded-lg bg-surface-800 shadow hover:bg-surface-700 transition">
+        class="flex items-center justify-between px-4 py-3 rounded-lg bg-surface-0 dark:bg-surface-800 shadow hover:bg-surface-50 dark:hover:bg-surface-700 transition">
         <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-surface-800">
-                <i *ngIf="acc.accountType === 'Cash'" class="pi pi-wallet text-yellow-400"></i>
-                <i *ngIf="acc.accountType === 'Bank'" class="pi pi-building-columns text-blue-400"></i>
-                <i *ngIf="acc.accountType === 'FD'" class="pi pi-lock text-purple-400"></i>
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-surface-100 dark:bg-surface-700">
+                <i *ngIf="acc.accountType === 'Cash'" class="pi pi-wallet text-yellow-500"></i>
+                <i *ngIf="acc.accountType === 'Bank'" class="pi pi-building-columns text-primary"></i>
+                <i *ngIf="acc.accountType === 'FD'" class="pi pi-lock text-purple-500"></i>
             </div>
             <div class="flex flex-col">
                 <span class="font-medium">
                     {{ acc.accountName }}
                 </span>
-                <span class="text-xs text-gray-400">
+                <span class="text-xs text-color-secondary">
                     {{ acc.accountType }}
                 </span>
             </div>
         </div>
-        <div class="text-right font-bold text-base whitespace-nowrap tabluar-nums"
-            [ngClass]="acc.balance < 0 ? 'text-red-400' : 'text-gray-200'">
+        <div class="text-right font-bold text-base whitespace-nowrap tabular-nums"
+            [ngClass]="acc.balance < 0 ? 'text-red-500' : 'text-color'">
             ₹ {{ acc.balance | number:'1.2-2' }}
         </div>
     </div>
 </div>
 
 <!-- LOANS OVERVIEW -->
-<div class="rounded-xl bg-surface-800 shadow overflow-hidden mb-4">
-    <div class="flex items-center justify-between px-4 py-3 border-b border-gray-700">
+<div class="rounded-xl bg-surface-0 dark:bg-surface-800 shadow overflow-hidden mb-4">
+    <div class="flex items-center justify-between px-4 py-3 border-b border-surface-200 dark:border-surface-700">
         <h3 class="text-lg font-semibold flex items-center gap-2">
-            <i class="pi pi-chart-line text-gray-400"></i>
+            <i class="pi pi-chart-line text-color-secondary"></i>
             Loans Overview
         </h3>
-        <a routerLink="/loans" class="text-sm text-blue-400 hover:text-blue-300 transition flex items-center gap-1">
+        <a routerLink="/loans" class="text-sm text-primary hover:opacity-75 transition flex items-center gap-1">
             View All
             <i class="pi pi-arrow-right text-xs"></i>
         </a>
     </div>
 
-    <div class="divide-y divide-gray-800">
-        <div *ngFor="let loan of loanData" class="px-4 py-3 hover:bg-surface-700 transition cursor-pointer"
+    <div class="divide-y divide-surface-200 dark:divide-surface-700">
+        <div *ngFor="let loan of loanData" class="px-4 py-3 hover:bg-surface-50 dark:hover:bg-surface-700 transition cursor-pointer"
             [routerLink]="['/loans/loan-detail']" [queryParams]="{ id: loan.installmentId, pageFrom: 'Dashboard' }">
             <div class="flex justify-between items-center">
-                <div class="font-medium text-gray-200">
+                <div class="font-medium text-color">
                     {{ loan.installmentName }}
                 </div>
-                <div class="text-xs text-gray-400">
+                <div class="text-xs text-color-secondary">
                     {{ loan.remainingMonths }} left
                 </div>
             </div>
-            <div class="text-xs text-gray-400 mt-1">
+            <div class="text-xs text-color-secondary mt-1">
                 ₹ {{ loan.monthlyAmount }} × {{ loan.durationMonths }}
             </div>
             <div class="flex gap-1 mt-2">
                 <div *ngFor="let i of [].constructor(loan.durationMonths); let idx = index" class="flex-1 h-1.5 rounded"
-                    [ngClass]="idx < loan.paidMonths ? 'bg-green-400' : 'bg-gray-700'">
+                    [ngClass]="idx < loan.paidMonths ? 'bg-green-500' : 'bg-surface-300 dark:bg-surface-600'">
                 </div>
             </div>
         </div>
     </div>
-    <div *ngIf="!loanData?.length" class="p-6 text-center text-gray-500">
-        <i class="pi pi-wallet text-4xl text-gray-400 mb-2"></i>
+    <div *ngIf="!loanData?.length" class="p-6 text-center text-color-secondary">
+        <i class="pi pi-wallet text-4xl text-color-secondary mb-2"></i>
         <div class="text-sm">
             No active loans
         </div>
@@ -115,14 +116,14 @@
 </div>
 
 <!-- RECENT TRANSACTIONS -->
-<div class="rounded-xl bg-surface-800 shadow overflow-hidden">
-    <div class="flex items-center justify-between px-4 py-3 border-b border-gray-700">
+<div class="rounded-xl bg-surface-0 dark:bg-surface-800 shadow overflow-hidden">
+    <div class="flex items-center justify-between px-4 py-3 border-b border-surface-200 dark:border-surface-700">
         <h3 class="text-lg font-semibold flex items-center gap-2">
-            <i class="pi pi-history text-gray-400"></i>
+            <i class="pi pi-history text-color-secondary"></i>
             Recent Transactions
         </h3>
         <a routerLink="/transactions"
-            class="text-sm text-blue-400 hover:text-blue-300 transition flex items-center gap-1">
+            class="text-sm text-primary hover:opacity-75 transition flex items-center gap-1">
             View All
             <i class="pi pi-arrow-right text-xs"></i>
         </a>
@@ -132,7 +133,7 @@
         styleClass="p-datatable-sm">
 
         <ng-template pTemplate="header">
-            <tr class="text-gray-400 text-sm border-b border-gray-700">
+            <tr class="text-color-secondary text-sm border-b border-surface-200 dark:border-surface-700">
                 <th class="py-3">Date</th>
                 <th>Account</th>
                 <th>Category</th>
@@ -146,9 +147,9 @@
 
         <!-- Body -->
         <ng-template pTemplate="body" let-data>
-            <tr class="border-b border-gray-800 hover:bg-surface-700 transition">
+            <tr class="border-b border-surface-200 dark:border-surface-700 hover:bg-surface-50 dark:hover:bg-surface-700 transition">
                 <!-- Date -->
-                <td class="py-3 text-gray-400 whitespace-nowrap">
+                <td class="py-3 text-color-secondary whitespace-nowrap">
                     {{ data.transactionDate }}
                 </td>
 
@@ -157,14 +158,14 @@
                     <!-- Transfer -->
                     <ng-container *ngIf="data.transferGroupId; else normalAccount">
                         <div class="flex items-center gap-2 font-medium">
-                            <span class="text-gray-400">
+                            <span class="text-color-secondary">
                                 {{ data.fromAccountName }}
                             </span>
-                            <i class="pi pi-arrow-right text-xs text-gray-500"></i>
-                            <span class="text-gray-200">
+                            <i class="pi pi-arrow-right text-xs text-color-secondary"></i>
+                            <span class="text-color">
                                 {{ data.toAccountName }}
                             </span>
-                            <span class="ml-2 px-2 py-0.5 text-xs rounded-full bg-blue-500/20 text-blue-400">
+                            <span class="ml-2 px-2 py-0.5 text-xs rounded-full bg-primary/10 text-primary">
                                 Transfer
                             </span>
                         </div>
@@ -176,9 +177,9 @@
                 </td>
 
                 <!-- Category -->
-                <td class="text-gray-300">
+                <td class="text-color">
                     <ng-container *ngIf="data.transferGroupId; else normalCategory">
-                        <span class="text-gray-500">—</span>
+                        <span class="text-color-secondary">—</span>
                     </ng-container>
                     <ng-template #normalCategory>
                         {{ data.categoryName }}
@@ -189,19 +190,19 @@
                 <td class="w-32">
                     <div class="text-right font-semibold whitespace-nowrap tabular-nums">
                         <ng-container *ngIf="data.transferGroupId; else normalAmount">
-                            <span class="text-blue-400">
+                            <span class="text-primary">
                                 {{ data.amount | number:'1.2-2' }}
                             </span>
                         </ng-container>
 
                         <ng-template #normalAmount>
                             <!-- Income -->
-                            <span *ngIf="data.transactionType === 'Income'" class="text-green-400">
+                            <span *ngIf="data.transactionType === 'Income'" class="text-green-500">
                                 + {{ data.amount | number:'1.2-2' }}
                             </span>
 
                             <!-- Expense -->
-                            <span *ngIf="data.transactionType === 'Expense'" class="text-gray-200">
+                            <span *ngIf="data.transactionType === 'Expense'" class="text-color">
                                 {{ data.amount | number:'1.2-2' }}
                             </span>
                         </ng-template>
