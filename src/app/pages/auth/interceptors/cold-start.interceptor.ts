@@ -24,6 +24,9 @@ export const coldStartInterceptor: HttpInterceptorFn = (
 ) => {
   const coldStartService = inject(ColdStartService);
 
+  // Signal the UI immediately when the very first request goes out.
+  coldStartService.setWaking(true);
+
   /** Recursive helper that tracks how many attempts remain. */
   function attempt(retriesLeft: number): Observable<any> {
     return next(req).pipe(
