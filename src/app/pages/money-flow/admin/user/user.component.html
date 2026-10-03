@@ -1,45 +1,50 @@
-<p-table #table [value]="userData" dataKey="userId" [tableStyle]="{ 'min-width': 'auto' }"
+<p-table #table [value]="userData" dataKey="userId" [tableStyle]="{ 'min-width': '38rem' }"
     [globalFilterFields]="['userName', 'userDisplayName']" [rows]="5" [paginator]="true"
     [rowsPerPageOptions]="[5, 8, 10, 20, 30]" [rowHover]="true">
     <ng-template #caption>
-        <div class="flex items-center justify-between">
-            <p-iconfield>
+        <div class="flex items-center justify-between gap-2 sm:gap-3">
+            <p-iconfield class="flex-1 sm:flex-initial sm:w-64 min-w-0">
                 <p-inputicon styleClass="pi pi-search" />
-                <input pInputText type="text" placeholder="Search..." (input)="search(table, $event)" />
+                <input pInputText type="text" placeholder="Search users..." class="w-full" (input)="search(table, $event)" />
             </p-iconfield>
-            <p-button label="New" icon="pi pi-plus" severity="secondary" class="mr-2" (onClick)="openDialog()" />
+            <p-button label="New" icon="pi pi-plus" severity="secondary" class="shrink-0" (onClick)="openDialog()" />
         </div>
     </ng-template>
 
     <ng-template pTemplate="header">
-        <tr>
+        <tr class="text-color-secondary text-sm">
             <th pSortableColumn="userName">User Name
                 <p-sortIcon field="userName" />
             </th>
             <th pSortableColumn="userDisplayName">Display Name
                 <p-sortIcon field="userDisplayName" />
             </th>
-            <th style="width: 5rem">Status</th>
-            <th style="width: 5rem"></th>
+            <th style="width: 7rem">Status</th>
+            <th style="width: 4rem"></th>
         </tr>
     </ng-template>
 
     <ng-template pTemplate="body" let-data>
-        <tr class="hover-row">
-            <td>{{ data.userName }}</td>
-            <td>{{ data.userDisplayName }}</td>
+        <tr class="hover:bg-surface-50 dark:hover:bg-surface-700/50 transition">
+            <td class="font-medium text-color">
+                {{ data.userName }}
+            </td>
+            <td class="text-color">
+                {{ data.userDisplayName }}
+            </td>
             <td>
-                <p-tag [value]="data.statusText"
+                <p-tag [value]="data.statusText" [rounded]="true"
                     [severity]="
+                        data.status === 'A' ? 'success' :
                         data.status === 'I' ? 'info' :
                         data.status === 'D' ? 'danger' :
-                        'primary'
+                        'secondary'
                     ">
                 </p-tag>
             </td>
-            <td>
+            <td (click)="$event.stopPropagation()">
                 <p-menu #menu [model]="items" [popup]="true" appendTo="body"></p-menu>
-                <p-button icon="pi pi-ellipsis-h" styleClass="p-button-text p-button-rounded p-button-sm"
+                <p-button icon="pi pi-ellipsis-h" [text]="true" [rounded]="true" size="small" severity="secondary"
                     (click)="openMenu(menu, $event, data.userId, data.userName, data.status)">
                 </p-button>
             </td>
@@ -56,47 +61,59 @@
         </ng-container>
         <tr *ngIf="!isgridloading">
             <td colspan="4">
-                <div class="flex flex-col items-center justify-center p-6 text-gray-500 animate-fade-in">
-                    <i class="pi pi-database text-5xl text-gray-400 mb-3"></i>
-                    <div class="mb-2 text-lg">No records found</div>
+                <div class="flex flex-col items-center justify-center p-8 text-color-secondary animate-fade-in">
+                    <i class="pi pi-users text-5xl mb-3 opacity-50"></i>
+                    <div class="mb-1 text-lg font-medium text-color">No users found</div>
+                    <p class="text-sm text-color-secondary m-0">Manage system users and access permissions</p>
                 </div>
             </td>
         </tr>
     </ng-template>
 </p-table>
 
-<!-- ADD DIALOG -->
-<p-dialog [(visible)]="addDialog" [style]="{ width: '450px' }" [modal]="true"
-    [header]="editId ? 'Edit User' : 'Add User'">
-    <form [formGroup]="addForm" class="p-4">
-        <div class="flex flex-col gap-6">
-            <div>
-                <label for="userName" class="block font-bold mb-2">User Name</label>
-                <input pInputText id="userName" formControlName="UserName" class="w-full" placeholder="Enter user name" autofocus />
-                <small class="text-red-500" *ngIf="submitted && addForm.controls['UserName'].invalid">
-                    User name is required.
-                </small>
+<!-- ADD / EDIT DIALOG -->
+<p-dialog [(visible)]="addDialog" [style]="{ width: '460px', maxWidth: '95vw' }" [modal]="true"
+    [draggable]="false" [resizable]="false" [contentStyle]="{ 'max-height': '80vh', 'overflow-y': 'auto' }"
+    contentStyleClass="p-0">
+    <ng-template pTemplate="header">
+        <div class="px-5 py-2">
+            <div class="text-lg font-semibold text-color">
+                {{ editId ? 'Edit User' : 'Add User' }}
             </div>
-            <div>
-                <label for="userDisplayName" class="block font-semibold mb-2">Display Name</label>
-                <input pInputText id="userDisplayName" formControlName="UserDisplayName" class="w-full" placeholder="Enter display name" autofocus />
-                <small class="text-red-500" *ngIf="submitted && addForm.controls['UserDisplayName'].invalid">
-                    Display name is required.
-                </small>
+            <div class="text-sm text-color-secondary mt-0.5">
+                {{ editId ? 'Update user account credentials' : 'Create a new user account' }}
             </div>
-            <div>
-                <label for="password" class="block font-bold mb-2">Password</label>
-                <input pInputText id="password" formControlName="Password" class="w-full" placeholder="Enter password" autofocus />
-                <small class="text-red-500" *ngIf="submitted && addForm.controls['Password'].invalid">
-                    Password is required.
-                </small>
-            </div>
+        </div>
+    </ng-template>
+    <form [formGroup]="addForm" class="px-5 py-4 space-y-4">
+        <div>
+            <label for="userName" class="block text-sm font-medium mb-2 text-color">User Name</label>
+            <input pInputText id="userName" formControlName="UserName" class="w-full" placeholder="Enter user name" />
+            <small class="text-red-500 text-xs mt-1 block" *ngIf="submitted && addForm.controls['UserName'].invalid">
+                User name is required.
+            </small>
+        </div>
+        <div>
+            <label for="userDisplayName" class="block text-sm font-medium mb-2 text-color">Display Name</label>
+            <input pInputText id="userDisplayName" formControlName="UserDisplayName" class="w-full" placeholder="Enter display name" />
+            <small class="text-red-500 text-xs mt-1 block" *ngIf="submitted && addForm.controls['UserDisplayName'].invalid">
+                Display name is required.
+            </small>
+        </div>
+        <div>
+            <label for="password" class="block text-sm font-medium mb-2 text-color">Password</label>
+            <p-password id="password" formControlName="Password" [toggleMask]="true" [feedback]="false"
+                styleClass="w-full" class="w-full" inputStyleClass="w-full" placeholder="Enter password">
+            </p-password>
+            <small class="text-red-500 text-xs mt-1 block" *ngIf="submitted && addForm.controls['Password'].invalid">
+                Password is required.
+            </small>
         </div>
     </form>
     <ng-template pTemplate="footer">
-        <div class="flex justify-end gap-2 px-4 pb-3">
-            <p-button label="Cancel" icon="pi pi-times" text (click)="closeDialog()"></p-button>
-            <p-button label="Save" icon="pi pi-check" (click)="editId ? btnUpdate() : btnSave()"
+        <div class="px-5 py-3 flex justify-end gap-3">
+            <p-button label="Cancel" severity="secondary" [text]="true" (click)="closeDialog()"></p-button>
+            <p-button label="Save" icon="pi pi-check" severity="primary" (click)="editId ? btnUpdate() : btnSave()"
                 [disabled]="addForm.invalid && submitted">
             </p-button>
         </div>
@@ -104,49 +121,50 @@
 </p-dialog>
 
 <!-- VIEW DIALOG -->
-<p-dialog [(visible)]="viewDialog" [style]="{ width: '500px' }" [modal]="true" [closable]="false">
+<p-dialog [(visible)]="viewDialog" [style]="{ width: '480px', maxWidth: '95vw' }" [modal]="true" [draggable]="false" [resizable]="false"
+    contentStyleClass="p-0">
     <ng-template pTemplate="header">
-        <div class="flex flex-col">
-            <div class="flex items-center gap-3">
-                <i class="pi pi-user text-blue-500 text-xl"></i>
-                <span class="font-bold text-lg">{{ viewData?.userDisplayName }}</span>
-                <p-tag [value]="viewData?.userTypeText"
-                    [severity]="
-                        viewData?.userTypeText === 'User' ? 'info' :
-                        'primary'
-                    ">
+        <div class="px-5 py-2">
+            <div class="flex items-center gap-2.5">
+                <i class="pi pi-user text-primary text-xl"></i>
+                <span class="font-semibold text-lg text-color">{{ viewData?.userDisplayName }}</span>
+                <p-tag [value]="viewData?.userTypeText" [rounded]="true"
+                    [severity]="viewData?.userTypeText === 'Admin' ? 'primary' : 'info'">
                 </p-tag>
             </div>
-            <small class="text-gray-500 ml-7">
-                Last Login : {{ viewData?.lastLoginDate }}
-            </small>
+            <div class="text-xs text-color-secondary mt-1">
+                Last Login: {{ viewData?.lastLoginDate || 'Never' }}
+            </div>
         </div>
     </ng-template>
-    <div *ngIf="viewData" class="p-4 space-y-5">
-        <div class="grid grid-cols-2 gap-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-400 mb-1">User Name</label>
-                <span class="font-medium">{{ viewData.userName }}</span>
+    <div *ngIf="viewData" class="px-5 py-4 space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="p-3 rounded-xl bg-surface-50 dark:bg-surface-900 border border-surface">
+                <label class="block text-xs font-medium text-color-secondary uppercase tracking-wider mb-1">User Name</label>
+                <span class="font-medium text-color text-sm">{{ viewData.userName }}</span>
             </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-400 mb-1">Password</label>
-                <span class="font-medium">{{ viewData.password }}</span>
+            <div class="p-3 rounded-xl bg-surface-50 dark:bg-surface-900 border border-surface">
+                <label class="block text-xs font-medium text-color-secondary uppercase tracking-wider mb-1">Password</label>
+                <span class="font-mono text-sm text-color">{{ viewData.password }}</span>
             </div>
         </div>
-        <div class="grid grid-cols-2 gap-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-400 mb-1">Failed Login Attempts</label>
-                <span class="font-medium">{{ viewData.failedLoginAttempts }}</span>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="p-3 rounded-xl bg-surface-50 dark:bg-surface-900 border border-surface">
+                <label class="block text-xs font-medium text-color-secondary uppercase tracking-wider mb-1">Failed Login Attempts</label>
+                <span class="font-semibold text-color tabular-nums text-sm">{{ viewData.failedLoginAttempts }}</span>
             </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-400 mb-1">Is Locked</label>
-                <span class="font-medium">{{ viewData.isLocked ? 'Yes' : 'No' }}</span>
+            <div class="p-3 rounded-xl bg-surface-50 dark:bg-surface-900 border border-surface">
+                <label class="block text-xs font-medium text-color-secondary uppercase tracking-wider mb-1">Account Lock</label>
+                <p-tag [value]="viewData.isLocked ? 'Locked' : 'Unlocked'" [rounded]="true"
+                    [severity]="viewData.isLocked ? 'danger' : 'success'">
+                </p-tag>
             </div>
         </div>
     </div>
 
     <ng-template pTemplate="footer">
-        <button pButton type="button" label="Close" icon="pi pi-times" 
-                class="p-button-text" (click)="viewDialog=false"></button>
+        <div class="px-5 py-3 flex justify-end">
+            <p-button label="Close" icon="pi pi-times" severity="secondary" [text]="true" (click)="viewDialog=false"></p-button>
+        </div>
     </ng-template>
 </p-dialog>

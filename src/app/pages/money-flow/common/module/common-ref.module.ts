@@ -38,6 +38,7 @@ import { PasswordModule } from 'primeng/password';
 import { PanelModule } from 'primeng/panel';
 import { ImageModule } from 'primeng/image';
 import { PopoverModule } from 'primeng/popover';
+import { SelectButtonModule } from 'primeng/selectbutton';
 
 @NgModule({
   declarations: [],
@@ -81,7 +82,8 @@ import { PopoverModule } from 'primeng/popover';
     PasswordModule,
     PanelModule,
     ImageModule,
-    PopoverModule
+    PopoverModule,
+    SelectButtonModule
   ],
   exports: [
     TableModule,
@@ -122,7 +124,8 @@ import { PopoverModule } from 'primeng/popover';
     PasswordModule,
     PanelModule,
     ImageModule,
-    PopoverModule
+    PopoverModule,
+    SelectButtonModule
   ]
 })
 export class CommonRefModule { }

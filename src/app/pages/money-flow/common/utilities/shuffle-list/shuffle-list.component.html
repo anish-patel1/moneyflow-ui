@@ -1,70 +1,66 @@
 <p-dialog header="Shuffle Picker" [(visible)]="visible" [modal]="true" [closable]="true" [style]="{ width: '680px' }"
-    contentStyleClass="shuffle-dialog-content" (onHide)="stopShuffle()">
+    [breakpoints]="{ '960px': '75vw', '640px': '90vw' }" contentStyleClass="shuffle-dialog-content" (onHide)="stopShuffle()">
 
-    <!-- Controls -->
-    <div class="flex items-center gap-3 mb-3">
+    <!-- Controls Toolbar -->
+    <div class="flex items-center gap-2 mb-4 flex-wrap">
+
+        <!-- Action buttons -->
         <div class="flex items-center gap-2">
-            <button *ngIf="!isShuffling" pButton type="button"
-                class="p-button p-button-success flex items-center gap-2 px-3 py-2" (click)="startShuffle()"
-                [disabled]="isShuffling || items.length === 0">
-                <i class="pi pi-play-circle"></i>
-                Start
-            </button>
-            <button *ngIf="isShuffling" pButton type="button"
-                class="p-button p-button-secondary flex items-center gap-2 px-3 py-2" (click)="stopShuffle()">
-                <i class="pi pi-stop-circle"></i>
-                Stop
-            </button>
-            <button pButton type="button" class="p-button p-button-warning flex items-center gap-2 px-3 py-2"
-                (click)="shuffleItems()" [disabled]="isShuffling || items.length < 2">
-                <i class="pi pi-sync"></i>
-                Shuffle
-            </button>
-            <button *ngIf="selectedItem" pButton type="button"
-                class="p-button p-button-secondary flex items-center gap-2 px-3 py-2" (click)="resetSelection()">
-                <i class="pi pi-eraser"></i>
-                Clear
-            </button>
+            <p-button *ngIf="!isShuffling" label="Start" icon="pi pi-play-circle" severity="success"
+                (onClick)="startShuffle()" [disabled]="isShuffling || items.length === 0" pTooltip="Start shuffle" />
+            <p-button *ngIf="isShuffling" label="Stop" icon="pi pi-stop-circle" severity="secondary"
+                (onClick)="stopShuffle()" pTooltip="Stop shuffle" />
+            <p-button label="Shuffle" icon="pi pi-sync" severity="warn"
+                (onClick)="shuffleItems()" [disabled]="isShuffling || items.length < 2" pTooltip="Randomize order" />
+            <p-button *ngIf="selectedItem" label="Clear" icon="pi pi-eraser" severity="secondary"
+                (onClick)="resetSelection()" pTooltip="Clear selection" />
         </div>
+
+        <!-- Add item input -->
         <div class="flex items-center gap-2 ml-auto">
-            <input #addInput type="text" pInputText placeholder="Add name" [(ngModel)]="newItem" (keydown.enter)="addItem()"
-                (keydown.space)="$event.stopPropagation()" [disabled]="isShuffling" class="px-3 py-2 rounded-md" />
-    
-            <button pButton type="button" class="p-button p-button-success px-3 py-2" (click)="addItem()"
-                [disabled]="!newItem.trim() || isShuffling">
-                <i class="pi pi-plus"></i>
-                Add
-            </button>
+            <input #addInput type="text" pInputText placeholder="Add name…" [(ngModel)]="newItem"
+                (keydown.enter)="addItem()" (keydown.space)="$event.stopPropagation()" [disabled]="isShuffling"
+                class="px-3 py-2 rounded-md" />
+            <p-button label="Add" icon="pi pi-plus" severity="success"
+                (onClick)="addItem()" [disabled]="!newItem.trim() || isShuffling" pTooltip="Add to list" />
         </div>
     </div>
 
     <!-- List -->
     <div class="overflow-auto rounded-lg p-2 max-h-[30rem]" #listContainer>
+
+        <!-- Empty state -->
+        <div *ngIf="items.length === 0" class="flex flex-col items-center justify-center py-12 gap-3 text-muted-color">
+            <i class="pi pi-list text-4xl opacity-30"></i>
+            <span class="text-sm">No items yet — add some names above to get started</span>
+        </div>
+
         <ul class="p-0 m-0" role="listbox">
             <li *ngFor="let it of items; let i = index; trackBy: trackByIndex" #listItem role="option" tabindex="-1"
-                [attr.aria-selected]="selectedItem === it" [ngClass]="{
-                'flex items-center gap-3 p-3 rounded-md mb-2 border': true,
-                'transform scale-102 bg-surface-hover shadow-lg border-surface-border': i === highlightedIndex,
-                'bg-surface-section border-primary animate-winner': selectedItem === it,
-                'rolling': isShuffling && i === highlightedIndex
+                [attr.aria-selected]="selectedItem === it"
+                class="shuffle-item flex items-center gap-3 p-3 rounded-md mb-2 border border-surface" [ngClass]="{
+                    'bg-surface-hover border-surface-border shadow-md scale-[1.02]': i === highlightedIndex && !selectedItem,
+                    'animate-winner': selectedItem === it,
+                    'rolling': isShuffling && i === highlightedIndex
                 }">
 
                 <!-- Avatar -->
-                <div class="flex items-center">
+                <div class="flex items-center flex-shrink-0">
                     <div *ngIf="getAvatarUrl(it) as url; else initialsTpl"
-                        class="w-10 h-10 rounded-md overflow-hidden border flex items-center justify-center">
-                        <img [src]="url" class="w-full h-full object-cover" />
+                        class="w-10 h-10 rounded-md overflow-hidden border border-surface flex items-center justify-center">
+                        <img [src]="url" class="w-full h-full object-cover" alt="" />
                     </div>
 
                     <ng-template #initialsTpl>
-                        <div class="w-10 h-10 rounded-md flex items-center justify-center font-bold border">
+                        <div
+                            class="avatar-initials w-10 h-10 rounded-md flex items-center justify-center font-bold text-sm border">
                             {{ getInitials(it) }}
                         </div>
                     </ng-template>
                 </div>
 
                 <!-- Label -->
-                <div class="flex-1">
+                <div class="flex-1 min-w-0">
                     <ng-container *ngIf="editingIndex !== i; else editTpl">
                         <div class="font-semibold truncate">{{ display(it) }}</div>
                     </ng-container>
@@ -76,24 +72,24 @@
                 </div>
 
                 <!-- Actions -->
-                <div class="flex items-center gap-2">
-                    <button *ngIf="editingIndex !== i" pButton class="p-button-rounded" (click)="startEdit(i)"
-                        [disabled]="isShuffling || editingIndex !== null">
+                <div class="flex items-center gap-1 flex-shrink-0">
+                    <button *ngIf="editingIndex !== i" pButton class="p-button-rounded p-button-text"
+                        (click)="startEdit(i)" [disabled]="isShuffling || editingIndex !== null" title="Edit">
                         <i class="pi pi-pencil"></i>
                     </button>
 
-                    <button *ngIf="editingIndex === i" pButton class="p-button-rounded" (click)="saveEdit(i)"
-                        [disabled]="!editingValue.trim()">
+                    <button *ngIf="editingIndex === i" pButton class="p-button-rounded p-button-success"
+                        (click)="saveEdit(i)" [disabled]="!editingValue.trim()" title="Save">
                         <i class="pi pi-check"></i>
                     </button>
 
                     <button *ngIf="editingIndex === i" pButton class="p-button-rounded p-button-secondary"
-                        (click)="cancelEdit()">
+                        (click)="cancelEdit()" title="Cancel">
                         <i class="pi pi-times"></i>
                     </button>
 
-                    <button pButton class="p-button-rounded p-button-danger" (click)="removeItem(i)"
-                        [disabled]="isShuffling">
+                    <button pButton class="p-button-rounded p-button-danger p-button-text" (click)="removeItem(i)"
+                        [disabled]="isShuffling" title="Remove">
                         <i class="pi pi-trash"></i>
                     </button>
                 </div>
@@ -101,29 +97,35 @@
         </ul>
     </div>
 
-    <!-- Selected -->
-    <div class="mt-4 flex flex-col gap-3 items-start">
-        <div class="flex items-center gap-2 text-sm font-semibold">
-            <span *ngIf="isShuffling" class="flex items-center gap-2">
-                <i class="pi pi-spin pi-spinner"></i> Running…
-            </span>
+    <!-- Selection Result -->
+    <div class="mt-4 pt-3 border-t border-surface">
 
-            <span *ngIf="!isShuffling && selectedItem">Selected:</span>
-            <span *ngIf="!isShuffling && !selectedItem">No selection yet</span>
+        <!-- Status label -->
+        <div class="text-xs font-medium mb-2 flex items-center gap-2">
+            <span *ngIf="isShuffling" class="running-label flex items-center gap-1.5">
+                <i class="pi pi-spin pi-spinner text-xs"></i> Running…
+            </span>
+            <span *ngIf="!isShuffling && selectedItem" class="text-muted-color uppercase tracking-wide">
+                Winner
+            </span>
+            <span *ngIf="!isShuffling && !selectedItem" class="text-muted-color">
+                No selection yet
+            </span>
         </div>
 
+        <!-- Result pill -->
         <div class="w-full flex">
-            <div class="flex items-center gap-3 rounded-full px-4 py-2 min-w-[260px] font-semibold shadow-md"
-                [ngClass]="{ border: true, 'opacity-60': !selectedItem && !isShuffling }">
+            <div class="selection-pill flex items-center gap-3 rounded-xl px-4 py-2.5 w-full border font-semibold"
+                [class.has-selection]="!!selectedItem" [class.opacity-50]="!selectedItem && !isShuffling">
+                <i class="pi pi-trophy text-sm" [class.text-primary]="!!selectedItem"
+                    [class.text-muted-color]="!selectedItem"></i>
                 <span class="flex-1 truncate">
-                    {{ selectedItem ? display(selectedItem) : '— no selection —' }}
+                    {{ selectedItem ? display(selectedItem) : '— awaiting selection —' }}
                 </span>
-
-                <button pButton class="p-button-rounded w-9 h-9" [disabled]="isShuffling || !selectedItem"
-                    (click)="copySelected()">
-                    <i class="pi" [ngClass]="copySuccess ? 'pi-check' : 'pi-copy'"></i>
-                </button>
+                <p-button [rounded]="true" [text]="true" [icon]="copySuccess ? 'pi pi-check text-green-500' : 'pi pi-copy'"
+                    [disabled]="isShuffling || !selectedItem" (onClick)="copySelected()" pTooltip="Copy to clipboard" />
             </div>
         </div>
     </div>
+
 </p-dialog>

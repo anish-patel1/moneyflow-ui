@@ -78,11 +78,37 @@ declare type SurfacesType = {
             </div>
             <div class="flex flex-col gap-2">
                 <span class="text-sm text-muted-color font-semibold">Presets</span>
-                <p-selectbutton [options]="presets" [ngModel]="selectedPreset()" (ngModelChange)="onPresetChange($event)" [allowEmpty]="false" size="small" />
+                <div class="grid grid-cols-3 p-1 bg-surface-100 dark:bg-surface-800 rounded-lg border border-surface-200 dark:border-surface-700/60 text-center">
+                    @for (preset of presets; track preset) {
+                        <button
+                            type="button"
+                            (click)="onPresetChange(preset)"
+                            class="py-1 px-2 text-xs font-medium rounded-md transition-all cursor-pointer border-none"
+                            [ngClass]="selectedPreset() === preset 
+                                ? 'bg-primary text-primary-contrast shadow-sm' 
+                                : 'bg-transparent text-color-secondary hover:text-color'"
+                        >
+                            {{ preset }}
+                        </button>
+                    }
+                </div>
             </div>
             <div *ngIf="showMenuModeButton()" class="flex flex-col gap-2">
                 <span class="text-sm text-muted-color font-semibold">Menu Mode</span>
-                <p-selectbutton [ngModel]="menuMode()" (ngModelChange)="onMenuModeChange($event)" [options]="menuModeOptions" [allowEmpty]="false" size="small" />
+                <div class="grid grid-cols-2 p-1 bg-surface-100 dark:bg-surface-800 rounded-lg border border-surface-200 dark:border-surface-700/60 text-center">
+                    @for (mode of menuModeOptions; track mode.value) {
+                        <button
+                            type="button"
+                            (click)="onMenuModeChange(mode.value)"
+                            class="py-1 px-2 text-xs font-medium rounded-md transition-all cursor-pointer border-none"
+                            [ngClass]="menuMode() === mode.value 
+                                ? 'bg-primary text-primary-contrast shadow-sm' 
+                                : 'bg-transparent text-color-secondary hover:text-color'"
+                        >
+                            {{ mode.label }}
+                        </button>
+                    }
+                </div>
             </div>
         </div>
     `,

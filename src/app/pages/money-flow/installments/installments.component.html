@@ -1,82 +1,90 @@
-<p-table #table [value]="installmentData" dataKey="installmentId" [tableStyle]="{ 'min-width': 'auto' }"
+<p-table #table [value]="installmentData" dataKey="installmentId" [tableStyle]="{ 'min-width': '38rem' }"
     [globalFilterFields]="['installmentName']" [rows]="5" [paginator]="true" [rowsPerPageOptions]="[5, 8, 10, 20, 30]"
     [rowHover]="true">
     <ng-template #caption>
-        <div class="flex items-center justify-between">
-            <p-iconfield>
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <p-iconfield class="w-full sm:w-64">
                 <p-inputicon styleClass="pi pi-search" />
-                <input pInputText type="text" placeholder="Search..." (input)="search(table, $event)" />
+                <input pInputText type="text" placeholder="Search loans..." class="w-full"
+                    (input)="search(table, $event)" />
             </p-iconfield>
-            <div class="flex items-center gap-2">
-                <div class="flex bg-surface-100 dark:bg-surface-800 rounded-lg overflow-hidden">
-                    <button class="px-3 py-1 text-sm transition"
+            <div class="flex items-center justify-between sm:justify-end gap-2 flex-wrap">
+                <div class="inline-flex p-1 bg-surface-100 dark:bg-surface-800 rounded-lg border border-surface-200 dark:border-surface-700/60">
+                    <button type="button" class="px-3.5 py-1 text-sm font-medium rounded-md transition-all cursor-pointer"
                         [ngClass]="selectedStatus === 'A' 
-                            ? 'bg-primary text-primary-contrast' 
-                            : 'text-color-secondary hover:bg-surface-200 dark:hover:bg-surface-700'" (click)="changeStatus('A')">
+                            ? 'bg-primary text-primary-contrast shadow-sm' 
+                            : 'text-color-secondary hover:text-color'" 
+                        (click)="changeStatus('A')">
                         Active
                     </button>
-                    <button class="px-3 py-1 text-sm transition"
+                    <button type="button" class="px-3.5 py-1 text-sm font-medium rounded-md transition-all cursor-pointer"
                         [ngClass]="selectedStatus === 'C' 
-                            ? 'bg-green-500 text-white' 
-                            : 'text-color-secondary hover:bg-surface-200 dark:hover:bg-surface-700'" (click)="changeStatus('C')">
+                            ? 'bg-primary text-primary-contrast shadow-sm' 
+                            : 'text-color-secondary hover:text-color'" 
+                        (click)="changeStatus('C')">
                         Completed
                     </button>
                 </div>
-                <p-button label="New" icon="pi pi-plus" severity="secondary" class="mr-2" (onClick)="openDialog()" />
+                <p-button label="New" icon="pi pi-plus" severity="secondary" (onClick)="openDialog()" />
             </div>
         </div>
     </ng-template>
 
     <ng-template pTemplate="header">
-        <tr class="text-color-secondary text-sm border-b border-surface-200 dark:border-surface-700">
+        <tr class="text-color-secondary text-sm border-b border-surface">
             <th pSortableColumn="installmentName">Loan
                 <p-sortIcon field="installmentName" />
             </th>
             <th class="text-right">Total</th>
-            <th>Progress</th>
+            <th class="w-52">Progress</th>
             <th style="width: 4rem"></th>
         </tr>
     </ng-template>
 
     <ng-template pTemplate="body" let-data>
-        <tr class="cursor-pointer transition border-b border-surface-200 dark:border-surface-700 hover:bg-surface-50 dark:hover:bg-surface-700"
+        <tr class="cursor-pointer transition border-b border-surface hover:bg-surface-50 dark:hover:bg-surface-800"
             [routerLink]="'./loan-detail'" [queryParams]="{ id: data.installmentId }">
             <td>
                 <div class="flex items-start justify-between">
                     <div>
                         <div class="font-semibold text-color flex items-center gap-2">
-                            {{ data.installmentName }}
+                            <span>{{ data.installmentName }}</span>
+                            <p-tag *ngIf="data.status === 'C'" severity="success" value="Completed" [rounded]="true"></p-tag>
                         </div>
                         <div class="text-xs text-color-secondary mt-1">
-                            ₹ {{ data.monthlyAmount }} × {{ data.durationMonths }}
+                            {{ data.monthlyAmount }} × {{ data.durationMonths }}
                         </div>
                     </div>
                 </div>
             </td>
-            <td class="text-right font-semibold whitespace-nowrap">
-                ₹ {{ data.totalAmount | number:'1.2-2' }}
+            <td class="text-right font-semibold whitespace-nowrap tabular-nums text-color">
+                {{ data.totalAmount | number:'1.2-2' }}
             </td>
-            <td>
-                <div class="space-y-1">
-                    <div class="flex gap-1">
-                        <div *ngFor="let i of [].constructor(data.durationMonths); let idx = index"
-                            class="flex-1 h-2 rounded" [ngClass]="idx < data.paidMonths 
-                                    ? 'bg-green-500' 
-                                    : 'bg-surface-300 dark:bg-surface-600'">
+            <td class="w-52">
+                <div class="space-y-1.5">
+                    <div class="w-full bg-surface-200 dark:bg-surface-700 rounded-full h-2 overflow-hidden">
+                        <div class="h-2 rounded-full transition-all duration-300"
+                            [ngClass]="data.status === 'C' ? 'bg-emerald-500' : 'bg-primary'"
+                            [style.width.%]="(data.paidMonths / data.durationMonths) * 100">
                         </div>
                     </div>
-                    <div class="flex justify-between text-xs text-color-secondary">
-                        <span>{{ data.paidMonths }} / {{ data.durationMonths }}</span>
-                        <span>{{ data.remainingMonths }} left</span>
+                    <div class="flex justify-between text-xs text-color-secondary tabular-nums">
+                        <span>{{ data.paidMonths }} / {{ data.durationMonths }} paid</span>
+                        <span *ngIf="data.status === 'C'" class="text-emerald-600 dark:text-emerald-400 font-medium">Fully Paid</span>
+                        <span *ngIf="data.status !== 'C'">{{ data.remainingMonths }} left</span>
                     </div>
                 </div>
             </td>
             <td (click)="$event.stopPropagation()">
-                <p-menu #menu [model]="items" [popup]="true" appendTo="body"></p-menu>
-
-                <p-button icon="pi pi-ellipsis-h" styleClass="p-button-text p-button-rounded p-button-sm"
-                    (click)="openMenu(menu, $event, data.installmentId, data.status)">
-                </p-button>
+                <ng-container *ngIf="data.status === 'A'">
+                    <p-menu #menu [model]="items" [popup]="true" appendTo="body"></p-menu>
+                    <p-button icon="pi pi-ellipsis-h" [text]="true" [rounded]="true" size="small" severity="secondary"
+                        (click)="openMenu(menu, $event, data.installmentId, data.status)">
+                    </p-button>
+                </ng-container>
+                <div *ngIf="data.status !== 'A'" class="flex items-center justify-center" pTooltip="Completed loan (Read-only)" tooltipPosition="left">
+                    <i class="pi pi-lock text-sm text-color-secondary opacity-50"></i>
+                </div>
             </td>
         </tr>
     </ng-template>
@@ -91,9 +99,10 @@
         </ng-container>
         <tr *ngIf="!isgridloading">
             <td colspan="4">
-                <div class="flex flex-col items-center justify-center p-6 text-color-secondary animate-fade-in">
+                <div class="flex flex-col items-center justify-center p-8 text-color-secondary animate-fade-in">
                     <i class="pi pi-database text-5xl mb-3 opacity-50"></i>
-                    <div class="mb-2 text-lg">No records found</div>
+                    <div class="mb-1 text-lg font-medium text-color">No records found</div>
+                    <p class="text-sm text-color-secondary m-0">Track your EMIs and loans seamlessly</p>
                 </div>
             </td>
         </tr>
@@ -102,10 +111,11 @@
 
 <!-- ADD DIALOG -->
 <p-dialog [(visible)]="addDialog" [modal]="true" [draggable]="false" [resizable]="false"
-    [style]="{ width: '520px', maxWidth: '95vw' }" contentStyleClass="p-0 overflow-hidden">
+    [style]="{ width: '520px', maxWidth: '95vw' }" [contentStyle]="{ 'max-height': '80vh', 'overflow-y': 'auto' }"
+    contentStyleClass="p-0">
     <ng-template pTemplate="header">
-        <div class="p-3">
-            <div class="text-xl font-semibold">
+        <div class="px-5 py-2">
+            <div class="text-lg font-semibold text-color">
                 {{ editId ? 'Edit Loan' : 'Add Loan' }}
             </div>
             <div class="text-sm text-color-secondary mt-1">
@@ -113,35 +123,36 @@
             </div>
         </div>
     </ng-template>
-    <form [formGroup]="addForm" class="px-3 space-y-6">
+    <form [formGroup]="addForm" class="px-5 py-4 space-y-4">
         <div>
-            <label class="block text-sm font-medium mb-2">
+            <label class="block text-sm font-medium mb-2 text-color">
                 Loan Name
             </label>
             <input pInputText formControlName="InstallmentName" class="w-full" placeholder="e.g. Laptop EMI">
         </div>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-                <label class="block text-sm font-medium mb-2">
+                <label class="block text-sm font-medium mb-2 text-color">
                     Total Amount
                 </label>
-                <p-inputNumber formControlName="TotalAmount" class="w-full" placeholder="e.g. 22000" mode="decimal"
-                    [min]="0.01" [minFractionDigits]="2" [maxFractionDigits]="2">
+                <p-inputNumber formControlName="TotalAmount" styleClass="w-full" class="w-full" placeholder="e.g. 22000"
+                    mode="decimal" [min]="0.01" [minFractionDigits]="2" [maxFractionDigits]="2">
                 </p-inputNumber>
             </div>
             <div>
-                <label class="block text-sm font-medium mb-2">
+                <label class="block text-sm font-medium mb-2 text-color">
                     Duration (Months)
                 </label>
-                <p-inputNumber formControlName="DurationMonths" class="w-full" placeholder="e.g. 12">
+                <p-inputNumber formControlName="DurationMonths" styleClass="w-full" class="w-full"
+                    placeholder="e.g. 12">
                 </p-inputNumber>
             </div>
         </div>
         <div>
-            <label class="block text-sm font-medium mb-2">
+            <label class="block text-sm font-medium mb-2 text-color">
                 Estimated EMI
             </label>
-            <p-inputNumber formControlName="MonthlyAmount" class="w-full" [readonly]="true"
+            <p-inputNumber formControlName="MonthlyAmount" styleClass="w-full" class="w-full" [readonly]="true"
                 placeholder="0.00"></p-inputNumber>
             <small class="text-color-secondary text-xs mt-1 block">
                 Based on total amount and duration
@@ -153,24 +164,24 @@
                     <p-checkbox formControlName="EnableInitialPaid" [disabled]="!addForm.get('DurationMonths')?.value"
                         binary="true" inputId="initialPaidToggle" (onChange)="changeInitialPaidToggle($event)">
                     </p-checkbox>
-        
-                    <label for="initialPaidToggle" class="text-sm font-medium">
+
+                    <label for="initialPaidToggle" class="text-sm font-medium text-color">
                         Already paid some EMIs?
                     </label>
                 </div>
-        
+
                 <span class="text-xs text-color-secondary">
                     Optional
                 </span>
             </div>
             <div *ngIf="addForm.get('EnableInitialPaid')?.value"
-                class="mt-4 p-4 rounded-xl bg-surface-50 dark:bg-surface-900 border border-surface-200 dark:border-surface-700 space-y-3">
+                class="mt-4 p-4 rounded-xl bg-surface-50 dark:bg-surface-900 border border-surface space-y-3">
                 <div>
-                    <label class="block text-sm font-medium mb-2">
+                    <label class="block text-sm font-medium mb-2 text-color">
                         Paid Installments
                     </label>
-                    <p-inputNumber formControlName="InitialPaidMonths" class="w-full" [min]="1" [useGrouping]="false"
-                        placeholder="e.g. 6">
+                    <p-inputNumber formControlName="InitialPaidMonths" styleClass="w-full" class="w-full" [min]="1"
+                        [useGrouping]="false" placeholder="e.g. 6">
                     </p-inputNumber>
                 </div>
                 <div class="text-xs text-color-secondary leading-relaxed">
@@ -187,25 +198,26 @@
                 </div>
             </div>
         </div>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-                <label class="block text-sm font-medium mb-2">
+                <label class="block text-sm font-medium mb-2 text-color">
                     Start Date
                 </label>
-                <p-datepicker formControlName="StartDate" class="w-full" [showIcon]="true" dateFormat="dd-mm-yy"
-                    appendTo="body" placeholder="dd-mm-yyyy">
+                <p-datepicker formControlName="StartDate" styleClass="w-full" class="w-full" [showIcon]="true"
+                    dateFormat="dd-mm-yy" appendTo="body" placeholder="dd-mm-yyyy">
                 </p-datepicker>
             </div>
             <div>
-                <label class="block text-sm font-medium mb-2">
+                <label class="block text-sm font-medium mb-2 text-color">
                     Billing Day
                 </label>
-                <p-inputNumber formControlName="BillingDay" class="w-full" [min]="1" [max]="31" placeholder="1 to 31">
+                <p-inputNumber formControlName="BillingDay" styleClass="w-full" class="w-full" [min]="1" [max]="31"
+                    placeholder="1 to 31">
                 </p-inputNumber>
             </div>
         </div>
         <div>
-            <label class="block text-sm font-medium mb-2">
+            <label class="block text-sm font-medium mb-2 text-color">
                 Description
             </label>
             <textarea pInputTextarea rows="3" formControlName="Description" class="w-full"
@@ -214,9 +226,9 @@
         </div>
     </form>
     <ng-template pTemplate="footer">
-        <div class="px-3 py-3 flex justify-end gap-3">
-            <p-button label="Cancel" text (click)="closeDialog()"></p-button>
-            <p-button label="Save" icon="pi pi-check" (click)="editId ? btnUpdate() : btnSave()"
+        <div class="px-5 py-3 flex justify-end gap-3">
+            <p-button label="Cancel" severity="secondary" [text]="true" (click)="closeDialog()"></p-button>
+            <p-button label="Save" icon="pi pi-check" severity="primary" (click)="editId ? btnUpdate() : btnSave()"
                 [disabled]="addForm.invalid">
             </p-button>
         </div>

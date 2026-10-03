@@ -1,8 +1,9 @@
 import { Component, ElementRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { AppMenu } from './app.menu';
 import { CommonService } from '../../pages/money-flow/common/service/common.service';
-import { MenuModule } from 'primeng/menu';
-import { MenuItem } from 'primeng/api';
+import { ButtonModule } from 'primeng/button';
+import { TooltipModule } from 'primeng/tooltip';
 import { Router } from '@angular/router';
 import { Auth_API } from '../../pages/auth/auth-api';
 import { AuthService } from '../../pages/auth/services/auth.service';
@@ -10,30 +11,37 @@ import { AuthService } from '../../pages/auth/services/auth.service';
 @Component({
     selector: 'app-sidebar',
     standalone: true,
-    imports: [AppMenu, MenuModule],
+    imports: [CommonModule, AppMenu, ButtonModule, TooltipModule],
     template: ` 
         <div class="layout-sidebar flex flex-col h-full">
             <div class="flex-1 overflow-y-auto">
                 <app-menu></app-menu>
             </div>
-            <div class="p-4 border-t surface-border flex items-center justify-between cursor-pointer relative"
-                (click)="menu.toggle($event)">
-                <div class="flex items-center space-x-3">
-                    <div
-                        class="w-8 h-8 rounded-full bg-primary text-primary-contrast flex items-center justify-center font-semibold shadow-md">
-                        {{ userDisplayName?.charAt(0).toUpperCase() }}
+            <div class="pt-3 pb-1">
+                <div class="p-3 bg-surface-100 dark:bg-surface-800/60 border border-surface-200 dark:border-surface-700/60 rounded-xl flex items-center justify-between">
+                    <div class="flex items-center space-x-3 min-w-0">
+                        <div
+                            class="w-9 h-9 rounded-full bg-primary text-primary-contrast flex items-center justify-center font-semibold text-sm shadow-sm shrink-0">
+                            {{ userDisplayName?.charAt(0)?.toUpperCase() }}
+                        </div>
+                        <div class="flex flex-col min-w-0">
+                            <span class="text-sm font-semibold text-color truncate max-w-[120px]" [title]="userDisplayName">
+                                {{ userDisplayName }}
+                            </span>
+                            <span class="text-xs text-color-secondary">Logged in</span>
+                        </div>
                     </div>
-                    <div class="flex flex-col">
-                        <span class="text-sm font-semibold text-color truncate max-w-[140px]">
-                            {{ userDisplayName }}
-                        </span>
-                        <span class="text-xs text-color-secondary">Logged in</span>
-                    </div>
+                    <p-button
+                        icon="pi pi-sign-out"
+                        [rounded]="true"
+                        [text]="true"
+                        severity="secondary"
+                        (onClick)="onLogOut()"
+                        pTooltip="Log out"
+                        tooltipPosition="top"
+                        aria-label="Log out"
+                    />
                 </div>
-                <p-menu #menu
-                    [popup]="true" [model]="userMenuItems"
-                    appendTo="body" [style]="{'min-width': '150px'}">
-                </p-menu>
             </div>
         </div>
     `
@@ -41,9 +49,6 @@ import { AuthService } from '../../pages/auth/services/auth.service';
 export class AppSidebar {
     // API
     Auth_API = Auth_API.Auth_API;
-    
-    // Menu Items
-    userMenuItems: MenuItem[] = [];
 
     // Current User
     userId: any = null;
@@ -58,34 +63,24 @@ export class AppSidebar {
     ) { }
 
     ngOnInit() {
-        const userDate = this.commonService.GetUserData();
-        this.userId = userDate.userId;
-        this.userDisplayName = userDate.userDisplayName;
-        this.userType = userDate.userType;
-
-        this.userMenuItems = [
-            // { label: 'Profile', icon: 'pi pi-user', command: () => this.onProfile() },
-            ...(this.userType === 'U'
-                ? [{ label: 'Settings', icon: 'pi pi-cog', command: () => this.onSettings() }]
-                : []),
-            { label: 'Log out', icon: 'pi pi-sign-out', command: () => this.onLogOut() }
-        ];
-    }
-
-    onProfile() {
-        // Navigate to profile page or handle logic
-        console.log('Profile clicked');
-    }
-
-    onSettings() {
-        this.router.navigate(['/setting']);
+        const userData = this.commonService.GetUserData();
+        this.userId = userData?.userId;
+        this.userDisplayName = userData?.userDisplayName;
+        this.userType = userData?.userType;
     }
 
     onLogOut() {
-        this.commonService.getData(this.Auth_API + "Log_Out?id=" + this.userId).subscribe({
-            next: (data: any) => {
-                if (data) this.authService.logout();
-            }
-        });
+        if (this.userId) {
+            this.commonService.getData(this.Auth_API + "Log_Out?id=" + this.userId).subscribe({
+                next: (data: any) => {
+                    if (data) this.authService.logout();
+                },
+                error: () => {
+                    this.authService.logout();
+                }
+            });
+        } else {
+            this.authService.logout();
+        }
     }
 }

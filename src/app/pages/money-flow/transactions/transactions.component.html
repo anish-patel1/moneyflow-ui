@@ -1,62 +1,67 @@
-<p-table #table [value]="transactionData" dataKey="transactionId" [tableStyle]="{ 'min-width': 'auto' }"
+<p-table #table [value]="transactionData" dataKey="transactionId" [tableStyle]="{ 'min-width': '42rem' }"
     [globalFilterFields]="['transactionDate', 'accountName', 'categoryName', 'transactionType', 'amount']" [rows]="6"
     [rowHover]="true" [scrollable]="true" scrollHeight="70vh">
     <ng-template #caption>
-        <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <p-iconfield class="w-64">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
+                <p-iconfield class="w-full sm:w-44 md:w-56 lg:w-64">
                     <p-inputicon styleClass="pi pi-search" />
-                    <input pInputText type="text" placeholder="Search..." class="w-full"
+                    <input pInputText type="text" placeholder="Search transactions..." class="w-full"
                         (input)="search(table, $event)" />
                 </p-iconfield>
 
-                <p-datepicker [(ngModel)]="selectedDateRange" selectionMode="range" dateFormat="dd-M-yy"
-                    iconDisplay="input" placeholder="Select date range" [showIcon]="true"
-                    (onSelect)="onDateRangeSelected()" [style]="{ width: '250px' }">
-                </p-datepicker>
+                <div class="flex items-center gap-2 flex-1 sm:flex-initial">
+                    <p-datepicker [(ngModel)]="selectedDateRange" selectionMode="range" dateFormat="dd-M-yy"
+                        iconDisplay="input" placeholder="Select date range" [showIcon]="true"
+                        (onSelect)="onDateRangeSelected()" styleClass="w-full sm:w-44 md:w-52" class="w-full sm:w-auto">
+                    </p-datepicker>
 
-                <p-button icon="pi pi-filter" severity="secondary"
-                    (click)="filterPanel.toggle($event); accountDrpdown();">
-                </p-button>
+                    <p-button icon="pi pi-filter" severity="secondary" [outlined]="true"
+                        (click)="filterPanel.toggle($event); accountDrpdown();" pTooltip="Filters"
+                        tooltipPosition="top">
+                    </p-button>
+                </div>
 
                 <p-popover #filterPanel>
-                    <div class="flex flex-col gap-4 w-80">
+                    <div class="flex flex-col gap-4 w-72 sm:w-80 max-w-[85vw]">
                         <div>
-                            <label class="block mb-1 font-medium">Account</label>
+                            <label class="block mb-1 text-sm font-medium text-color">Account</label>
                             <p-dropdown [options]="accountData" optionLabel="accountName" optionValue="accountId"
                                 [(ngModel)]="filter.accountId" placeholder="Select account" [filter]="true"
-                                [showClear]="true" class="w-full">
+                                [showClear]="true" styleClass="w-full" class="w-full" appendTo="body">
                             </p-dropdown>
                         </div>
                         <div>
-                            <label class="block mb-1 font-medium">Type</label>
+                            <label class="block mb-1 text-sm font-medium text-color">Type</label>
                             <p-dropdown [options]="transactionTypeData" optionLabel="name" optionValue="value"
                                 [(ngModel)]="filter.transactionType" placeholder="Select type" [showClear]="true"
-                                class="w-full" (onChange)="changeTransactionType($event)">
+                                styleClass="w-full" class="w-full" appendTo="body"
+                                (onChange)="changeTransactionType($event)">
                             </p-dropdown>
                         </div>
                         <div>
-                            <label class="block mb-1 font-medium">Category</label>
+                            <label class="block mb-1 text-sm font-medium text-color">Category</label>
                             <p-dropdown [options]="categoryData" optionLabel="categoryName" optionValue="categoryId"
                                 [(ngModel)]="filter.categoryId" placeholder="Select category" [filter]="true"
-                                [showClear]="true" class="w-full">
+                                [showClear]="true" styleClass="w-full" class="w-full" appendTo="body">
                             </p-dropdown>
                         </div>
-                        <div class="flex justify-end gap-2 pt-2 border-t border-surface-200 dark:border-surface-700">
-                            <p-button label="Clear" severity="secondary" size="small" (click)="clearFilter()" />
+                        <div class="flex justify-end gap-2 pt-2 border-t border-surface">
+                            <p-button label="Clear" severity="secondary" size="small" [text]="true"
+                                (click)="clearFilter()" />
                             <p-button label="Apply" severity="primary" size="small"
                                 (click)="applyFilter(); filterPanel.hide()" />
                         </div>
                     </div>
                 </p-popover>
             </div>
-            <div class="flex items-center gap-3">
-                <p-button icon="pi pi-arrow-right-arrow-left" label="Transfer" severity="secondary" outlined class="px-4 py-2"
-                    (click)="openTransferDialog()">
+
+            <div class="flex items-center gap-2 justify-end shrink-0 self-stretch sm:self-auto">
+                <p-button icon="pi pi-arrow-right-arrow-left" label="Transfer" severity="secondary" [outlined]="true"
+                    class="flex-1 sm:flex-initial" styleClass="w-full sm:w-auto" (click)="openTransferDialog()">
                 </p-button>
-                <span class="h-6 w-px bg-surface-300 dark:bg-surface-600"></span>
-                <p-button icon="pi pi-plus" label="New" severity="primary" class="px-4 py-2 shadow-sm"
-                    (click)="openDialog()">
+                <p-button icon="pi pi-plus" label="New" severity="secondary" class="flex-1 sm:flex-initial"
+                    styleClass="w-full sm:w-auto" (click)="openDialog()">
                 </p-button>
             </div>
         </div>
@@ -64,15 +69,15 @@
 
     <ng-template pTemplate="header">
         <tr>
-            <th>Date</th>
-            <th>Account</th>
-            <th>Category</th>
+            <th class="whitespace-nowrap" style="width: 8rem">Date</th>
+            <th class="min-w-[12rem]">Account</th>
+            <th class="min-w-[9rem]">Category</th>
             <th class="w-32">
                 <div class="flex justify-end items-center gap-1">
                     Amount
                 </div>
             </th>
-            <th style="width: 5rem"></th>
+            <th style="width: 4rem"></th>
         </tr>
     </ng-template>
 
@@ -80,7 +85,7 @@
         <tr class="hover-row">
 
             <!-- Date -->
-            <td class="whitespace-nowrap">
+            <td class="whitespace-nowrap text-color-secondary">
                 {{ data.transactionDate }}
             </td>
 
@@ -88,7 +93,7 @@
             <td>
                 <!-- Transfer Row -->
                 <ng-container *ngIf="data.transferGroupId; else normalAccount">
-                    <div class="flex items-center gap-2 font-medium">
+                    <div class="flex items-center gap-2 font-medium flex-wrap">
                         <span class="text-color-secondary">
                             {{ data.fromAccountName }}
                         </span>
@@ -96,15 +101,12 @@
                         <span class="text-color">
                             {{ data.toAccountName }}
                         </span>
-                        <span class="ml-2 px-2 py-0.5 text-xs rounded-full
-                           bg-primary/10 text-primary">
-                            Transfer
-                        </span>
+                        <p-tag value="Transfer" severity="info" class="ml-1" />
                     </div>
                 </ng-container>
 
                 <ng-template #normalAccount>
-                    {{ data.accountName }}
+                    <span class="font-medium text-color">{{ data.accountName }}</span>
                 </ng-template>
 
             </td>
@@ -112,11 +114,11 @@
             <!-- Category -->
             <td>
                 <ng-container *ngIf="data.transferGroupId; else normalCategory">
-                    —
+                    <span class="text-color-secondary">—</span>
                 </ng-container>
 
                 <ng-template #normalCategory>
-                    {{ data.categoryName }}
+                    <span class="text-color">{{ data.categoryName }}</span>
                 </ng-template>
             </td>
 
@@ -133,7 +135,7 @@
                             + {{ data.amount | number:'1.2-2' }}
                         </span>
                         <!-- Expense -->
-                        <span *ngIf="data.transactionType === 'Expense'">
+                        <span *ngIf="data.transactionType === 'Expense'" class="text-color">
                             {{ data.amount | number:'1.2-2' }}
                         </span>
                     </ng-template>
@@ -143,15 +145,13 @@
             <td>
                 <ng-container *ngIf="data.rowType !== 'System'; else systemRow">
                     <p-menu #menu [model]="items" [popup]="true" appendTo="body"></p-menu>
-                    <p-button 
-                        icon="pi pi-ellipsis-h" styleClass="p-button-text p-button-rounded p-button-sm"
+                    <p-button icon="pi pi-ellipsis-h" [text]="true" [rounded]="true" size="small" severity="secondary"
                         (click)="openMenu(menu, $event, data.transactionId, data.transferGroupId)">
                     </p-button>
                 </ng-container>
                 <ng-template #systemRow>
-                    <p-button 
-                        icon="pi pi-lock" styleClass="p-button-text p-button-rounded p-button-sm"
-                        pTooltip="system generated transaction !" tooltipPosition="left"></p-button>
+                    <p-button icon="pi pi-lock" [text]="true" [rounded]="true" size="small" severity="secondary"
+                        pTooltip="System generated transaction" tooltipPosition="left"></p-button>
                 </ng-template>
             </td>
         </tr>
@@ -167,21 +167,23 @@
         </ng-container>
         <tr *ngIf="!isgridloading">
             <td colspan="5">
-                <div class="flex flex-col items-center justify-center p-6 text-color-secondary animate-fade-in">
+                <div class="flex flex-col items-center justify-center p-8 text-color-secondary animate-fade-in">
                     <i class="pi pi-database text-5xl mb-3 opacity-50"></i>
-                    <div class="mb-2 text-lg">No records found</div>
+                    <div class="mb-1 text-lg font-medium text-color">No records found</div>
+                    <p class="text-sm text-color-secondary m-0">Record your first transaction to view history</p>
                 </div>
             </td>
         </tr>
     </ng-template>
 </p-table>
 
-<!-- ADD DRAWER -->
+<!-- ADD DIALOG -->
 <p-dialog [(visible)]="addDialog" [modal]="true" [draggable]="false" [resizable]="false" [closable]="true"
-    [style]="{ width: '520px', maxWidth: '95vw' }" contentStyleClass="p-0 overflow-hidden">
+    [style]="{ width: '520px', maxWidth: '95vw' }" [contentStyle]="{ 'max-height': '80vh', 'overflow-y': 'auto' }"
+    contentStyleClass="p-0">
     <ng-template pTemplate="header">
-        <div class="p-3 bg-transparent">
-            <div class="text-xl font-semibold tracking-tight">
+        <div class="px-5 py-2">
+            <div class="text-lg font-semibold text-color">
                 {{ editId ? 'Edit Transaction' : 'Add Transaction' }}
             </div>
             <div class="text-sm text-color-secondary mt-1">
@@ -190,65 +192,67 @@
         </div>
     </ng-template>
 
-    <form [formGroup]="addForm" class="px-3 space-y-6">
+    <form [formGroup]="addForm" class="px-5 py-4 space-y-4">
         <div>
-            <label class="block text-sm font-medium mb-3">Amount</label>
-            <div class="relative">
-                <p-inputNumber formControlName="Amount" mode="decimal" [min]="0.01" [minFractionDigits]="2" [maxFractionDigits]="2"
-                    inputStyleClass="pl-10 w-full text-2xl font-semibold" class="w-full" placeholder="e.g. 1500.00">
-                </p-inputNumber>
-            </div>
+            <label class="block text-sm font-medium mb-2 text-color">Amount</label>
+            <p-inputNumber formControlName="Amount" mode="decimal" [min]="0.01" [minFractionDigits]="2"
+                [maxFractionDigits]="2" inputStyleClass="w-full text-xl sm:text-2xl font-semibold" styleClass="w-full"
+                class="w-full" placeholder="0.00">
+            </p-inputNumber>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-                <label class="block text-sm font-medium mb-2">Date</label>
+                <label class="block text-sm font-medium mb-2 text-color">Date</label>
                 <p-datepicker formControlName="TransactionDate" [showIcon]="true" dateFormat="dd-mm-yy" appendTo="body"
-                    class="w-full" placeholder="dd-mm-yyyy" [maxDate]="today" (onSelect)="onDateSelect($event)">
+                    styleClass="w-full" class="w-full" placeholder="dd-mm-yyyy" [maxDate]="today"
+                    (onSelect)="onDateSelect($event)">
                 </p-datepicker>
             </div>
             <div>
-                <label class="block text-sm font-medium mb-2">Account</label>
+                <label class="block text-sm font-medium mb-2 text-color">Account</label>
                 <p-dropdown [options]="accountData" optionLabel="accountName" optionValue="accountId"
-                    formControlName="AccountId" [filter]="true" [showClear]="true" placeholder="Select account" class="w-full"
-                    appendTo="body">
+                    formControlName="AccountId" [filter]="true" [showClear]="true" placeholder="Select account"
+                    styleClass="w-full" class="w-full" appendTo="body">
                 </p-dropdown>
             </div>
         </div>
         <div>
-            <label class="block text-sm font-medium mb-2">Loan</label>
-            <p-dropdown [options]="installmentData" optionLabel="installmentName" optionValue="installmentId" formControlName="InstallmentId"
-                [filter]="true" [showClear]="true" placeholder="Select loan" class="w-full" appendTo="body" (onChange)="changeInstallment($event.value)">
+            <label class="block text-sm font-medium mb-2 text-color">Loan</label>
+            <p-dropdown [options]="installmentData" optionLabel="installmentName" optionValue="installmentId"
+                formControlName="InstallmentId" [filter]="true" [showClear]="true" placeholder="Select loan"
+                styleClass="w-full" class="w-full" appendTo="body" (onChange)="changeInstallment($event.value)">
             </p-dropdown>
-            <small class="text-color-secondary text-xs">Select in case this is an EMI payment.</small>
+            <small class="text-color-secondary text-xs mt-1 block">Select in case this is an EMI payment.</small>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-                <label class="block text-sm font-medium mb-2">Type</label>
+                <label class="block text-sm font-medium mb-2 text-color">Type</label>
                 <ng-container *ngIf="addForm.value.InstallmentId; else normalType">
                     <input pInputText formControlName="TransactionType" class="w-full" placeholder="Expense" readonly />
                 </ng-container>
                 <ng-template #normalType>
                     <p-dropdown [options]="transactionTypeData" optionLabel="name" optionValue="value"
-                        formControlName="TransactionType" placeholder="Select type" class="w-full" appendTo="body"
-                        [disabled]="addForm.value.InstallmentId" [showClear]="true" (onChange)="changeTransactionType($event)">
+                        formControlName="TransactionType" placeholder="Select type" styleClass="w-full" class="w-full"
+                        appendTo="body" [disabled]="addForm.value.InstallmentId" [showClear]="true"
+                        (onChange)="changeTransactionType($event)">
                     </p-dropdown>
                 </ng-template>
             </div>
             <div>
-                <label class="block text-sm font-medium mb-2">Category</label>
+                <label class="block text-sm font-medium mb-2 text-color">Category</label>
                 <ng-container *ngIf="addForm.value.InstallmentId; else normalCategory">
                     <input pInputText formControlName="Category" class="w-full" placeholder="EMI" readonly />
                 </ng-container>
                 <ng-template #normalCategory>
                     <p-dropdown [options]="categoryData" optionLabel="categoryName" optionValue="categoryId"
-                        formControlName="CategoryId" [filter]="true" [showClear]="true" placeholder="Select category" class="w-full"
-                        appendTo="body">
+                        formControlName="CategoryId" [filter]="true" [showClear]="true" placeholder="Select category"
+                        styleClass="w-full" class="w-full" appendTo="body">
                     </p-dropdown>
                 </ng-template>
             </div>
         </div>
         <div>
-            <label class="block text-sm font-medium mb-2">Description</label>
+            <label class="block text-sm font-medium mb-2 text-color">Description</label>
             <textarea pInputTextarea rows="3" formControlName="Description" class="w-full"
                 placeholder="Add a short note (optional)">
             </textarea>
@@ -256,28 +260,28 @@
     </form>
 
     <ng-template pTemplate="footer">
-        <div class="px-3 py-3 bg-transparent flex justify-end gap-3">
-            <p-button label="Cancel" severity="secondary" text (click)="closeDialog()">
+        <div class="px-5 py-3 flex justify-end gap-3">
+            <p-button label="Cancel" severity="secondary" [text]="true" (click)="closeDialog()">
             </p-button>
-
-            <p-button label="Save Transaction" icon="pi pi-check" (click)="editId ? btnUpdate() : btnSave()"
-                [disabled]="addForm.invalid" [loading]="isSaving">
+            <p-button label="Save Transaction" icon="pi pi-check" severity="primary"
+                (click)="editId ? btnUpdate() : btnSave()" [disabled]="addForm.invalid" [loading]="isSaving">
             </p-button>
         </div>
     </ng-template>
 </p-dialog>
 
-<!-- TRANSFER DRAWER -->
+<!-- TRANSFER DIALOG -->
 <p-dialog [(visible)]="transferDialog" [modal]="true" [draggable]="false" [resizable]="false" [closable]="true"
-    [style]="{ width: '520px', maxWidth: '95vw' }" contentStyleClass="p-0 overflow-hidden">
+    [style]="{ width: '520px', maxWidth: '95vw' }" [contentStyle]="{ 'max-height': '80vh', 'overflow-y': 'auto' }"
+    contentStyleClass="p-0">
 
     <ng-template pTemplate="header">
-        <div class="p-3 bg-transparent flex items-center gap-3">
+        <div class="px-5 py-2 flex items-center gap-3">
             <div class="flex items-center justify-center w-9 h-9 rounded-full bg-primary/10">
                 <i class="pi pi-arrow-right-arrow-left text-primary text-sm"></i>
             </div>
             <div>
-                <div class="text-xl font-semibold tracking-tight">
+                <div class="text-lg font-semibold text-color">
                     Transfer Money
                 </div>
                 <div class="text-sm text-color-secondary mt-1">
@@ -287,53 +291,57 @@
         </div>
     </ng-template>
 
-    <form [formGroup]="transferForm" class="px-3 space-y-6">
-        <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
-            <div class="md:col-span-2">
-                <label class="block text-sm font-medium mb-2">
+    <form [formGroup]="transferForm" class="px-5 py-4 space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr] gap-3 items-center sm:items-end">
+            <div>
+                <label class="block text-sm font-medium mb-2 text-color">
                     From
                 </label>
                 <p-dropdown [options]="fromAccountData" optionLabel="accountName" optionValue="accountId"
-                    formControlName="FromAccountId" [filter]="true" placeholder="Select source" class="w-full"
-                    appendTo="body" (onChange)="changeFromAccount($event)">
+                    formControlName="FromAccountId" [filter]="true" placeholder="Select source" styleClass="w-full"
+                    class="w-full" appendTo="body" (onChange)="changeFromAccount($event)">
                 </p-dropdown>
             </div>
-            <div class="flex justify-center self-end mb-1">
-                <div class="w-10 h-10 rounded-full bg-surface-100 dark:bg-surface-700 
-                            flex items-center justify-center">
-                    <i class="pi pi-arrow-right text-primary"></i>
+            <div class="relative flex items-center justify-center my-2 sm:my-0 sm:mb-2">
+                <div class="absolute inset-0 flex items-center sm:hidden" aria-hidden="true">
+                    <div class="w-full border-t border-surface"></div>
+                </div>
+                <div
+                    class="relative z-10 w-8 h-8 rounded-full bg-surface-0 dark:bg-surface-900 border border-surface flex items-center justify-center text-primary shadow-sm">
+                    <i class="pi pi-arrow-right text-xs transition-transform duration-200 rotate-90 sm:rotate-0"></i>
                 </div>
             </div>
-            <div class="md:col-span-2">
-                <label class="block text-sm font-medium mb-2">
+            <div>
+                <label class="block text-sm font-medium mb-2 text-color">
                     To
                 </label>
                 <p-dropdown [options]="toAccountData" optionLabel="accountName" optionValue="accountId"
-                    formControlName="ToAccountId" [filter]="true" placeholder="Select destination" class="w-full"
-                    appendTo="body" (onChange)="changeToAccount($event)">
+                    formControlName="ToAccountId" [filter]="true" placeholder="Select destination" styleClass="w-full"
+                    class="w-full" appendTo="body" (onChange)="changeToAccount($event)">
                 </p-dropdown>
             </div>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
-            <div class="md:col-span-3">
-                <label class="block text-sm font-medium mb-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium mb-2 text-color">
                     Amount
                 </label>
-                <p-inputNumber formControlName="Amount" mode="decimal" [min]="0.01" [minFractionDigits]="2" [maxFractionDigits]="2"
-                    class="w-full" placeholder="e.g. 1500.00">
+                <p-inputNumber formControlName="Amount" mode="decimal" [min]="0.01" [minFractionDigits]="2"
+                    [maxFractionDigits]="2" styleClass="w-full" class="w-full" placeholder="0.00">
                 </p-inputNumber>
             </div>
-            <div class="md:col-span-2">
-                <label class="block text-sm font-medium mb-2">
+            <div>
+                <label class="block text-sm font-medium mb-2 text-color">
                     Date
                 </label>
                 <p-datepicker formControlName="TransferDate" [showIcon]="true" dateFormat="dd-mm-yy" appendTo="body"
-                    class="w-full" placeholder="dd-mm-yyyy" [maxDate]="today" (onSelect)="onDateSelect($event)">
+                    styleClass="w-full" class="w-full" placeholder="dd-mm-yyyy" [maxDate]="today"
+                    (onSelect)="onDateSelect($event)">
                 </p-datepicker>
             </div>
         </div>
         <div>
-            <label class="block text-sm font-medium mb-2">
+            <label class="block text-sm font-medium mb-2 text-color">
                 Description
             </label>
             <textarea pInputTextarea rows="3" formControlName="Description" class="w-full"
@@ -343,11 +351,11 @@
     </form>
 
     <ng-template pTemplate="footer">
-        <div class="px-3 py-3 bg-transparent flex justify-end gap-3">
-            <p-button label="Cancel" severity="secondary" text (click)="closeTransferDialog()">
+        <div class="px-5 py-3 flex justify-end gap-3">
+            <p-button label="Cancel" severity="secondary" [text]="true" (click)="closeTransferDialog()">
             </p-button>
-            <p-button label="Save Transfer" icon="pi pi-check" [disabled]="transferForm.invalid" [loading]="isSaving"
-                (click)="editTransferId ? updateTransfer() : saveTransfer()">
+            <p-button label="Save Transfer" icon="pi pi-check" severity="primary" [disabled]="transferForm.invalid"
+                [loading]="isSaving" (click)="editTransferId ? updateTransfer() : saveTransfer()">
             </p-button>
         </div>
     </ng-template>

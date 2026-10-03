@@ -2,12 +2,12 @@
     [globalFilterFields]="['accountName', 'accountType', 'balance']" [rows]="5" [paginator]="true"
     [rowsPerPageOptions]="[5, 8, 10, 20, 30]" [rowHover]="true">
     <ng-template #caption>
-        <div class="flex items-center justify-between">
-            <p-iconfield>
+        <div class="flex items-center justify-between gap-2 sm:gap-3">
+            <p-iconfield class="flex-1 sm:flex-initial sm:w-72 min-w-0">
                 <p-inputicon styleClass="pi pi-search" />
-                <input pInputText type="text" placeholder="Search..." (input)="search(table, $event)" />
+                <input pInputText type="text" placeholder="Search accounts..." class="w-full" (input)="search(table, $event)" />
             </p-iconfield>
-            <p-button label="New" icon="pi pi-plus" severity="secondary" class="mr-2" (onClick)="openDialog()" />
+            <p-button label="New" icon="pi pi-plus" severity="secondary" class="shrink-0" (onClick)="openDialog()" />
         </div>
     </ng-template>
 
@@ -19,7 +19,7 @@
             <th pSortableColumn="accountType">Type
                 <p-sortIcon field="accountType" />
             </th>
-            <th pSortableColumn="balance" class="w-32">
+            <th pSortableColumn="balance" class="w-36">
                 <div class="flex justify-end items-center gap-1">
                     Balance
                     <p-sortIcon field="balance"></p-sortIcon>
@@ -31,16 +31,23 @@
 
     <ng-template pTemplate="body" let-data>
         <tr class="hover-row">
-            <td>{{ data.accountName }}</td>
-            <td>{{ data.accountType }}</td>
-            <td class="w-32">
-                <div class="text-right font-semibold whitespace-nowrap tabular-nums">
+            <td class="font-medium text-color">{{ data.accountName }}</td>
+            <td>
+                <p-tag 
+                    [value]="data.accountType" 
+                    [severity]="data.accountType === 'Bank' ? 'info' : (data.accountType === 'FD' ? 'success' : 'warn')"
+                    [icon]="data.accountType === 'Bank' ? 'pi pi-building-columns' : (data.accountType === 'FD' ? 'pi pi-lock' : 'pi pi-wallet')">
+                </p-tag>
+            </td>
+            <td class="w-36">
+                <div class="text-right font-semibold whitespace-nowrap tabular-nums"
+                    [ngClass]="data.balance < 0 ? 'text-red-500' : 'text-color'">
                     {{ data.balance | number:'1.2-2' }}
                 </div>
             </td>
             <td>
                 <p-menu #menu [model]="items" [popup]="true" appendTo="body"></p-menu>
-                <p-button icon="pi pi-ellipsis-h" styleClass="p-button-text p-button-rounded p-button-sm"
+                <p-button icon="pi pi-ellipsis-h" [text]="true" [rounded]="true" size="small" severity="secondary"
                     (click)="openMenu(menu, $event, data.accountId, data.status)">
                 </p-button>
             </td>
@@ -57,9 +64,10 @@
         </ng-container>
         <tr *ngIf="!isgridloading">
             <td colspan="4">
-                <div class="flex flex-col items-center justify-center p-6 text-gray-500 animate-fade-in">
-                    <i class="pi pi-database text-5xl text-gray-400 mb-3"></i>
-                    <div class="mb-2 text-lg">No records found</div>
+                <div class="flex flex-col items-center justify-center p-8 text-color-secondary animate-fade-in">
+                    <i class="pi pi-database text-5xl mb-3 opacity-50"></i>
+                    <div class="mb-1 text-lg font-medium text-color">No accounts found</div>
+                    <p class="text-sm text-color-secondary m-0">Add an account to start tracking your money</p>
                 </div>
             </td>
         </tr>
@@ -71,17 +79,17 @@
     [style]="{ width: '450px', maxWidth: '95vw' }" contentStyleClass="p-0">
     <ng-template pTemplate="header">
         <div class="px-5 py-2">
-            <div class="text-lg font-semibold">
+            <div class="text-lg font-semibold text-color">
                 {{ editId ? 'Edit Account' : 'Add Account' }}
             </div>
-            <div class="text-sm text-gray-400 mt-1">
+            <div class="text-sm text-color-secondary mt-1">
                 Manage your financial accounts
             </div>
         </div>
     </ng-template>
     <form [formGroup]="addForm" class="px-5 py-4 space-y-5">
         <div>
-            <label class="block text-sm font-medium mb-2">
+            <label class="block text-sm font-medium mb-2 text-color">
                 Account Name
             </label>
             <input pInputText formControlName="AccountName" class="w-full" placeholder="e.g. HDFC Savings Account"
@@ -91,7 +99,7 @@
             </small>
         </div>
         <div>
-            <label class="block text-sm font-medium mb-2">
+            <label class="block text-sm font-medium mb-2 text-color">
                 Account Type
             </label>
             <p-dropdown [options]="accountTypeData" optionLabel="name" optionValue="value" formControlName="AccountType"
@@ -106,14 +114,14 @@
                 <p-checkbox formControlName="EnableOpeningBalance" binary="true" inputId="openingToggle"
                     (onChange)="changeOpBalToggle($event)">
                 </p-checkbox>
-                <label for="openingToggle" class="text-sm">
+                <label for="openingToggle" class="text-sm text-color">
                     This account already has money
                 </label>
             </div>
         </div>
         <div *ngIf="addForm.get('EnableOpeningBalance')?.value && !editId" class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
             <div>
-                <label class="block text-sm font-medium mb-2">
+                <label class="block text-sm font-medium mb-2 text-color">
                     Opening Balance
                 </label>
                 <p-inputNumber formControlName="OpeningBalance" mode="decimal" [min]="0" [minFractionDigits]="2"
@@ -124,7 +132,7 @@
                 </small>
             </div>
             <div>
-                <label class="block text-sm font-medium mb-2">
+                <label class="block text-sm font-medium mb-2 text-color">
                     Opening Date
                 </label>
                 <p-datepicker formControlName="OpeningDate" [showIcon]="true" dateFormat="dd-mm-yy" class="w-full"
@@ -135,9 +143,9 @@
     </form>
     <ng-template pTemplate="footer">
         <div class="flex justify-end gap-3 px-5 py-3">
-            <p-button label="Cancel" severity="secondary" text (click)="closeDialog()">
+            <p-button label="Cancel" severity="secondary" [text]="true" (click)="closeDialog()">
             </p-button>
-            <p-button label="Save" icon="pi pi-check" (click)="editId ? btnUpdate() : btnSave()"
+            <p-button label="Save" icon="pi pi-check" severity="primary" (click)="editId ? btnUpdate() : btnSave()"
                 [disabled]="addForm.invalid">
             </p-button>
         </div>

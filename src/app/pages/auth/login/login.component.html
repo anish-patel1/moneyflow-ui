@@ -40,25 +40,24 @@
 </ng-container>
 
 <!-- Login Form -->
-<div
-    class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-[100vw] overflow-hidden">
-    <div class="flex flex-col items-center justify-center">
-        <div class="rounded-[56px] p-[0.3rem] bg-[linear-gradient(180deg,var(--primary-color)_10%,transparent_30%)]">
-            <div class="w-full bg-surface-0 dark:bg-surface-900 py-20 px-8 sm:px-20 rounded-[53px]">
-                <div class="text-center mb-8">
-                    <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">
+<div class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-[100vw] p-4 overflow-hidden">
+    <div class="flex flex-col items-center justify-center w-full max-w-[32rem]">
+        <div class="w-full rounded-[48px] sm:rounded-[56px] p-[0.3rem] bg-[linear-gradient(180deg,var(--primary-color)_10%,transparent_30%)]">
+            <div class="w-full bg-surface-0 dark:bg-surface-900 py-10 sm:py-12 px-6 sm:px-12 rounded-[45px] sm:rounded-[53px]">
+                <div class="text-center mb-6">
+                    <h1 class="text-2xl sm:text-3xl font-semibold text-color mb-2">
                         Welcome to Money Flow
-                    </div>
-                    <span class="text-muted-color font-medium">Sign in to continue</span>
+                    </h1>
+                    <p class="text-sm text-muted-color m-0">Sign in to continue</p>
                 </div>
 
                 <div>
-                    <label for="username" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">
-                        User Name
-                    </label>
-                    <div class="mb-8">
+                    <div class="mb-4">
+                        <label for="username" class="block text-color text-sm font-medium mb-1.5">
+                            User Name
+                        </label>
                         <input pInputText id="username" type="text" placeholder="Enter user name"
-                            class="w-full md:w-[30rem]" name="username" [(ngModel)]="username" #usernameModel="ngModel"
+                            class="w-full" name="username" [(ngModel)]="username" #usernameModel="ngModel"
                             required />
                         <small class="block text-red-500 text-xs mt-1"
                             *ngIf="usernameModel.invalid && usernameModel.touched">
@@ -66,22 +65,22 @@
                         </small>
                     </div>
 
-                    <label for="password" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">
-                        Password
-                    </label>
-                    <div class="relative mb-6">
+                    <div class="mb-2">
+                        <label for="password" class="block text-color text-sm font-medium mb-1.5">
+                            Password
+                        </label>
                         <p-password id="password" name="password" [(ngModel)]="password" placeholder="Enter password"
-                            [toggleMask]="true" [fluid]="true" [feedback]="false" required #passwordModel="ngModel">
+                            [toggleMask]="true" [fluid]="true" [feedback]="false" styleClass="w-full" required #passwordModel="ngModel">
                         </p-password>
 
-                        <small class="absolute text-red-500 text-xs mt-1"
+                        <small class="block text-red-500 text-xs mt-1"
                             *ngIf="passwordModel.invalid && passwordModel.touched">
                             Password is required
                         </small>
                     </div>
 
-                    <div class="flex justify-end mb-8">
-                        <span class="font-medium no-underline cursor-pointer text-primary">Forgot password?</span>
+                    <div class="flex justify-end mb-6">
+                        <span class="text-sm font-medium text-primary hover:underline cursor-pointer">Forgot password?</span>
                     </div>
 
                     <ng-container *ngIf="{ waking: isWaking$ | async } as state">
@@ -90,17 +89,17 @@
                         </p-button>
                     </ng-container>
 
-                    <div class="text-center">
+                    <div class="text-center text-sm">
                         <span class="text-muted-color">Don't have an account?</span>
-                        <a routerLink="/auth/register" class="font-medium text-primary cursor-pointer ml-2">
+                        <a routerLink="/auth/register" class="font-medium text-primary hover:underline cursor-pointer ml-1.5">
                             Register here
                         </a>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="mt-8">
-            <p>Version<span class="text-primary font-bold ms-2">{{ version }}</span></p>
+        <div class="mt-6 text-sm text-muted-color">
+            <span>Version <span class="text-primary font-bold">{{ version }}</span></span>
         </div>
     </div>
 </div>

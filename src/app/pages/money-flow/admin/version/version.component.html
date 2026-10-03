@@ -1,46 +1,56 @@
-<p-table #table [value]="versionData" dataKey="versionId" [tableStyle]="{ 'min-width': 'auto' }"
+<p-table #table [value]="versionData" dataKey="versionId" [tableStyle]="{ 'min-width': '40rem' }"
     [globalFilterFields]="['version', 'details']" [rows]="5" [paginator]="true"
     [rowsPerPageOptions]="[5, 8, 10, 20, 30]" [rowHover]="true">
     <ng-template #caption>
-        <div class="flex items-center justify-between">
-            <p-iconfield>
+        <div class="flex items-center justify-between gap-2 sm:gap-3">
+            <p-iconfield class="flex-1 sm:flex-initial sm:w-64 min-w-0">
                 <p-inputicon styleClass="pi pi-search" />
-                <input pInputText type="text" placeholder="Search..." (input)="search(table, $event)" />
+                <input pInputText type="text" placeholder="Search versions..." class="w-full" (input)="search(table, $event)" />
             </p-iconfield>
-            <p-button label="New" icon="pi pi-plus" severity="secondary" class="mr-2" (onClick)="openDialog()" />
+            <p-button label="New" icon="pi pi-plus" severity="secondary" class="shrink-0" (onClick)="openDialog()" />
         </div>
     </ng-template>
 
     <ng-template pTemplate="header">
-        <tr>
+        <tr class="text-color-secondary text-sm">
             <th style="width: 8rem" pSortableColumn="version">Version
                 <p-sortIcon field="version" />
             </th>
-            <th style="width: 12rem" pSortableColumn="date">Date
+            <th style="width: 11rem" pSortableColumn="date">Release Date
                 <p-sortIcon field="date" />
             </th>
             <th pSortableColumn="details">Details
                 <p-sortIcon field="details" />
             </th>
-            <th style="width: 5rem">Status</th>
-            <th style="width: 8rem"></th>
+            <th style="width: 6rem">Status</th>
+            <th style="width: 5rem"></th>
         </tr>
     </ng-template>
 
     <ng-template pTemplate="body" let-data>
-        <tr class="hover-row">
-            <td>{{ data.version }}</td>
-            <td>{{ data.releaseDate }}</td>
-            <td>{{ data.details }}</td>
+        <tr class="hover:bg-surface-50 dark:hover:bg-surface-700/50 transition">
             <td>
-                <p-tag [value]="data.statusText" />
+                <span class="font-mono font-semibold text-color">{{ data.version }}</span>
             </td>
-            <td class="action-icons">
-                <div class="icon-group">
-                    <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" pTooltip="Edit"
-                        tooltipPosition="top" (click)="openEditDialog(data.versionId)" />
-                    <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" pTooltip="Delete"
-                        tooltipPosition="top" (click)="btnDelete(data.versionId)" />
+            <td>
+                <span class="text-color-secondary tabular-nums text-sm">{{ data.releaseDate }}</span>
+            </td>
+            <td class="text-color text-sm">
+                {{ data.details }}
+            </td>
+            <td>
+                <p-tag [value]="data.statusText" [rounded]="true"
+                    [severity]="data.statusText === 'Active' ? 'success' : 'secondary'">
+                </p-tag>
+            </td>
+            <td (click)="$event.stopPropagation()">
+                <div class="flex items-center gap-1 justify-end">
+                    <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" size="small" severity="primary"
+                        pTooltip="Edit" tooltipPosition="top" (click)="openEditDialog(data.versionId)">
+                    </p-button>
+                    <p-button icon="pi pi-trash" [rounded]="true" [text]="true" size="small" severity="danger"
+                        pTooltip="Delete" tooltipPosition="top" (click)="btnDelete(data.versionId)">
+                    </p-button>
                 </div>
             </td>
         </tr>
@@ -53,7 +63,7 @@
                     <p-skeleton width="100%" height="1.25rem"></p-skeleton>
                 </td>
                 <td>
-                    <div class="flex gap-2">
+                    <div class="flex gap-2 justify-end">
                         <p-skeleton shape="circle" width="2rem" height="2rem"></p-skeleton>
                         <p-skeleton shape="circle" width="2rem" height="2rem"></p-skeleton>
                     </div>
@@ -62,51 +72,62 @@
         </ng-container>
         <tr *ngIf="!isgridloading">
             <td colspan="5">
-                <div class="flex flex-col items-center justify-center p-6 text-gray-500 animate-fade-in">
-                    <i class="pi pi-database text-5xl text-gray-400 mb-3"></i>
-                    <div class="mb-2 text-lg">No records found</div>
+                <div class="flex flex-col items-center justify-center p-8 text-color-secondary animate-fade-in">
+                    <i class="pi pi-tag text-5xl mb-3 opacity-50"></i>
+                    <div class="mb-1 text-lg font-medium text-color">No versions found</div>
+                    <p class="text-sm text-color-secondary m-0">Release versions and changelog entries will appear here</p>
                 </div>
             </td>
         </tr>
     </ng-template>
 </p-table>
 
-<!-- ADD DIALOG -->
-<p-dialog [(visible)]="addDialog" [style]="{ width: '450px' }" [modal]="true"
-    [header]="editId ? 'Edit Version' : 'Add Version'">
-    <form [formGroup]="addForm" class="p-4">
-        <div class="flex flex-col gap-6">
-            <div>
-                <label for="releaseDate" class="block font-bold mb-2">Date</label>
-                <p-datepicker inputId="releaseDate" formControlName="ReleaseDate" [showIcon]="true" [showButtonBar]="true"
-                    placeholder="Enter date" [dateFormat]="'dd-mm-yy'" appendTo="body" (onSelect)="onDateSelect($event)" [style]="{ width: '450px' }">
-                </p-datepicker>
-                <small class="text-red-500 mt-1" *ngIf="submitted && addForm.controls['ReleaseDate'].invalid">
-                    Date is required.
-                </small>
+<!-- ADD / EDIT DIALOG -->
+<p-dialog [(visible)]="addDialog" [style]="{ width: '460px', maxWidth: '95vw' }" [modal]="true"
+    [draggable]="false" [resizable]="false" [contentStyle]="{ 'max-height': '80vh', 'overflow-y': 'auto' }"
+    contentStyleClass="p-0">
+    <ng-template pTemplate="header">
+        <div class="px-5 py-2">
+            <div class="text-lg font-semibold text-color">
+                {{ editId ? 'Edit Version' : 'Add Version' }}
             </div>
-            <div>
-                <label for="version" class="block font-bold mb-2">Version</label>
-                <input pInputText id="version" formControlName="Version" class="w-full" placeholder="Enter version" autofocus />
-                <small class="text-red-500" *ngIf="submitted && addForm.controls['Version'].invalid">
-                    Version is required.
-                </small>
+            <div class="text-sm text-color-secondary mt-0.5">
+                {{ editId ? 'Update changelog details' : 'Record a new release version' }}
             </div>
-            <div>
-                <label for="details" class="block font-semibold mb-2">Details</label>
-                <textarea pInputTextarea rows="3" formControlName="Details" class="w-full"
-                    placeholder="Enter details">
-                </textarea>
-                <small class="text-red-500" *ngIf="submitted && addForm.controls['Details'].invalid">
-                    Details is required.
-                </small>
-            </div>
+        </div>
+    </ng-template>
+    <form [formGroup]="addForm" class="px-5 py-4 space-y-4">
+        <div>
+            <label for="releaseDate" class="block text-sm font-medium mb-2 text-color">Release Date</label>
+            <p-datepicker inputId="releaseDate" formControlName="ReleaseDate" [showIcon]="true" [showButtonBar]="true"
+                placeholder="Select date" [dateFormat]="'dd-mm-yy'" appendTo="body" (onSelect)="onDateSelect($event)"
+                styleClass="w-full" class="w-full">
+            </p-datepicker>
+            <small class="text-red-500 text-xs mt-1 block" *ngIf="submitted && addForm.controls['ReleaseDate'].invalid">
+                Date is required.
+            </small>
+        </div>
+        <div>
+            <label for="version" class="block text-sm font-medium mb-2 text-color">Version</label>
+            <input pInputText id="version" formControlName="Version" class="w-full" placeholder="e.g. 1.0.0" />
+            <small class="text-red-500 text-xs mt-1 block" *ngIf="submitted && addForm.controls['Version'].invalid">
+                Version is required.
+            </small>
+        </div>
+        <div>
+            <label for="details" class="block text-sm font-medium mb-2 text-color">Details</label>
+            <textarea pInputTextarea rows="3" formControlName="Details" class="w-full"
+                placeholder="Enter release notes or changelog details">
+            </textarea>
+            <small class="text-red-500 text-xs mt-1 block" *ngIf="submitted && addForm.controls['Details'].invalid">
+                Details are required.
+            </small>
         </div>
     </form>
     <ng-template pTemplate="footer">
-        <div class="flex justify-end gap-2 px-4 pb-3">
-            <p-button label="Cancel" icon="pi pi-times" text (click)="closeDialog()"></p-button>
-            <p-button label="Save" icon="pi pi-check" (click)="editId ? btnUpdate() : btnSave()"
+        <div class="px-5 py-3 flex justify-end gap-3">
+            <p-button label="Cancel" severity="secondary" [text]="true" (click)="closeDialog()"></p-button>
+            <p-button label="Save" icon="pi pi-check" severity="primary" (click)="editId ? btnUpdate() : btnSave()"
                 [disabled]="addForm.invalid && submitted">
             </p-button>
         </div>

@@ -1,66 +1,111 @@
-<div class="flex items-center mb-3">
-    <button class="flex items-center gap-2 text-sm text-color-secondary hover:text-color transition"
-        (click)="backNav()">
-        <i class="pi pi-arrow-left text-xs"></i>
-        <span>Back to {{pageFrom}}</span>
-    </button>
-</div>
-
-<div class="bg-surface-0 dark:bg-surface-800 rounded-2xl shadow p-5 mb-5">
-    <div class="flex justify-between items-start">
-        <div>
-            <div class="text-xl font-semibold">
-                {{ installmentData?.installmentName }}
-            </div>
-            <div class="text-sm text-color-secondary mt-1">
-                ₹ {{ installmentData?.monthlyAmount }} × {{ installmentData?.durationMonths }}
-            </div>
-        </div>
-        <span *ngIf="installmentData?.paidMonths >= installmentData?.durationMonths"
-            class="px-3 py-1 text-xs rounded-full bg-green-500/10 text-green-500">
-            Completed
-        </span>
-        <span *ngIf="installmentData?.paidMonths < installmentData?.durationMonths"
-            class="px-3 py-1 text-xs rounded-full bg-primary/10 text-primary">
-            Active
-        </span>
-    </div>
-    <div class="grid grid-cols-3 gap-4 mt-4 text-m">
-        <div>
-            <div class="text-color-secondary">Total</div>
-            <div class="font-semibold">
-                ₹ {{ installmentData?.totalAmount | number:'1.2-2' }}
-            </div>
-        </div>
-        <div>
-            <div class="text-color-secondary">Paid</div>
-            <div class="font-semibold text-green-500">
-                {{ installmentData?.paidMonths }}
-            </div>
-        </div>
-        <div>
-            <div class="text-color-secondary">Remaining</div>
-            <div class="font-semibold text-red-500">
-                {{ installmentData?.remainingMonths }}
-            </div>
-        </div>
-    </div>
-    <div class="mt-5 flex gap-1">
-        <div *ngFor="let i of [].constructor(installmentData?.durationMonths); let idx = index"
-            class="flex-1 h-2 rounded" [ngClass]="idx < installmentData?.paidMonths 
-                        ? 'bg-green-500' 
-                        : 'bg-surface-300 dark:bg-surface-600'">
-        </div>
-    </div>
-    <div class="flex justify-between text-xs text-color-secondary mt-2">
-        <span>{{ installmentData?.paidMonths }} / {{ installmentData?.durationMonths }} paid</span>
-        <span>{{ installmentData?.remainingMonths }} left</span>
+<div class="flex items-center justify-between mb-4">
+    <p-button icon="pi pi-arrow-left" [label]="'Back to ' + pageFrom" severity="secondary" [text]="true" size="small"
+        (onClick)="backNav()">
+    </p-button>
+    <div class="flex items-center gap-2">
+        <p-tag *ngIf="installmentData?.paidMonths >= installmentData?.durationMonths" severity="success" value="Completed" [rounded]="true" icon="pi pi-check"></p-tag>
+        <p-tag *ngIf="installmentData?.paidMonths < installmentData?.durationMonths" severity="primary" value="Active" [rounded]="true" icon="pi pi-clock"></p-tag>
     </div>
 </div>
 
-<div class="bg-surface-0 dark:bg-surface-800 rounded-2xl shadow overflow-hidden">
-    <div class="flex items-center justify-between px-4 py-3 border-b border-surface-200 dark:border-surface-700">
-        <h3 class="text-lg font-semibold flex items-center gap-2">
+<div class="bg-surface-0 dark:bg-surface-800 rounded-2xl shadow-sm p-5 sm:p-6 mb-5 border border-surface space-y-5">
+    <!-- Loan Header Title & Subtitle -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+            <div class="flex items-center gap-2.5">
+                <i class="pi pi-wallet text-primary text-xl sm:text-2xl"></i>
+                <h2 class="text-xl sm:text-2xl font-bold text-color m-0 tracking-tight">
+                    {{ installmentData?.installmentName }}
+                </h2>
+            </div>
+            <div class="text-xs sm:text-sm text-color-secondary mt-1 flex items-center gap-2 flex-wrap">
+                <span>{{ installmentData?.monthlyAmount | number:'1.2-2' }} / month</span>
+                <span>&bull;</span>
+                <span>{{ installmentData?.durationMonths }} months duration</span>
+            </div>
+        </div>
+
+        <!-- Meta badges: Billing Day & Start Date -->
+        <div class="flex items-center gap-2 flex-wrap">
+            <span *ngIf="installmentData?.billingDay" 
+                class="inline-flex items-center gap-1.5 text-xs text-color-secondary bg-surface-100 dark:bg-surface-700/60 px-2.5 py-1.5 rounded-lg border border-surface">
+                <i class="pi pi-calendar text-xs opacity-70"></i>
+                <span>Day {{ installmentData?.billingDay }} / month</span>
+            </span>
+            <span *ngIf="installmentData?.startDate" 
+                class="inline-flex items-center gap-1.5 text-xs text-color-secondary bg-surface-100 dark:bg-surface-700/60 px-2.5 py-1.5 rounded-lg border border-surface">
+                <i class="pi pi-calendar-plus text-xs opacity-70"></i>
+                <span>Starts {{ installmentData?.startDate | date:'dd-MMM-yyyy' }}</span>
+            </span>
+        </div>
+    </div>
+
+    <!-- 3 Metric Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+        <div class="p-4 rounded-xl bg-surface-50 dark:bg-surface-900 border border-surface">
+            <div class="text-xs font-medium text-color-secondary uppercase tracking-wider">Total Amount</div>
+            <div class="text-xl sm:text-2xl font-bold text-color mt-1 tabular-nums">
+                {{ installmentData?.totalAmount | number:'1.2-2' }}
+            </div>
+            <div class="text-xs text-color-secondary mt-1">
+                {{ installmentData?.monthlyAmount | number:'1.2-2' }} × {{ installmentData?.durationMonths }}
+            </div>
+        </div>
+
+        <div class="p-4 rounded-xl bg-surface-50 dark:bg-surface-900 border border-surface">
+            <div class="text-xs font-medium text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Paid Amount</div>
+            <div class="text-xl sm:text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1 tabular-nums">
+                {{ ((installmentData?.paidMonths || 0) * (installmentData?.monthlyAmount || 0)) | number:'1.2-2' }}
+            </div>
+            <div class="text-xs text-color-secondary mt-1">
+                {{ installmentData?.paidMonths || 0 }} installments completed
+            </div>
+        </div>
+
+        <div class="p-4 rounded-xl bg-surface-50 dark:bg-surface-900 border border-surface">
+            <div class="text-xs font-medium text-rose-600 dark:text-rose-400 uppercase tracking-wider">Remaining Balance</div>
+            <div class="text-xl sm:text-2xl font-bold text-rose-600 dark:text-rose-400 mt-1 tabular-nums">
+                {{ ((installmentData?.remainingMonths || 0) * (installmentData?.monthlyAmount || 0)) | number:'1.2-2' }}
+            </div>
+            <div class="text-xs text-color-secondary mt-1">
+                {{ installmentData?.remainingMonths || 0 }} installments left
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Track & Visual Status -->
+    <div class="pt-2 space-y-2">
+        <div class="flex items-center justify-between text-xs text-color-secondary font-medium tabular-nums">
+            <span class="flex items-center gap-1.5 text-color">
+                <i class="pi pi-chart-line text-xs text-primary"></i>
+                Repayment Progress
+            </span>
+            <span class="text-primary font-semibold">
+                {{ (installmentData?.durationMonths ? ((installmentData?.paidMonths / installmentData?.durationMonths) * 100) : 0) | number:'1.0-0' }}% Completed
+            </span>
+        </div>
+        <div class="w-full bg-surface-200 dark:bg-surface-700 rounded-full h-3 overflow-hidden p-0.5">
+            <div class="bg-primary h-2 rounded-full transition-all duration-500 shadow-sm"
+                [style.width.%]="installmentData?.durationMonths ? ((installmentData.paidMonths / installmentData.durationMonths) * 100) : 0">
+            </div>
+        </div>
+        <div class="flex justify-between text-xs text-color-secondary tabular-nums">
+            <span>{{ installmentData?.paidMonths || 0 }} of {{ installmentData?.durationMonths || 0 }} months paid</span>
+            <span>{{ installmentData?.remainingMonths || 0 }} months left</span>
+        </div>
+    </div>
+
+    <!-- Optional Description Note -->
+    <div *ngIf="installmentData?.description" 
+        class="text-xs text-color-secondary bg-surface-50 dark:bg-surface-900/60 p-3 rounded-xl border border-surface flex items-start gap-2">
+        <i class="pi pi-info-circle text-xs mt-0.5 opacity-70"></i>
+        <span>{{ installmentData.description }}</span>
+    </div>
+</div>
+
+<div class="bg-surface-0 dark:bg-surface-800 rounded-2xl shadow-sm overflow-hidden border border-surface">
+    <div class="flex items-center justify-between px-4 py-3 border-b border-surface">
+        <h3 class="text-base sm:text-lg font-semibold flex items-center gap-2 m-0 text-color">
             <i class="pi pi-list text-color-secondary"></i>
             Payments
         </h3>
@@ -69,9 +114,9 @@
         </span>
     </div>
     <p-table #table [value]="transactionData" dataKey="transactionId" [rows]="10" [rowHover]="true" [scrollable]="true"
-        scrollHeight="65vh" styleClass="p-datatable-sm">
+        scrollHeight="65vh" [tableStyle]="{ 'min-width': '36rem' }">
         <ng-template pTemplate="header">
-            <tr class="text-color-secondary text-sm border-b border-surface-200 dark:border-surface-700">
+            <tr class="text-color-secondary text-sm border-b border-surface">
                 <th class="py-3">Date</th>
                 <th>Account</th>
                 <th>Category</th>
@@ -79,8 +124,7 @@
             </tr>
         </ng-template>
         <ng-template pTemplate="body" let-data let-i="rowIndex">
-            <tr class="border-b border-surface-200 dark:border-surface-700 hover:bg-surface-50 dark:hover:bg-surface-700 transition"
-                [ngClass]="i === 0 ? 'bg-green-500/10' : ''">
+            <tr class="border-b border-surface hover:bg-surface-50 dark:hover:bg-surface-700/50 transition">
                 <td class="py-3 text-color-secondary whitespace-nowrap">
                     {{ data.transactionDate }}
                 </td>
@@ -97,14 +141,13 @@
                         </div>
                     </ng-container>
                     <ng-template #normalAccount>
-                        {{ data.accountName }}
+                        <span class="text-color font-medium">{{ data.accountName }}</span>
                     </ng-template>
                 </td>
                 <td class="text-color">
                     <ng-container *ngIf="data.transferGroupId; else normalCategory">
-                        —
+                        <span class="text-color-secondary">—</span>
                     </ng-container>
-
                     <ng-template #normalCategory>
                         {{ data.categoryName }}
                     </ng-template>
@@ -134,12 +177,12 @@
             </ng-container>
             <tr *ngIf="!isgridloading">
                 <td colspan="4">
-                    <div class="flex flex-col items-center justify-center p-6 text-color-secondary">
+                    <div class="flex flex-col items-center justify-center p-8 text-color-secondary animate-fade-in">
                         <i class="pi pi-inbox text-5xl mb-3 opacity-50"></i>
-                        <div class="mb-1 text-lg">No payments yet</div>
-                        <div class="text-sm text-color-secondary">
+                        <div class="mb-1 text-lg font-medium text-color">No payments yet</div>
+                        <p class="text-sm text-color-secondary m-0">
                             Add your first EMI payment to track progress
-                        </div>
+                        </p>
                     </div>
                 </td>
             </tr>

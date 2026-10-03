@@ -1,22 +1,23 @@
-<p-table #table [value]="selectAllData" [tableStyle]="{ 'min-width': 'auto' }"
+<p-table #table [value]="selectAllData" [tableStyle]="{ 'min-width': '42rem' }"
     [globalFilterFields]="['activityType', 'activityTime', 'description']"
-    [rowHover]="true" [scrollable]="true" scrollHeight="500px">
+    [rowHover]="true" [scrollable]="true" scrollHeight="70vh">
     <ng-template #caption>
-        <div class="flex items-center justify-between w-full relative">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 w-full">
             <p-breadcrumb [model]="breadcrumbItems" [home]="breadcrumbHome" class="flex-1"></p-breadcrumb>
             <p-datepicker [(ngModel)]="selectedDateRange" selectionMode="range" dateFormat="dd-M-yy" iconDisplay="input"
-                placeholder="Select date range" [showIcon]="true" (onSelect)="onDateRangeSelected()" [style]="{ width: '250px' }">
+                placeholder="Select date range" [showIcon]="true" (onSelect)="onDateRangeSelected()"
+                styleClass="w-full sm:w-64" class="w-full sm:w-auto">
             </p-datepicker>
         </div>
     </ng-template>
 
     <ng-template pTemplate="header">
-        <tr>
-            <th style="width: 3rem"></th>
-            <th style="width: 18rem" pSortableColumn="activityTime">Activity Time
+        <tr class="text-color-secondary text-sm">
+            <th style="width: 3rem">#</th>
+            <th style="width: 14rem" pSortableColumn="activityTime">Activity Time
                 <p-sortIcon field="activityTime" />
             </th>
-            <th style="width: 10rem" pSortableColumn="activityType">Activity Type
+            <th style="width: 11rem" pSortableColumn="activityType">Activity Type
                 <p-sortIcon field="activityType" />
             </th>
             <th pSortableColumn="description">Description
@@ -26,16 +27,17 @@
     </ng-template>
 
     <ng-template pTemplate="body" let-data let-i="rowIndex">
-        <tr class="hover-row">
-            <td>{{ i + 1 }}</td>
-            <td>{{ data.activityTime }}</td>
+        <tr class="hover:bg-surface-50 dark:hover:bg-surface-700/50 transition">
+            <td class="text-color-secondary text-xs tabular-nums">{{ i + 1 }}</td>
+            <td class="text-color-secondary whitespace-nowrap tabular-nums text-sm">{{ data.activityTime }}</td>
             <td>
                 <p-tag
                     [value]="getActivityTypeLabel(data.activityType)"
-                    [severity]="getActivityTypeSeverity(data.activityType)">
+                    [severity]="getActivityTypeSeverity(data.activityType)"
+                    [rounded]="true">
                 </p-tag>
             </td>
-            <td>{{ data.description }}</td>
+            <td class="text-color">{{ data.description }}</td>
         </tr>
     </ng-template>
 
@@ -49,9 +51,10 @@
         </ng-container>
         <tr *ngIf="!isgridloading">
             <td colspan="4">
-                <div class="flex flex-col items-center justify-center p-6 text-gray-500 animate-fade-in">
-                    <i class="pi pi-database text-5xl text-gray-400 mb-3"></i>
-                    <div class="mb-2 text-lg">No records found</div>
+                <div class="flex flex-col items-center justify-center p-8 text-color-secondary animate-fade-in">
+                    <i class="pi pi-history text-5xl mb-3 opacity-50"></i>
+                    <div class="mb-1 text-lg font-medium text-color">No logs found</div>
+                    <p class="text-sm text-color-secondary m-0">Activity log entries will be recorded here</p>
                 </div>
             </td>
         </tr>
