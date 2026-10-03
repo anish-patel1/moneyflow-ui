@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { CommonService } from './app/pages/money-flow/common/service/common.service';
+import { ColdStartService } from './app/pages/auth/services/cold-start.service';
 import { environment } from './environments/environment';
 
 @Component({
@@ -19,7 +20,8 @@ import { environment } from './environments/environment';
 export class AppComponent {
     constructor(
         public http: HttpClient,
-        public commonService: CommonService
+        public commonService: CommonService,
+        public coldStartService: ColdStartService
     ) {}
 
     ngOnInit(): void {
@@ -37,6 +39,10 @@ export class AppComponent {
             next: (data: any) => {
                 const version = data[0]?.version;
                 localStorage.setItem("version", version);
+                this.coldStartService.markServerAwake();
+            },
+            error: () => {
+                this.coldStartService.setWaking(false);
             }
         });
     }

@@ -13,9 +13,14 @@ import { distinctUntilChanged } from 'rxjs/operators';
   providedIn: 'root'
 })
 export class ColdStartService {
-  private readonly _isWaking$ = new BehaviorSubject<boolean>(false);
+  /**
+   * Initialized to true on app start so the waking loader in login
+   * is immediately active until the first API call (e.g. GetLatestVersion) returns success.
+   */
+  private readonly _isWaking$ = new BehaviorSubject<boolean>(true);
+  private _isServerAwake = false;
 
-  /** Observable that emits `true` while retry attempts are in progress. */
+  /** Observable that emits `true` while retry attempts or initial wake-up are in progress. */
   readonly isWaking$: Observable<boolean> = this._isWaking$
     .asObservable()
     .pipe(distinctUntilChanged());
@@ -23,6 +28,17 @@ export class ColdStartService {
   /** Called by the interceptor to update the waking state. */
   setWaking(value: boolean): void {
     this._isWaking$.next(value);
+  }
+
+  /** Marks the server as confirmed awake and dismisses the waking loader. */
+  markServerAwake(): void {
+    this._isServerAwake = true;
+    this._isWaking$.next(false);
+  }
+
+  /** Whether the server has already been confirmed awake in this session. */
+  get isServerAwake(): boolean {
+    return this._isServerAwake;
   }
 
   /** Snapshot of the current waking state (useful in templates via async pipe). */

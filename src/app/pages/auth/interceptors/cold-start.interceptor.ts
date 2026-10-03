@@ -24,14 +24,13 @@ export const coldStartInterceptor: HttpInterceptorFn = (
 ) => {
   const coldStartService = inject(ColdStartService);
 
-  // Signal the UI immediately when the very first request goes out.
-  coldStartService.setWaking(true);
-
   /** Recursive helper that tracks how many attempts remain. */
   function attempt(retriesLeft: number): Observable<any> {
     return next(req).pipe(
-      // On success, clear the waking state
-      tap({ next: () => coldStartService.setWaking(false) }),
+      // On success, mark server as awake and clear the waking state
+      tap({
+        next: () => coldStartService.markServerAwake()
+      }),
       catchError((error: HttpErrorResponse) => {
         const isColdStart = COLD_START_STATUSES.has(error.status);
 

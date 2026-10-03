@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { NotificationService } from '../../money-flow/common/service/notification.service';
 import { ButtonModule } from 'primeng/button';
@@ -13,14 +13,15 @@ import { Auth_API } from '../auth-api';
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { AuthService } from '../services/auth.service';
 import { ColdStartService } from '../services/cold-start.service';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-login',
   imports: [CommonModule, AsyncPipe, ButtonModule, CheckboxModule, InputTextModule, PasswordModule, FormsModule, RouterModule, RippleModule, AppFloatingConfigurator],
   templateUrl: './login.component.html'
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, OnDestroy {
   // API
   COMMON_API = Auth_API.Auth_API;
 
@@ -36,6 +37,7 @@ export class LoginComponent implements OnInit {
 
   /** Emits true while the cold-start retry loop is active. */
   isWaking$!: Observable<boolean>;
+  private destroy$ = new Subject<void>();
 
   constructor(
       private router: Router,
@@ -47,6 +49,20 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     this.isWaking$ = this.coldStartService.isWaking$;
+
+    // Once waking completes (1st API call succeeds), refresh version from localStorage
+    this.isWaking$.pipe(takeUntil(this.destroy$)).subscribe((isWaking) => {
+      if (!isWaking) {
+        setTimeout(() => {
+          this.version = localStorage.getItem("version");
+        }, 50);
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   // ======================================================
