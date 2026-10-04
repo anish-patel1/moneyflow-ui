@@ -66,8 +66,8 @@
         </div>
         <ng-container *ngIf="summaryData; else netFlowSkeleton">
             <div class="text-2xl font-bold mt-2 tabular-nums"
-                [ngClass]="(summaryData.netFlow ?? 0) >= 0 ? 'text-primary' : 'text-rose-600 dark:text-rose-400'">
-                {{ (summaryData.netFlow ?? 0) > 0 ? '+' : '' }}
+                [ngClass]="summaryData.netFlow >= 0 ? 'text-primary' : 'text-rose-600 dark:text-rose-400'">
+                {{ summaryData.netFlow > 0 ? '+' : '' }}
                 {{ summaryData.netFlow | number:'1.2-2' }}
             </div>
         </ng-container>

@@ -5,6 +5,9 @@
     <div class="w-full rounded-[48px] sm:rounded-[56px] p-[0.3rem] bg-[linear-gradient(180deg,var(--primary-color)_10%,transparent_30%)]">
       <div class="w-full bg-surface-0 dark:bg-surface-900 py-10 sm:py-12 px-6 sm:px-12 rounded-[45px] sm:rounded-[53px]">
         <div class="text-center mb-6">
+          <div class="inline-flex items-center justify-center mb-3">
+            <img [src]="'assets/layout/images/logo-' + (layoutService.isDarkTheme() ? 'white' : 'dark') + '.svg'" alt="Money Flow" class="h-14 w-auto" />
+          </div>
           <h1 class="text-2xl sm:text-3xl font-semibold text-color mb-2">
             Create Your Account
           </h1>

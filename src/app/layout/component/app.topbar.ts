@@ -17,6 +17,7 @@ import { CommonService } from '../../pages/money-flow/common/service/common.serv
                 <i class="pi pi-bars"></i>
             </button>
             <a class="layout-topbar-logo" [routerLink]="userType === 'S' ? '/admin/version' : '/'">
+                <img [src]="'assets/layout/images/logo-' + (layoutService.isDarkTheme() ? 'white' : 'dark') + '.svg'" alt="Money Flow" class="h-9 w-auto" />
                 <span>MONEY FLOW</span>
             </a>
         </div>

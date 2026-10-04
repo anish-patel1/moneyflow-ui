@@ -28,8 +28,12 @@
         font-weight: 500;
         gap: 0.5rem;
 
-        svg {
-            width: 3rem;
+        svg,
+        img {
+            width: auto;
+            height: 2.25rem;
+            max-height: 2.25rem;
+            object-fit: contain;
         }
 
         &:focus-visible {

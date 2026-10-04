@@ -7,6 +7,7 @@ import { CommonService } from '../../money-flow/common/service/common.service';
 import { Admin_API } from '../../money-flow/admin/admin-api';
 import { NotificationService } from '../../money-flow/common/service/notification.service';
 import { Router } from '@angular/router';
+import { LayoutService } from '../../../layout/service/layout.service';
 
 @Component({
   selector: 'app-register',
@@ -25,7 +26,8 @@ export class RegisterComponent {
   constructor(
     public commonService: CommonService,
     private notification: NotificationService,
-    private router: Router
+    private router: Router,
+    public layoutService: LayoutService
   ) {}
 
   ngOnInit(): void {

@@ -15,6 +15,7 @@ import { AuthService } from '../services/auth.service';
 import { ColdStartService } from '../services/cold-start.service';
 import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { LayoutService } from '../../../layout/service/layout.service';
 
 @Component({
   selector: 'app-login',
@@ -44,7 +45,8 @@ export class LoginComponent implements OnInit, OnDestroy {
       private notification: NotificationService,
       public commonService: CommonService,
       private authService: AuthService,
-      public coldStartService: ColdStartService
+      public coldStartService: ColdStartService,
+      public layoutService: LayoutService
   ) {}
 
   ngOnInit(): void {
