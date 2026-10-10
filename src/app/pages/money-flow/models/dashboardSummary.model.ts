@@ -5,4 +5,6 @@ export interface DashboardSummary extends BaseClass {
     monthlyIncome: number;
     monthlyExpense: number;
     netFlow: number;
+    year?: number;
+    month?: number;
 }

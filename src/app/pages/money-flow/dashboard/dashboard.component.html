@@ -1,3 +1,56 @@
+<!-- PERIOD NAVIGATOR -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 bg-surface-0 dark:bg-surface-800 p-3.5 sm:p-4 rounded-2xl shadow-sm border border-surface-100 dark:border-surface-700/50">
+    <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-semibold shrink-0">
+            <i class="pi pi-chart-pie text-base"></i>
+        </div>
+        <div>
+            <h2 class="text-base sm:text-lg font-bold text-color leading-tight m-0">Financial Overview</h2>
+            <span class="text-xs text-color-secondary font-medium">Income, expense and net cash flow</span>
+        </div>
+    </div>
+
+    <div class="flex items-center self-start sm:self-auto">
+        <!-- Integrated Stepper Pill: [ ◀ ] [ Month/Year Picker ] [ ▶ ] [ ↺ ] -->
+        <div class="flex items-center bg-surface-100 dark:bg-surface-700/60 rounded-xl p-1 gap-1 border border-surface-200 dark:border-surface-600/40">
+            <!-- Prev Month -->
+            <button type="button" (click)="prevMonth()"
+                pTooltip="Previous Month" tooltipPosition="bottom"
+                class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-surface-0 dark:hover:bg-surface-600 text-color transition cursor-pointer border-0 bg-transparent">
+                <i class="pi pi-chevron-left text-xs"></i>
+            </button>
+
+            <!-- Clickable Month/Year Picker -->
+            <p-datepicker
+                [(ngModel)]="selectedPeriodDate"
+                view="month"
+                dateFormat="MM yy"
+                [maxDate]="maxDate"
+                [readonlyInput]="true"
+                (onSelect)="onPeriodDateSelect($event)"
+                styleClass="w-36 sm:w-40 border-0 bg-transparent"
+                inputStyleClass="w-full text-center text-sm font-semibold bg-transparent border-0 cursor-pointer shadow-none focus:ring-0 py-1 px-2 text-color">
+            </p-datepicker>
+
+            <!-- Next Month -->
+            <button type="button" (click)="nextMonth()" [disabled]="isCurrentMonth"
+                pTooltip="Next Month" tooltipPosition="bottom"
+                class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-surface-0 dark:hover:bg-surface-600 text-color transition border-0 bg-transparent disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer">
+                <i class="pi pi-chevron-right text-xs"></i>
+            </button>
+
+            <!-- Jump to Current Month (Fixed slot inside pill: 0px layout shift) -->
+            <button type="button" (click)="resetToCurrentMonth()" [disabled]="isCurrentMonth"
+                pTooltip="Back to Current Month" tooltipPosition="bottom"
+                [class.opacity-0]="isCurrentMonth"
+                [class.pointer-events-none]="isCurrentMonth"
+                class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-surface-0 dark:hover:bg-surface-600 text-primary transition cursor-pointer border-0 bg-transparent">
+                <i class="pi pi-replay text-xs"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
     <!-- Total Balance -->
     <div class="p-4 rounded-2xl bg-surface-0 dark:bg-surface-800 shadow-sm hover:shadow transition">
@@ -21,7 +74,7 @@
     <!-- Income -->
     <div class="p-4 rounded-2xl bg-surface-0 dark:bg-surface-800 shadow-sm hover:shadow transition">
         <div class="flex items-center justify-between">
-            <span class="text-xs sm:text-sm text-color-secondary font-medium">Income (This Month)</span>
+            <span class="text-xs sm:text-sm text-color-secondary font-medium">Income ({{ isCurrentMonth ? 'This Month' : displayMonthLabel }})</span>
             <div
                 class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
                 <i class="pi pi-arrow-down-left text-sm"></i>
@@ -40,7 +93,7 @@
     <!-- Expense -->
     <div class="p-4 rounded-2xl bg-surface-0 dark:bg-surface-800 shadow-sm hover:shadow transition">
         <div class="flex items-center justify-between">
-            <span class="text-xs sm:text-sm text-color-secondary font-medium">Expense (This Month)</span>
+            <span class="text-xs sm:text-sm text-color-secondary font-medium">Expense ({{ isCurrentMonth ? 'This Month' : displayMonthLabel }})</span>
             <div
                 class="w-8 h-8 rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center">
                 <i class="pi pi-arrow-up-right text-sm"></i>
@@ -152,7 +205,7 @@
     <div class="flex items-center justify-between px-4 py-3.5 border-b border-surface-200 dark:border-surface-700/60">
         <h3 class="text-base sm:text-lg font-semibold flex items-center gap-2 m-0 text-color">
             <i class="pi pi-history text-color-secondary"></i>
-            Recent Transactions
+            Transactions ({{ isCurrentMonth ? 'This Month' : displayMonthLabel }})
         </h3>
         <a routerLink="/transactions"
             class="text-xs sm:text-sm text-primary hover:opacity-80 transition font-medium flex items-center gap-1">

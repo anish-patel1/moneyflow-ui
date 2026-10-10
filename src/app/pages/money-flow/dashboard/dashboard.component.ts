@@ -26,27 +26,28 @@ export class DashboardComponent {
   summaryData: DashboardSummary | null = null;
   accountData: any = [];
   transactionData: any = [];
-  loanData: any = [
-    {
-      installmentId   :1,
-      installmentName :'Laptop Loan',
-      monthlyAmount   :'5,000.00',
-      durationMonths  : 12,
-      paidMonths      : 3,
-      remainingMonths:   9 },
-      {
-      installmentId   :2,
-      installmentName :'Home Loan',
-      monthlyAmount   :'30,000.00',
-      durationMonths  : 240,
-      paidMonths      : 12,
-      remainingMonths:   228 }
-  ];
+  loanData: any = [];
 
   // Current User
   userId: any = null;
 
-  // Loadeer
+  // Period / Date Navigation
+  maxDate: Date = new Date();
+  selectedPeriodDate: Date = new Date();
+  selectedYear: number = new Date().getFullYear();
+  selectedMonth: number = new Date().getMonth() + 1; // 1-12
+
+  get isCurrentMonth(): boolean {
+    const now = new Date();
+    return this.selectedYear === now.getFullYear() && this.selectedMonth === (now.getMonth() + 1);
+  }
+
+  get displayMonthLabel(): string {
+    const d = new Date(this.selectedYear, this.selectedMonth - 1, 1);
+    return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  }
+
+  // Loader
   isgridloading: boolean = false;
 
   constructor(
@@ -56,14 +57,61 @@ export class DashboardComponent {
   
   ngOnInit() {
     this.userId = this.commonService.GetUserData().userId;
+    this.selectedPeriodDate = new Date(this.selectedYear, this.selectedMonth - 1, 1);
     this.loadSummary();
     this.getAccountBalances();
     this.getLoans();
     this.getTransactions();
   }
 
+  prevMonth(): void {
+    if (this.selectedMonth === 1) {
+      this.selectedMonth = 12;
+      this.selectedYear--;
+    } else {
+      this.selectedMonth--;
+    }
+    this.selectedPeriodDate = new Date(this.selectedYear, this.selectedMonth - 1, 1);
+    this.onPeriodChange();
+  }
+
+  nextMonth(): void {
+    if (this.isCurrentMonth) return;
+    if (this.selectedMonth === 12) {
+      this.selectedMonth = 1;
+      this.selectedYear++;
+    } else {
+      this.selectedMonth++;
+    }
+    this.selectedPeriodDate = new Date(this.selectedYear, this.selectedMonth - 1, 1);
+    this.onPeriodChange();
+  }
+
+  onPeriodDateSelect(date: Date): void {
+    if (!date) return;
+    this.selectedYear = date.getFullYear();
+    this.selectedMonth = date.getMonth() + 1;
+    this.selectedPeriodDate = new Date(this.selectedYear, this.selectedMonth - 1, 1);
+    this.onPeriodChange();
+  }
+
+  resetToCurrentMonth(): void {
+    const now = new Date();
+    this.selectedYear = now.getFullYear();
+    this.selectedMonth = now.getMonth() + 1;
+    this.selectedPeriodDate = new Date(this.selectedYear, this.selectedMonth - 1, 1);
+    this.onPeriodChange();
+  }
+
+  onPeriodChange(): void {
+    this.loadSummary();
+    this.getTransactions();
+  }
+
   loadSummary() {
-    this.commonService.getData(this.COMMON_API + "SummarySelect?id=" + this.userId).subscribe({
+    this.summaryData = null;
+    const url = `${this.COMMON_API}SummarySelect?id=${this.userId}&year=${this.selectedYear}&month=${this.selectedMonth}`;
+    this.commonService.getData(url).subscribe({
       next: (response: any) => {
         if (!response || response.length === 0) {
           this.notification.showToast('warning', 'Data not found');
@@ -113,17 +161,28 @@ export class DashboardComponent {
     this.transactionData = [];
     this.isgridloading = true;
 
+    const lastDay = new Date(this.selectedYear, this.selectedMonth, 0).getDate();
+    const monthStr = String(this.selectedMonth).padStart(2, '0');
+    const fromDate = `${this.selectedYear}-${monthStr}-01`;
+    const toDate = `${this.selectedYear}-${monthStr}-${String(lastDay).padStart(2, '0')}`;
+
     let obj = <Transactions>{};
     obj.UserId = this.userId;
     obj.PageSize = 5;
+    obj.FromDate = fromDate;
+    obj.ToDate = toDate;
 
     this.commonService.postData(this.Transactions_API + "SelectAll", obj).subscribe({
       next: (data: any) => {
         this.isgridloading = false;
-        this.transactionData = data.map((item: any) => ({
+        this.transactionData = (data || []).map((item: any) => ({
           ...item,
           amount: Number(item.amount).toFixed(2)
         }));
+      },
+      error: (err) => {
+        this.isgridloading = false;
+        this.notification.showToast("error", err.message);
       }
     });
   }

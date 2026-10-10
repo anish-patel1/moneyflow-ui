@@ -1,8 +1,12 @@
-export const API =  {
-    Dashboard: localStorage.getItem('baseUrl') + 'Dashboard/',
-    Accounts: localStorage.getItem('baseUrl') + 'Accounts/',
-    Categories: localStorage.getItem('baseUrl') + 'Categories/',
-    Transactions: localStorage.getItem('baseUrl') + 'Transactions/',
-    Transfer: localStorage.getItem('baseUrl') + 'Transfer/',
-    Installments: localStorage.getItem('baseUrl') + 'Installments/',
+function baseUrl(): string {
+  return localStorage.getItem('baseUrl') ?? '';
 }
+
+export const API = {
+  get Dashboard()    { return baseUrl() + 'Dashboard/';    },
+  get Accounts()     { return baseUrl() + 'Accounts/';     },
+  get Categories()   { return baseUrl() + 'Categories/';   },
+  get Transactions() { return baseUrl() + 'Transactions/'; },
+  get Transfer()     { return baseUrl() + 'Transfer/';     },
+  get Installments() { return baseUrl() + 'Installments/'; },
+};
