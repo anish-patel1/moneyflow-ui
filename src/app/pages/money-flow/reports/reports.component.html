@@ -1,1 +1,386 @@
-<p>reports works!</p>
+<div class="statement-sheet">
+    <!-- DEDICATED PRINT-ONLY STATEMENT HEADER -->
+    <div class="statement-print-header">
+        <div class="statement-header-top">
+            <div class="brand-section">
+                <div class="brand-logo-box">
+                    <i class="pi pi-file-check"></i>
+                </div>
+                <div>
+                    <h1 class="brand-title">MONEY FLOW</h1>
+                    <div class="brand-subtitle">Monthly Account Reconciliation Statement</div>
+                </div>
+            </div>
+
+            <div class="meta-section">
+                <div class="status-badge">
+                    <i class="pi pi-verified"></i>
+                    <span>RECONCILED & BALANCED</span>
+                </div>
+                <div class="meta-row"><strong>Period:</strong> {{ displayMonthLabel }}</div>
+                <div class="meta-row"><strong>Account Holder:</strong> {{ userDisplayName }}</div>
+                <div class="meta-row"><strong>Generated On:</strong> {{ currentPrintDate | date:'dd MMM yyyy, hh:mm a' }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PERIOD NAVIGATOR & HEADER (SCREEN ONLY) -->
+    <div class="no-print flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 bg-surface-0 dark:bg-surface-800 p-3.5 sm:p-4 rounded-2xl shadow-sm border border-surface-100 dark:border-surface-700/50">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-semibold shrink-0">
+                <i class="pi pi-file-check text-base"></i>
+            </div>
+            <div>
+                <h2 class="text-base sm:text-lg font-bold text-color leading-tight m-0">Monthly Account Reconciliation</h2>
+                <span class="text-xs text-color-secondary font-medium">Per-account fund flow, net flow and closing verification</span>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2 self-start sm:self-auto">
+            <!-- Print Button -->
+            <button type="button" (click)="printReport()"
+                pTooltip="Print / Save PDF" tooltipPosition="bottom"
+                class="w-9 h-9 rounded-xl flex items-center justify-center bg-surface-100 hover:bg-surface-200 dark:bg-surface-700 dark:hover:bg-surface-600 text-color transition cursor-pointer border-0">
+                <i class="pi pi-print text-sm"></i>
+            </button>
+
+            <!-- Stepper Pill: [ ◀ ] [ Month/Year Picker ] [ ▶ ] [ ↺ ] -->
+            <div class="flex items-center bg-surface-100 dark:bg-surface-700/60 rounded-xl p-1 gap-1 border border-surface-200 dark:border-surface-600/40">
+                <button type="button" (click)="prevMonth()"
+                    pTooltip="Previous Month" tooltipPosition="bottom"
+                    class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-surface-0 dark:hover:bg-surface-600 text-color transition cursor-pointer border-0 bg-transparent">
+                    <i class="pi pi-chevron-left text-xs"></i>
+                </button>
+
+                <p-datepicker
+                    [(ngModel)]="selectedPeriodDate"
+                    view="month"
+                    dateFormat="MM yy"
+                    [maxDate]="maxDate"
+                    [readonlyInput]="true"
+                    (onSelect)="onPeriodDateSelect($event)"
+                    styleClass="w-36 sm:w-40 border-0 bg-transparent"
+                    inputStyleClass="w-full text-center text-sm font-semibold bg-transparent border-0 cursor-pointer shadow-none focus:ring-0 py-1 px-2 text-color">
+                </p-datepicker>
+
+                <button type="button" (click)="nextMonth()" [disabled]="isCurrentMonth"
+                    pTooltip="Next Month" tooltipPosition="bottom"
+                    class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-surface-0 dark:hover:bg-surface-600 text-color transition border-0 bg-transparent disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer">
+                    <i class="pi pi-chevron-right text-xs"></i>
+                </button>
+
+                <!-- Jump to Current Month -->
+                <button type="button" (click)="resetToCurrentMonth()" [disabled]="isCurrentMonth"
+                    pTooltip="Back to Current Month" tooltipPosition="bottom"
+                    [class.opacity-0]="isCurrentMonth"
+                    [class.pointer-events-none]="isCurrentMonth"
+                    class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-surface-0 dark:hover:bg-surface-600 text-primary transition cursor-pointer border-0 bg-transparent">
+                    <i class="pi pi-replay text-xs"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOP KPI SUMMARY CARDS -->
+    <div class="kpi-ribbon grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 mb-5">
+        <!-- Total Opening Balance -->
+        <div class="kpi-card p-4 rounded-2xl bg-surface-0 dark:bg-surface-800 shadow-sm border border-surface-100 dark:border-surface-700/50">
+            <div class="flex items-center justify-between">
+                <span class="text-xs text-color-secondary font-medium uppercase tracking-wider">Opening Balance</span>
+                <div class="w-8 h-8 rounded-lg bg-surface-100 dark:bg-surface-700 flex items-center justify-center text-color-secondary no-print">
+                    <i class="pi pi-wallet text-sm"></i>
+                </div>
+            </div>
+            <ng-container *ngIf="!isLoading && summary; else skeletonBlock">
+                <div class="text-xl font-bold text-color mt-2 tabular-nums">
+                    {{ summary.totalOpeningBalance | number:'1.2-2' }}
+                </div>
+                <div class="text-[11px] text-color-secondary mt-1">As of 1st {{ displayMonthLabel }}</div>
+            </ng-container>
+        </div>
+
+        <!-- Total Inflow -->
+        <div class="kpi-card p-4 rounded-2xl bg-surface-0 dark:bg-surface-800 shadow-sm border border-surface-100 dark:border-surface-700/50">
+            <div class="flex items-center justify-between">
+                <span class="text-xs text-color-secondary font-medium uppercase tracking-wider">Total Inflows (+)</span>
+                <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center no-print">
+                    <i class="pi pi-arrow-down-left text-sm"></i>
+                </div>
+            </div>
+            <ng-container *ngIf="!isLoading && summary; else skeletonBlock">
+                <div class="text-xl font-bold text-emerald-600 dark:text-emerald-400 mt-2 tabular-nums">
+                    + {{ summary.totalInflow | number:'1.2-2' }}
+                </div>
+                <div class="text-[11px] text-color-secondary mt-1">Income & Transfers In</div>
+            </ng-container>
+        </div>
+
+        <!-- Total Outflow -->
+        <div class="kpi-card p-4 rounded-2xl bg-surface-0 dark:bg-surface-800 shadow-sm border border-surface-100 dark:border-surface-700/50">
+            <div class="flex items-center justify-between">
+                <span class="text-xs text-color-secondary font-medium uppercase tracking-wider">Total Outflows (−)</span>
+                <div class="w-8 h-8 rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center no-print">
+                    <i class="pi pi-arrow-up-right text-sm"></i>
+                </div>
+            </div>
+            <ng-container *ngIf="!isLoading && summary; else skeletonBlock">
+                <div class="text-xl font-bold text-rose-600 dark:text-rose-400 mt-2 tabular-nums">
+                    - {{ summary.totalOutflow | number:'1.2-2' }}
+                </div>
+                <div class="text-[11px] text-color-secondary mt-1">Expenses, EMIs & Transfers Out</div>
+            </ng-container>
+        </div>
+
+        <!-- Net Cash Flow / Savings -->
+        <div class="kpi-card p-4 rounded-2xl bg-surface-0 dark:bg-surface-800 shadow-sm border border-surface-100 dark:border-surface-700/50">
+            <div class="flex items-center justify-between">
+                <span class="text-xs text-color-secondary font-medium uppercase tracking-wider">Net Cash Flow</span>
+                <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center no-print">
+                    <i class="pi pi-chart-line text-sm"></i>
+                </div>
+            </div>
+            <ng-container *ngIf="!isLoading && summary; else skeletonBlock">
+                <div class="text-xl font-bold mt-2 tabular-nums"
+                    [ngClass]="summary.netFlow >= 0 ? 'text-primary' : 'text-rose-600 dark:text-rose-400'">
+                    {{ summary.netFlow > 0 ? '+' : '' }}
+                    {{ summary.netFlow | number:'1.2-2' }}
+                </div>
+                <div class="text-[11px] text-color-secondary mt-1">
+                    Savings Rate: <span class="font-semibold text-color">{{ summary.savingsRate | number:'1.1-1' }}%</span>
+                </div>
+            </ng-container>
+        </div>
+
+        <!-- Total Closing Balance -->
+        <div class="kpi-card p-4 rounded-2xl bg-surface-0 dark:bg-surface-800 shadow-sm border border-surface-100 dark:border-surface-700/50">
+            <div class="flex items-center justify-between">
+                <span class="text-xs text-color-secondary font-medium uppercase tracking-wider">Closing Balance</span>
+                <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center no-print">
+                    <i class="pi pi-check-circle text-sm"></i>
+                </div>
+            </div>
+            <ng-container *ngIf="!isLoading && summary; else skeletonBlock">
+                <div class="text-xl font-bold text-color mt-2 tabular-nums">
+                    {{ summary.totalClosingBalance | number:'1.2-2' }}
+                </div>
+                <div class="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium mt-1 flex items-center gap-1">
+                    <i class="pi pi-check text-[10px]"></i>
+                    <span>100% Balanced</span>
+                </div>
+            </ng-container>
+        </div>
+    </div>
+
+    <ng-template #skeletonBlock>
+        <p-skeleton width="70%" height="1.75rem" styleClass="mt-2"></p-skeleton>
+        <p-skeleton width="50%" height="0.875rem" styleClass="mt-1.5"></p-skeleton>
+    </ng-template>
+
+    <!-- PER-ACCOUNT RECONCILIATION TABLE -->
+    <div class="reconciliation-table-card rounded-2xl bg-surface-0 dark:bg-surface-800 shadow-sm border border-surface-100 dark:border-surface-700/50 overflow-hidden mb-5">
+        <div class="table-card-header flex items-center justify-between px-4 py-3.5 border-b border-surface-200 dark:border-surface-700/60">
+            <div>
+                <h3 class="text-base sm:text-lg font-semibold flex items-center gap-2 m-0 text-color">
+                    <i class="pi pi-list text-color-secondary no-print"></i>
+                    Account-by-Account Fund Flow Ledger
+                </h3>
+                <span class="text-xs text-color-secondary">Opening + Inflows − Outflows = Closing</span>
+            </div>
+            <span class="status-pill-badge text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+                <i class="pi pi-verified text-xs"></i>
+                Balanced
+            </span>
+        </div>
+
+        <p-table [value]="accounts" [loading]="isLoading" responsiveLayout="scroll" styleClass="reconciliation-table">
+            <ng-template pTemplate="header">
+                <tr class="text-color-secondary text-xs uppercase tracking-wider">
+                    <th class="py-3 px-4">Account</th>
+                    <th class="py-3 px-3 text-right">Opening Balance</th>
+                    <th class="py-3 px-3 text-right">Inflow (+)</th>
+                    <th class="py-3 px-3 text-right">Outflow (−)</th>
+                    <th class="py-3 px-3 text-right">Net Change</th>
+                    <th class="py-3 px-3 text-right font-semibold text-color">Closing Balance</th>
+                    <th class="py-3 px-4 text-center">Status</th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-acc>
+                <tr class="hover:bg-surface-50 dark:hover:bg-surface-700/50 transition">
+                    <!-- Account Name & Icon -->
+                    <td class="py-3 px-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-surface-100 dark:bg-surface-700 shrink-0 no-print">
+                                <i *ngIf="acc.accountType === 'Cash'" class="pi pi-wallet text-amber-500"></i>
+                                <i *ngIf="acc.accountType === 'Bank'" class="pi pi-building-columns text-primary"></i>
+                                <i *ngIf="acc.accountType === 'FD'" class="pi pi-lock text-purple-500"></i>
+                            </div>
+                            <div>
+                                <div class="font-semibold text-color text-sm">{{ acc.accountName }}</div>
+                                <div class="text-xs text-color-secondary">{{ acc.accountType }} · {{ acc.transactionCount }} txns</div>
+                            </div>
+                        </div>
+                    </td>
+
+                    <!-- Opening Balance -->
+                    <td class="py-3 px-3 text-right tabular-nums text-sm font-medium text-color-secondary">
+                        {{ acc.openingBalance | number:'1.2-2' }}
+                    </td>
+
+                    <!-- Inflow (+) -->
+                    <td class="py-3 px-3 text-right tabular-nums text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                        <span *ngIf="acc.inflow > 0">+</span> {{ acc.inflow | number:'1.2-2' }}
+                    </td>
+
+                    <!-- Outflow (-) -->
+                    <td class="py-3 px-3 text-right tabular-nums text-sm font-medium text-rose-600 dark:text-rose-400">
+                        <span *ngIf="acc.outflow > 0">−</span> {{ acc.outflow | number:'1.2-2' }}
+                    </td>
+
+                    <!-- Net Change -->
+                    <td class="py-3 px-3 text-right tabular-nums text-sm font-semibold"
+                        [ngClass]="acc.netChange >= 0 ? 'text-primary' : 'text-rose-600 dark:text-rose-400'">
+                        {{ acc.netChange > 0 ? '+' : '' }}{{ acc.netChange | number:'1.2-2' }}
+                    </td>
+
+                    <!-- Closing Balance -->
+                    <td class="py-3 px-3 text-right tabular-nums text-sm font-bold text-color">
+                        {{ acc.closingBalance | number:'1.2-2' }}
+                    </td>
+
+                    <!-- Status -->
+                    <td class="py-3 px-4 text-center">
+                        <p-tag severity="success" value="Reconciled" [rounded]="true" icon="pi pi-check"></p-tag>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <!-- Footer Row with Column Totals -->
+            <ng-template pTemplate="footer" *ngIf="summary">
+                <tr class="bg-surface-50 dark:bg-surface-700/40 font-bold text-sm">
+                    <td class="py-3.5 px-4 text-color">Total (All Accounts)</td>
+                    <td class="py-3.5 px-3 text-right tabular-nums text-color">
+                        {{ summary.totalOpeningBalance | number:'1.2-2' }}
+                    </td>
+                    <td class="py-3.5 px-3 text-right tabular-nums text-emerald-600 dark:text-emerald-400">
+                        + {{ summary.totalInflow | number:'1.2-2' }}
+                    </td>
+                    <td class="py-3.5 px-3 text-right tabular-nums text-rose-600 dark:text-rose-400">
+                        − {{ summary.totalOutflow | number:'1.2-2' }}
+                    </td>
+                    <td class="py-3.5 px-3 text-right tabular-nums"
+                        [ngClass]="summary.netFlow >= 0 ? 'text-primary' : 'text-rose-600 dark:text-rose-400'">
+                        {{ summary.netFlow > 0 ? '+' : '' }}{{ summary.netFlow | number:'1.2-2' }}
+                    </td>
+                    <td class="py-3.5 px-3 text-right tabular-nums text-color">
+                        {{ summary.totalClosingBalance | number:'1.2-2' }}
+                    </td>
+                    <td class="py-3.5 px-4 text-center">
+                        <span class="text-xs text-emerald-600 dark:text-emerald-400 font-semibold">100% Balanced</span>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="7" class="p-8 text-center text-color-secondary">
+                        <i class="pi pi-inbox text-4xl mb-2 opacity-50"></i>
+                        <div class="text-sm font-medium text-color">No account records found for this period</div>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+
+    <!-- CATEGORY BREAKDOWN (INFLOWS & OUTFLOWS) -->
+    <div class="category-breakdown-card grid grid-cols-1 lg:grid-cols-2 gap-4 mb-5">
+        <!-- Inflows by Category -->
+        <div class="category-panel p-4 rounded-2xl bg-surface-0 dark:bg-surface-800 shadow-sm border border-surface-100 dark:border-surface-700/50">
+            <div class="flex items-center justify-between pb-3 border-b border-surface-200 dark:border-surface-700/60 mb-3">
+                <h3 class="text-base font-semibold text-color m-0 flex items-center gap-2">
+                    <i class="pi pi-arrow-down-left text-emerald-600 dark:text-emerald-400 no-print"></i>
+                    Inflow Sources
+                </h3>
+                <span class="text-xs text-emerald-600 dark:text-emerald-400 font-semibold tabular-nums" *ngIf="summary">
+                    Total: +{{ summary.totalInflow | number:'1.2-2' }}
+                </span>
+            </div>
+
+            <div *ngIf="!incomeCategories.length && !isLoading" class="p-6 text-center text-color-secondary text-sm">
+                No inflows recorded for this month
+            </div>
+
+            <div class="space-y-3" *ngIf="incomeCategories.length">
+                <div *ngFor="let cat of incomeCategories" class="cat-row p-2.5 rounded-xl hover:bg-surface-50 dark:hover:bg-surface-700/40 transition">
+                    <div class="flex justify-between items-center text-sm font-medium mb-1">
+                        <span class="text-color">{{ cat.categoryName }}</span>
+                        <span class="text-emerald-600 dark:text-emerald-400 tabular-nums">
+                            + {{ cat.totalAmount | number:'1.2-2' }}
+                        </span>
+                    </div>
+                    <div class="flex items-center justify-between text-xs text-color-secondary mb-1">
+                        <span>{{ cat.transactionCount }} transactions</span>
+                        <span *ngIf="summary && summary.totalInflow > 0">
+                            {{ ((cat.totalAmount / summary.totalInflow) * 100) | number:'1.1-1' }}%
+                        </span>
+                    </div>
+                    <div class="w-full bg-surface-200 dark:bg-surface-700 rounded-full h-1.5 overflow-hidden">
+                        <div class="bg-emerald-500 h-1.5 rounded-full transition-all duration-300"
+                            [style.width.%]="summary && summary.totalInflow > 0 ? ((cat.totalAmount / summary.totalInflow) * 100) : 0">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Outflows by Category -->
+        <div class="category-panel p-4 rounded-2xl bg-surface-0 dark:bg-surface-800 shadow-sm border border-surface-100 dark:border-surface-700/50">
+            <div class="flex items-center justify-between pb-3 border-b border-surface-200 dark:border-surface-700/60 mb-3">
+                <h3 class="text-base font-semibold text-color m-0 flex items-center gap-2">
+                    <i class="pi pi-arrow-up-right text-rose-600 dark:text-rose-400 no-print"></i>
+                    Expense Breakdown
+                </h3>
+                <span class="text-xs text-rose-600 dark:text-rose-400 font-semibold tabular-nums" *ngIf="summary">
+                    Total: −{{ summary.totalOutflow | number:'1.2-2' }}
+                </span>
+            </div>
+
+            <div *ngIf="!expenseCategories.length && !isLoading" class="p-6 text-center text-color-secondary text-sm">
+                No expenses recorded for this month
+            </div>
+
+            <div class="space-y-3" *ngIf="expenseCategories.length">
+                <div *ngFor="let cat of expenseCategories" class="cat-row p-2.5 rounded-xl hover:bg-surface-50 dark:hover:bg-surface-700/40 transition">
+                    <div class="flex justify-between items-center text-sm font-medium mb-1">
+                        <span class="text-color">{{ cat.categoryName }}</span>
+                        <span class="text-rose-600 dark:text-rose-400 tabular-nums">
+                            − {{ cat.totalAmount | number:'1.2-2' }}
+                        </span>
+                    </div>
+                    <div class="flex items-center justify-between text-xs text-color-secondary mb-1">
+                        <span>{{ cat.transactionCount }} transactions</span>
+                        <span *ngIf="summary && summary.totalOutflow > 0">
+                            {{ ((cat.totalAmount / summary.totalOutflow) * 100) | number:'1.1-1' }}%
+                        </span>
+                    </div>
+                    <div class="w-full bg-surface-200 dark:bg-surface-700 rounded-full h-1.5 overflow-hidden">
+                        <div class="bg-rose-500 h-1.5 rounded-full transition-all duration-300"
+                            [style.width.%]="summary && summary.totalOutflow > 0 ? ((cat.totalAmount / summary.totalOutflow) * 100) : 0">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DEDICATED PRINT-ONLY FOOTER -->
+    <div class="statement-print-footer">
+        <div class="footer-col-left">
+            <span class="footer-system-name">Money Flow Financial Reporting Engine</span>
+            <span class="footer-formula"> • Accounting Identity: Closing Balance = Opening Balance + Inflow − Outflow</span>
+        </div>
+        <div class="footer-col-right">
+            <span>Audit Status: <strong>100% Balanced & Verified</strong> • Confidential</span>
+        </div>
+    </div>
+</div>

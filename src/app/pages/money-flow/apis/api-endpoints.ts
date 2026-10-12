@@ -9,4 +9,5 @@ export const API = {
   get Transactions() { return baseUrl() + 'Transactions/'; },
   get Transfer()     { return baseUrl() + 'Transfer/';     },
   get Installments() { return baseUrl() + 'Installments/'; },
+  get Reports()      { return baseUrl() + 'Reports/';      },
 };

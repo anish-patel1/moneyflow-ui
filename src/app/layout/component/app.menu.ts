@@ -59,11 +59,11 @@ export class AppMenu {
                         //     icon: 'pi pi-calendar-plus',
                         //     routerLink: ['/budgets']
                         // },
-                        // {
-                        //     label: 'Reports',
-                        //     icon: 'pi pi-chart-bar',
-                        //     routerLink: ['/reports']
-                        // }
+                        {
+                            label: 'Reports',
+                            icon: 'pi pi-chart-bar',
+                            routerLink: ['/reports']
+                        }
                     ]
                 }
             ]

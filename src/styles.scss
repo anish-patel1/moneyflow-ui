@@ -93,4 +93,57 @@ td.editable-cell:focus-within {
   50%  { transform: translateX(50%)   scaleX(1.2); }
   100% { transform: translateX(200%)  scaleX(0.5); }
 }
+
+// ==================================================
+// GLOBAL PRINT LAYOUT RESETS
+// ==================================================
+@media print {
+  // Hide global shell chrome
+  app-topbar,
+  app-sidebar,
+  app-footer,
+  .layout-topbar,
+  .layout-sidebar,
+  .layout-mask,
+  app-floating-configurator,
+  .app-floating-configurator,
+  .no-print {
+    display: none !important;
+  }
+
+  // Kill all box-shadows & text-shadows (Chromium print bug renders box-shadows as thick black borders)
+  *,
+  *::before,
+  *::after {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  // Paper viewport resets
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    color: #1e293b !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .layout-wrapper,
+  .layout-main-container,
+  .layout-main {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: auto !important;
+    background: #ffffff !important;
+    border: none !important;
+  }
+
+  @page {
+    size: A4 portrait;
+    margin: 15mm 15mm 15mm 15mm;
+  }
+}
 

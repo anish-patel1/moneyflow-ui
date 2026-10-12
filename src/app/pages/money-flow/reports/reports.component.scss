@@ -1,0 +1,346 @@
+// Screen defaults
+.statement-print-header,
+.statement-print-footer {
+  display: none;
+}
+
+:host ::ng-deep .reconciliation-table .p-datatable-table {
+  min-width: 52rem;
+}
+
+// ==================================================
+// PRISTINE FINANCIAL STATEMENT (PRINT)
+// ==================================================
+@media print {
+  :host {
+    display: block !important;
+    background: #ffffff !important;
+    color: #1e293b !important;
+    font-size: 11px !important;
+    line-height: 1.45 !important;
+  }
+
+  .statement-sheet {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  // STRIP ALL CARD BOX WRAPPERS: Eliminates nested boxes, shadows & black borders completely!
+  .reconciliation-table-card,
+  .category-panel,
+  .kpi-card,
+  div[class*="bg-surface-"],
+  div[class*="dark:bg-surface-"] {
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+  }
+
+  // 1. Clean Statement Header
+  .statement-print-header {
+    display: block !important;
+    margin-bottom: 1.5rem !important;
+    padding-bottom: 0.85rem !important;
+    border-bottom: 1px solid #cbd5e1 !important;
+
+    .statement-header-top {
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: flex-start !important;
+    }
+
+    .brand-section {
+      display: flex !important;
+      align-items: center !important;
+      gap: 0.75rem !important;
+
+      .brand-logo-box {
+        width: 2.25rem !important;
+        height: 2.25rem !important;
+        border-radius: 6px !important;
+        background: #f1f5f9 !important;
+        color: #0284c7 !important;
+        border: 1px solid #cbd5e1 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 1.15rem !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
+      .brand-title {
+        font-size: 1.25rem !important;
+        font-weight: 800 !important;
+        letter-spacing: 0.04em !important;
+        margin: 0 !important;
+        color: #0f172a !important;
+        line-height: 1.1 !important;
+      }
+
+      .brand-subtitle {
+        font-size: 0.75rem !important;
+        color: #64748b !important;
+        margin-top: 0.2rem !important;
+        font-weight: 500 !important;
+      }
+    }
+
+    .meta-section {
+      text-align: right !important;
+      font-size: 0.72rem !important;
+      color: #334155 !important;
+      line-height: 1.45 !important;
+
+      .status-badge {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 0.35rem !important;
+        padding: 0.2rem 0.55rem !important;
+        border-radius: 9999px !important;
+        background: #ecfdf5 !important;
+        color: #047857 !important;
+        font-weight: 700 !important;
+        font-size: 0.68rem !important;
+        margin-bottom: 0.3rem !important;
+        border: 1px solid #a7f3d0 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
+      .meta-row strong {
+        color: #0f172a !important;
+      }
+    }
+  }
+
+  // 2. Executive KPI Ribbon: 5 Clean Financial Metrics
+  .kpi-ribbon {
+    display: grid !important;
+    grid-template-columns: repeat(5, 1fr) !important;
+    gap: 10px !important;
+    margin-bottom: 1.5rem !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+
+    .kpi-card {
+      padding: 10px 12px !important;
+      border: 1px solid #e2e8f0 !important;
+      border-radius: 6px !important;
+      background: #f8fafc !important;
+      box-shadow: none !important;
+
+      span.uppercase {
+        font-size: 0.65rem !important;
+        font-weight: 600 !important;
+        color: #64748b !important;
+        display: block !important;
+        letter-spacing: 0.04em !important;
+      }
+
+      .text-xl {
+        font-size: 1.05rem !important;
+        font-weight: 700 !important;
+        line-height: 1.25 !important;
+        margin-top: 0.25rem !important;
+        color: #0f172a !important;
+      }
+
+      .text-\[11px\] {
+        font-size: 0.65rem !important;
+        color: #64748b !important;
+        margin-top: 0.15rem !important;
+      }
+    }
+  }
+
+  // 3. Section Titles: Clean Typography Above Tables
+  .table-card-header {
+    padding: 0 0 0.5rem 0 !important;
+    border-bottom: 1px solid #cbd5e1 !important;
+    margin-bottom: 0.5rem !important;
+    background: transparent !important;
+
+    h3 {
+      font-size: 0.95rem !important;
+      font-weight: 700 !important;
+      color: #0f172a !important;
+      margin: 0 !important;
+    }
+
+    span.text-xs {
+      font-size: 0.7rem !important;
+      color: #64748b !important;
+    }
+
+    .status-pill-badge {
+      display: none !important;
+    }
+  }
+
+  // 4. Per-Account Table: Audited Bank Statement Layout
+  :host ::ng-deep .reconciliation-table {
+    .p-datatable-wrapper {
+      overflow: visible !important;
+    }
+
+    .p-datatable-table {
+      min-width: 0 !important;
+      width: 100% !important;
+      table-layout: auto !important;
+      border-collapse: collapse !important;
+      border: none !important;
+
+      thead tr th {
+        background: #f8fafc !important;
+        color: #334155 !important;
+        border-top: 1px solid #cbd5e1 !important;
+        border-bottom: 1.5px solid #94a3b8 !important;
+        border-left: none !important;
+        border-right: none !important;
+        padding: 7px 10px !important;
+        font-size: 0.7rem !important;
+        font-weight: 700 !important;
+        letter-spacing: 0.03em !important;
+        text-transform: uppercase !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
+      tbody tr {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+
+        td {
+          padding: 6px 10px !important;
+          border-bottom: 1px solid #f1f5f9 !important;
+          border-top: none !important;
+          border-left: none !important;
+          border-right: none !important;
+          font-size: 0.74rem !important;
+          color: #1e293b !important;
+          background: #ffffff !important;
+        }
+      }
+
+      tfoot tr td {
+        background: #f8fafc !important;
+        color: #0f172a !important;
+        border-top: 1.5px solid #94a3b8 !important;
+        border-bottom: 1.5px solid #cbd5e1 !important;
+        border-left: none !important;
+        border-right: none !important;
+        padding: 8px 10px !important;
+        font-size: 0.75rem !important;
+        font-weight: 700 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+    }
+
+    .p-tag {
+      font-size: 0.62rem !important;
+      padding: 0.1rem 0.4rem !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+  }
+
+  // 5. Category Breakdown: Clean Side-by-Side Dual Ledger
+  .category-breakdown-card {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 16px !important;
+    margin-top: 1.5rem !important;
+    margin-bottom: 1.5rem !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+
+    .category-panel {
+      padding: 0 !important;
+      background: transparent !important;
+
+      > div:first-child {
+        padding-bottom: 0.5rem !important;
+        border-bottom: 1px solid #cbd5e1 !important;
+        margin-bottom: 0.75rem !important;
+
+        h3 {
+          font-size: 0.9rem !important;
+          font-weight: 700 !important;
+          color: #0f172a !important;
+        }
+      }
+
+      .cat-row {
+        padding: 0.35rem 0 !important;
+        border-radius: 0 !important;
+        background: transparent !important;
+
+        &:not(:last-child) {
+          border-bottom: 1px dotted #e2e8f0 !important;
+          padding-bottom: 0.45rem !important;
+          margin-bottom: 0.45rem !important;
+        }
+      }
+    }
+  }
+
+  // Color preservation for inflows & outflows
+  .text-emerald-600,
+  .dark\:text-emerald-400 {
+    color: #047857 !important;
+  }
+
+  .text-rose-600,
+  .dark\:text-rose-400 {
+    color: #b91c1c !important;
+  }
+
+  .bg-emerald-500 {
+    background-color: #059669 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .bg-rose-500 {
+    background-color: #e11d48 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .bg-surface-200,
+  .dark\:bg-surface-700 {
+    background-color: #e2e8f0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  // 6. Statement Audit Footer
+  .statement-print-footer {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-top: 1.5rem !important;
+    padding-top: 0.75rem !important;
+    border-top: 1px solid #cbd5e1 !important;
+    font-size: 0.68rem !important;
+    color: #64748b !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+
+    .footer-system-name {
+      font-weight: 600 !important;
+      color: #334155 !important;
+    }
+  }
+}
