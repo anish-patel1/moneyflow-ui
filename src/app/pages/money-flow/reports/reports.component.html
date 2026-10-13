@@ -14,8 +14,8 @@
 
             <div class="meta-section">
                 <div class="status-badge">
-                    <i class="pi pi-verified"></i>
-                    <span>RECONCILED & BALANCED</span>
+                    <i class="pi pi-calendar"></i>
+                    <span>MONTHLY FINANCIAL STATEMENT</span>
                 </div>
                 <div class="meta-row"><strong>Period:</strong> {{ displayMonthLabel }}</div>
                 <div class="meta-row"><strong>Account Holder:</strong> {{ userDisplayName }}</div>
@@ -163,9 +163,10 @@
                 <div class="text-xl font-bold text-color mt-2 tabular-nums">
                     {{ summary.totalClosingBalance | number:'1.2-2' }}
                 </div>
-                <div class="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium mt-1 flex items-center gap-1">
-                    <i class="pi pi-check text-[10px]"></i>
-                    <span>100% Balanced</span>
+                <div class="text-[11px] font-medium mt-1 flex items-center gap-1"
+                    [ngClass]="summary.netFlow >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'">
+                    <i [ngClass]="summary.netFlow >= 0 ? 'pi pi-arrow-up text-[10px]' : 'pi pi-arrow-down text-[10px]'"></i>
+                    <span>{{ summary.netFlow >= 0 ? '+' : '' }}{{ summary.netFlow | number:'1.2-2' }} net change</span>
                 </div>
             </ng-container>
         </div>
@@ -186,9 +187,9 @@
                 </h3>
                 <span class="text-xs text-color-secondary">Opening + Inflows − Outflows = Closing</span>
             </div>
-            <span class="status-pill-badge text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
-                <i class="pi pi-verified text-xs"></i>
-                Balanced
+            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-surface-100 dark:bg-surface-700 text-color-secondary flex items-center gap-1.5" *ngIf="accounts.length">
+                <i class="pi pi-wallet text-xs"></i>
+                {{ accounts.length }} {{ accounts.length === 1 ? 'Account' : 'Accounts' }}
             </span>
         </div>
 
@@ -200,8 +201,7 @@
                     <th class="py-3 px-3 text-right">Inflow (+)</th>
                     <th class="py-3 px-3 text-right">Outflow (−)</th>
                     <th class="py-3 px-3 text-right">Net Change</th>
-                    <th class="py-3 px-3 text-right font-semibold text-color">Closing Balance</th>
-                    <th class="py-3 px-4 text-center">Status</th>
+                    <th class="py-3 px-4 text-right font-semibold text-color">Closing Balance</th>
                 </tr>
             </ng-template>
 
@@ -244,13 +244,8 @@
                     </td>
 
                     <!-- Closing Balance -->
-                    <td class="py-3 px-3 text-right tabular-nums text-sm font-bold text-color">
+                    <td class="py-3 px-4 text-right tabular-nums text-sm font-bold text-color">
                         {{ acc.closingBalance | number:'1.2-2' }}
-                    </td>
-
-                    <!-- Status -->
-                    <td class="py-3 px-4 text-center">
-                        <p-tag severity="success" value="Reconciled" [rounded]="true" icon="pi pi-check"></p-tag>
                     </td>
                 </tr>
             </ng-template>
@@ -272,18 +267,15 @@
                         [ngClass]="summary.netFlow >= 0 ? 'text-primary' : 'text-rose-600 dark:text-rose-400'">
                         {{ summary.netFlow > 0 ? '+' : '' }}{{ summary.netFlow | number:'1.2-2' }}
                     </td>
-                    <td class="py-3.5 px-3 text-right tabular-nums text-color">
+                    <td class="py-3.5 px-4 text-right tabular-nums text-color">
                         {{ summary.totalClosingBalance | number:'1.2-2' }}
-                    </td>
-                    <td class="py-3.5 px-4 text-center">
-                        <span class="text-xs text-emerald-600 dark:text-emerald-400 font-semibold">100% Balanced</span>
                     </td>
                 </tr>
             </ng-template>
 
             <ng-template pTemplate="emptymessage">
                 <tr>
-                    <td colspan="7" class="p-8 text-center text-color-secondary">
+                    <td colspan="6" class="p-8 text-center text-color-secondary">
                         <i class="pi pi-inbox text-4xl mb-2 opacity-50"></i>
                         <div class="text-sm font-medium text-color">No account records found for this period</div>
                     </td>
@@ -380,7 +372,7 @@
             <span class="footer-formula"> • Accounting Identity: Closing Balance = Opening Balance + Inflow − Outflow</span>
         </div>
         <div class="footer-col-right">
-            <span>Audit Status: <strong>100% Balanced & Verified</strong> • Confidential</span>
+            <span>Total Position: <strong>{{ summary?.totalClosingBalance | number:'1.2-2' }}</strong> • Confidential</span>
         </div>
     </div>
 </div>
