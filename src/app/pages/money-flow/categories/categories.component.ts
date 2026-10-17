@@ -36,6 +36,15 @@ export class CategoriesComponent {
     { name: 'Expense', value: 'Expense' }
   ];
 
+  frequencyOptions = [
+    { label: 'Monthly (12x/yr)', value: 'Monthly' },
+    { label: 'Bimonthly (Every 2 mo)', value: 'Bimonthly' },
+    { label: 'Quarterly (Every 3 mo)', value: 'Quarterly' },
+    { label: 'Six-Monthly (Every 6 mo)', value: 'SixMonthly' },
+    { label: 'Yearly (Once/yr)', value: 'Yearly' },
+    { label: 'One-Time / Ad-hoc', value: 'OneTime' }
+  ];
+
   // Current User
   userId: any = null;
 
@@ -56,7 +65,8 @@ export class CategoriesComponent {
     // For Group
     this.addForm = this.commonService.formBuilder.group({
       CategoryName: ['', Validators.required],
-      CategoryType: [null, Validators.required]
+      CategoryType: [null, Validators.required],
+      Frequency: ['Monthly']
     });
 
     this.selectAll();
@@ -147,6 +157,7 @@ export class CategoriesComponent {
         // this.loader = false;
         this.addForm.controls['CategoryName'].setValue(data[0].categoryName);
         this.addForm.controls['CategoryType'].setValue(data[0].categoryType);
+        this.addForm.controls['Frequency'].setValue(data[0].frequency || 'Monthly');
       },
       error: (err) => {
         // this.loader = false;
@@ -220,7 +231,9 @@ export class CategoriesComponent {
   // ======================================================
 
   resetForm() {
-    this.addForm.reset();
+    this.addForm.reset({
+      Frequency: 'Monthly'
+    });
     this.submitted = false;
   }
 

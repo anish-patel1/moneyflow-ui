@@ -10,4 +10,5 @@ export const API = {
   get Transfer()     { return baseUrl() + 'Transfer/';     },
   get Installments() { return baseUrl() + 'Installments/'; },
   get Reports()      { return baseUrl() + 'Reports/';      },
+  get Budgets()      { return baseUrl() + 'Budgets/';      },
 };

@@ -4,4 +4,5 @@ export interface Categories extends BaseClass {
     CategoryId: any;
     CategoryName: any;
     CategoryType: any;
+    Frequency?: string | null;
 }

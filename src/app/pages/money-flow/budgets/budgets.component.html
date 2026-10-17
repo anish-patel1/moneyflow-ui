@@ -1,1 +1,351 @@
-<p>budgets works!</p>
+<!-- HEADER & PERIOD FILTER BAR -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 bg-surface-0 dark:bg-surface-800 p-3.5 sm:p-4 rounded-2xl shadow-sm border border-surface-100 dark:border-surface-700/50">
+    <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-semibold shrink-0">
+            <i class="pi pi-calendar-plus text-base"></i>
+        </div>
+        <div>
+            <h2 class="text-base sm:text-lg font-bold text-color leading-tight m-0">Monthly Budgets</h2>
+            <span class="text-xs text-color-secondary font-medium">Plan, track and analyze category expenditures</span>
+        </div>
+    </div>
+    
+    <div class="flex items-center self-start sm:self-auto">
+        <!-- Integrated Stepper Pill: [ ◀ ] [ Month/Year Picker ] [ ▶ ] [ ↺ ] -->
+        <div class="flex items-center bg-surface-100 dark:bg-surface-700/60 rounded-xl p-1 gap-1 border border-surface-200 dark:border-surface-600/40">
+            <!-- Prev Month -->
+            <button type="button" (click)="prevMonth()"
+                pTooltip="Previous Month" tooltipPosition="bottom"
+                class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-surface-0 dark:hover:bg-surface-600 text-color transition cursor-pointer border-0 bg-transparent">
+                <i class="pi pi-chevron-left text-xs"></i>
+            </button>
+
+            <!-- Clickable Month/Year Picker -->
+            <p-datepicker
+                [(ngModel)]="selectedPeriodDate"
+                view="month"
+                dateFormat="MM yy"
+                [readonlyInput]="true"
+                (onSelect)="onPeriodDateSelect($event)"
+                styleClass="w-36 sm:w-40 border-0 bg-transparent"
+                inputStyleClass="w-full text-center text-sm font-semibold bg-transparent border-0 cursor-pointer shadow-none focus:ring-0 py-1 px-2 text-color">
+            </p-datepicker>
+
+            <!-- Next Month -->
+            <button type="button" (click)="nextMonth()"
+                pTooltip="Next Month" tooltipPosition="bottom"
+                class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-surface-0 dark:hover:bg-surface-600 text-color transition border-0 bg-transparent cursor-pointer">
+                <i class="pi pi-chevron-right text-xs"></i>
+            </button>
+
+            <!-- Jump to Current Month -->
+            <button type="button" (click)="resetToCurrentMonth()" [disabled]="isCurrentMonth"
+                pTooltip="Back to Current Month" tooltipPosition="bottom"
+                [class.opacity-0]="isCurrentMonth"
+                [class.pointer-events-none]="isCurrentMonth"
+                class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-surface-0 dark:hover:bg-surface-600 text-primary transition cursor-pointer border-0 bg-transparent">
+                <i class="pi pi-replay text-xs"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- KPI SUMMARY CARDS -->
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+    <!-- Total Budget -->
+    <div class="kpi-card p-4 rounded-2xl bg-surface-0 dark:bg-surface-800 shadow-sm border border-surface-100 dark:border-surface-700/50">
+        <div class="flex items-center justify-between">
+            <span class="text-xs text-color-secondary font-medium uppercase tracking-wider">Total Budget</span>
+            <div class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                <i class="pi pi-wallet text-sm"></i>
+            </div>
+        </div>
+        <div class="text-xl font-bold text-color mt-2 tabular-nums">
+            {{ totalBudgeted | currency:'INR':'symbol':'1.0-0' }}
+        </div>
+        <div class="text-[11px] text-color-secondary mt-1">Allocated for {{ selectedMonthLabel }}</div>
+    </div>
+
+    <!-- Actual Spent -->
+    <div class="kpi-card p-4 rounded-2xl bg-surface-0 dark:bg-surface-800 shadow-sm border border-surface-100 dark:border-surface-700/50">
+        <div class="flex items-center justify-between">
+            <span class="text-xs text-color-secondary font-medium uppercase tracking-wider">Actual Spent</span>
+            <div class="w-8 h-8 rounded-lg bg-orange-500/10 text-orange-600 dark:text-orange-400 flex items-center justify-center">
+                <i class="pi pi-shopping-cart text-sm"></i>
+            </div>
+        </div>
+        <div class="text-xl font-bold text-color mt-2 tabular-nums">
+            {{ totalActual | currency:'INR':'symbol':'1.0-0' }}
+        </div>
+        <div class="text-[11px] text-color-secondary mt-1">{{ overallPercent }}% of total budget</div>
+    </div>
+
+    <!-- Remaining Variance -->
+    <div class="kpi-card p-4 rounded-2xl bg-surface-0 dark:bg-surface-800 shadow-sm border border-surface-100 dark:border-surface-700/50">
+        <div class="flex items-center justify-between">
+            <span class="text-xs text-color-secondary font-medium uppercase tracking-wider">Remaining</span>
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center"
+                 [ngClass]="totalVariance >= 0 ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-rose-500/10 text-rose-600 dark:text-rose-400'">
+                <i class="pi" [ngClass]="totalVariance >= 0 ? 'pi-arrow-down-left' : 'pi-arrow-up-right'"></i>
+            </div>
+        </div>
+        <div class="text-xl font-bold mt-2 tabular-nums"
+             [ngClass]="totalVariance >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'">
+            {{ totalVariance | currency:'INR':'symbol':'1.0-0' }}
+        </div>
+        <div class="text-[11px] text-color-secondary mt-1">
+            {{ totalVariance >= 0 ? 'Under budget limit' : 'Over budget limit' }}
+        </div>
+    </div>
+
+    <!-- Active Plans -->
+    <div class="kpi-card p-4 rounded-2xl bg-surface-0 dark:bg-surface-800 shadow-sm border border-surface-100 dark:border-surface-700/50">
+        <div class="flex items-center justify-between">
+            <span class="text-xs text-color-secondary font-medium uppercase tracking-wider">Active Budgets</span>
+            <div class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+                <i class="pi pi-list-check text-sm"></i>
+            </div>
+        </div>
+        <div class="text-xl font-bold text-color mt-2 tabular-nums">
+            {{ budgetData.length }}
+        </div>
+        <div class="text-[11px] text-color-secondary mt-1">Tracked expense categories</div>
+    </div>
+</div>
+
+<!-- OVERALL PROGRESS BAR -->
+<div *ngIf="budgetData.length > 0" class="mb-4 p-4 rounded-2xl bg-surface-0 dark:bg-surface-800 shadow-sm border border-surface-100 dark:border-surface-700/50">
+    <div class="flex justify-between items-center text-sm font-medium mb-2">
+        <span class="text-color font-semibold">Overall Budget Utilization</span>
+        <span [ngClass]="overallPercent > 90 ? 'text-rose-600 dark:text-rose-400 font-bold' : overallPercent >= 75 ? 'text-amber-500 font-semibold' : 'text-emerald-600 dark:text-emerald-400 font-semibold'">
+            {{ overallPercent }}%
+        </span>
+    </div>
+    <div class="w-full bg-surface-100 dark:bg-surface-700 rounded-full h-2.5 overflow-hidden">
+        <div class="h-2.5 rounded-full transition-all duration-300"
+             [style.width.%]="overallPercent"
+             [style.background]="overallPercent > 90 ? '#ef4444' : overallPercent >= 75 ? '#f59e0b' : '#10b981'">
+        </div>
+    </div>
+</div>
+
+<!-- SEARCH & ACTION TOOLBAR -->
+<div *ngIf="!isgridloading && budgetData.length > 0" class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
+    <!-- Search Bar -->
+    <p-iconfield class="w-full md:w-80 min-w-0">
+        <p-inputicon styleClass="pi pi-search" />
+        <input pInputText type="text" [(ngModel)]="searchQuery" placeholder="Search categories..." class="w-full" />
+    </p-iconfield>
+
+    <!-- Right Controls: [Expand / Collapse Pill] | [Auto-Generate] [New Budget] -->
+    <div class="flex flex-wrap items-center gap-2.5 self-start md:self-auto">
+        <!-- Improved Expand / Collapse Segmented Control -->
+        <div *ngIf="groupedBudgets.length > 0"
+             class="flex items-center bg-surface-100 dark:bg-surface-700/60 rounded-xl p-1 border border-surface-200 dark:border-surface-600/40">
+            <button type="button" (click)="expandAllGroups()"
+                pTooltip="Expand All Groups" tooltipPosition="bottom"
+                class="px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 hover:bg-surface-0 dark:hover:bg-surface-600 text-color-secondary hover:text-color text-xs font-semibold transition cursor-pointer border-0 bg-transparent">
+                <i class="pi pi-angle-double-down text-xs"></i>
+                <span class="hidden sm:inline">Expand All</span>
+            </button>
+            <button type="button" (click)="collapseAllGroups()"
+                pTooltip="Collapse All Groups" tooltipPosition="bottom"
+                class="px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 hover:bg-surface-0 dark:hover:bg-surface-600 text-color-secondary hover:text-color text-xs font-semibold transition cursor-pointer border-0 bg-transparent">
+                <i class="pi pi-angle-double-up text-xs"></i>
+                <span class="hidden sm:inline">Collapse All</span>
+            </button>
+        </div>
+
+        <div class="h-6 w-px bg-surface-200 dark:bg-surface-700 hidden sm:block" *ngIf="groupedBudgets.length > 0"></div>
+
+        <!-- Action Buttons -->
+        <p-button label="Auto-Generate" icon="pi pi-bolt" severity="secondary" (onClick)="btnAutoGenerate()"></p-button>
+        <p-button label="New Budget" icon="pi pi-plus" severity="primary" (onClick)="openDialog()"></p-button>
+    </div>
+</div>
+
+<!-- SKELETON LOADING -->
+<div *ngIf="isgridloading" class="space-y-4">
+    <div *ngFor="let _ of [1, 2]" class="rounded-2xl bg-surface-0 dark:bg-surface-800 p-4 border border-surface-100 dark:border-surface-700/50">
+        <div class="flex justify-between items-center mb-4">
+            <p-skeleton width="180px" height="1.5rem"></p-skeleton>
+            <p-skeleton width="240px" height="1.25rem"></p-skeleton>
+        </div>
+        <div class="space-y-2">
+            <p-skeleton width="100%" height="2rem"></p-skeleton>
+            <p-skeleton width="100%" height="2rem"></p-skeleton>
+            <p-skeleton width="100%" height="2rem"></p-skeleton>
+        </div>
+    </div>
+</div>
+
+<!-- NO BUDGETS FOUND FOR MONTH -->
+<div *ngIf="!isgridloading && budgetData.length === 0" class="flex flex-col items-center justify-center p-12 bg-surface-0 dark:bg-surface-800 rounded-2xl shadow-sm border border-surface-100 dark:border-surface-700/50 text-color-secondary animate-fade-in">
+    <i class="pi pi-wallet text-5xl mb-3 opacity-50"></i>
+    <div class="mb-1 text-lg font-semibold text-color">No budgets set for {{ selectedMonthLabel }} {{ selectedYear }}</div>
+    <p class="text-sm text-color-secondary m-0 mb-4">Add budgets manually or use Auto-Generate to populate from your categories</p>
+    <div class="flex gap-2">
+        <p-button label="Auto-Generate" icon="pi pi-bolt" severity="secondary" (onClick)="btnAutoGenerate()"></p-button>
+        <p-button label="New Budget" icon="pi pi-plus" severity="primary" (onClick)="openDialog()"></p-button>
+    </div>
+</div>
+
+<!-- SEARCH HAS NO RESULTS -->
+<div *ngIf="!isgridloading && budgetData.length > 0 && groupedBudgets.length === 0" class="flex flex-col items-center justify-center p-8 bg-surface-0 dark:bg-surface-800 rounded-2xl border border-surface-100 dark:border-surface-700/50 text-color-secondary">
+    <i class="pi pi-filter text-4xl mb-2 opacity-50"></i>
+    <div class="text-base font-medium text-color">No categories matching "{{ searchQuery }}"</div>
+    <p class="text-xs text-color-secondary mt-1">Try clearing your search keyword</p>
+</div>
+
+<!-- FREQUENCY GROUPS (IN EXACT CATEGORY SEQUENCE) -->
+<div *ngIf="!isgridloading && groupedBudgets.length > 0" class="space-y-4">
+    <div *ngFor="let group of groupedBudgets"
+         class="rounded-2xl bg-surface-0 dark:bg-surface-800 shadow-sm border border-surface-100 dark:border-surface-700/50 overflow-hidden transition-all duration-200">
+        
+        <!-- GROUP HEADER BAR -->
+        <div (click)="toggleGroup(group.key)"
+             class="p-3.5 sm:p-4 bg-surface-50/70 dark:bg-surface-800/80 cursor-pointer hover:bg-surface-100/60 dark:hover:bg-surface-700/50 transition flex flex-wrap items-center justify-between gap-3 select-none">
+            
+            <!-- Left: Icon, Frequency Title & Count Badge -->
+            <div class="flex items-center gap-2.5">
+                <i class="pi text-xs text-color-secondary transition-transform duration-200"
+                   [ngClass]="isGroupCollapsed(group.key) ? 'pi-chevron-right' : 'pi-chevron-down'">
+                </i>
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center text-sm" [ngClass]="group.color">
+                    <i [class]="group.icon"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm sm:text-base font-bold text-color">{{ group.label }}</span>
+                        <span class="text-[11px] px-2 py-0.5 rounded-full bg-surface-200 dark:bg-surface-700 text-color-secondary font-medium">
+                            {{ group.items.length }} {{ group.items.length === 1 ? 'category' : 'categories' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Subtotals & Utilization Pill -->
+            <div class="flex flex-wrap items-center gap-3 sm:gap-5 text-xs sm:text-sm">
+                <div class="text-right">
+                    <span class="text-[11px] text-color-secondary uppercase tracking-wider block font-medium">Budget</span>
+                    <span class="font-bold text-color tabular-nums">{{ group.totalBudget | currency:'INR':'symbol':'1.0-0' }}</span>
+                </div>
+                <div class="text-right">
+                    <span class="text-[11px] text-color-secondary uppercase tracking-wider block font-medium">Spent</span>
+                    <span class="font-bold text-color tabular-nums">{{ group.totalActual | currency:'INR':'symbol':'1.0-0' }}</span>
+                </div>
+                <div class="text-right">
+                    <span class="text-[11px] text-color-secondary uppercase tracking-wider block font-medium">Remaining</span>
+                    <span class="font-bold tabular-nums" [ngClass]="group.totalVariance >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'">
+                        {{ group.totalVariance | currency:'INR':'symbol':'1.0-0' }}
+                    </span>
+                </div>
+                <!-- Mini Progress Pill -->
+                <div class="hidden md:flex items-center gap-2 w-28">
+                    <div class="w-full bg-surface-200 dark:bg-surface-700 rounded-full h-2 overflow-hidden flex-1">
+                        <div class="h-2 rounded-full transition-all duration-300"
+                             [style.width.%]="group.percent"
+                             [style.background]="group.percent > 90 ? '#ef4444' : group.percent >= 75 ? '#f59e0b' : '#10b981'">
+                        </div>
+                    </div>
+                    <span class="text-[11px] text-color-secondary tabular-nums font-semibold">{{ group.percent }}%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- GROUP TABLE (EXPANDABLE) -->
+        <div *ngIf="!isGroupCollapsed(group.key)" class="overflow-x-auto border-t border-surface-100 dark:border-surface-700/50">
+            <table class="w-full text-left text-sm border-collapse">
+                <thead>
+                    <tr class="bg-surface-50/40 dark:bg-surface-800/40 text-color-secondary border-b border-surface-100 dark:border-surface-700/50 text-xs font-semibold uppercase tracking-wider">
+                        <th class="py-2.5 px-4">Category</th>
+                        <th class="py-2.5 px-4 text-right">Budget</th>
+                        <th class="py-2.5 px-4 text-right">Actual Spent</th>
+                        <th class="py-2.5 px-4 text-right">Variance</th>
+                        <th class="py-2.5 px-4" style="min-width: 160px">Utilization</th>
+                        <th class="py-2.5 px-3 text-right" style="width: 4.5rem"></th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-surface-100 dark:divide-surface-700/30">
+                    <tr *ngFor="let item of group.items" class="hover:bg-surface-50/70 dark:hover:bg-surface-700/30 transition">
+                        <td class="py-3 px-4 font-medium text-color">
+                            {{ item.CategoryName }}
+                        </td>
+                        <td class="py-3 px-4 text-right font-medium text-color tabular-nums">
+                            {{ item.BudgetAmount | currency:'INR':'symbol':'1.0-0' }}
+                        </td>
+                        <td class="py-3 px-4 text-right font-medium text-color tabular-nums">
+                            {{ item.ActualSpent | currency:'INR':'symbol':'1.0-0' }}
+                        </td>
+                        <td class="py-3 px-4 text-right tabular-nums">
+                            <span class="font-semibold" [ngClass]="item.Variance >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'">
+                                {{ item.Variance | currency:'INR':'symbol':'1.0-0' }}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4">
+                            <div class="flex items-center gap-2">
+                                <div class="w-full bg-surface-100 dark:bg-surface-700 rounded-full h-2 overflow-hidden flex-1">
+                                    <div class="h-2 rounded-full transition-all duration-300"
+                                         [style.width.%]="getProgressPercent(item)"
+                                         [style.background]="getProgressColor(item)">
+                                    </div>
+                                </div>
+                                <span class="text-xs text-color-secondary w-8 text-right tabular-nums">{{ getProgressPercent(item) }}%</span>
+                            </div>
+                        </td>
+                        <td class="py-3 px-3 text-right">
+                            <p-menu #menu [model]="items" [popup]="true" appendTo="body"></p-menu>
+                            <p-button icon="pi pi-ellipsis-h" [text]="true" [rounded]="true" size="small" severity="secondary"
+                                (click)="openMenu(menu, $event, item)">
+                            </p-button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ADD / EDIT DIALOG -->
+<p-dialog [(visible)]="addDialog" [modal]="true" [draggable]="false" [resizable]="false" [closable]="true"
+    [style]="{ width: '420px', maxWidth: '95vw' }" contentStyleClass="p-0">
+    <ng-template pTemplate="header">
+        <div class="px-5 py-2">
+            <div class="text-lg font-semibold text-color">{{ editId ? 'Edit Budget' : 'Add Budget' }}</div>
+            <div class="text-sm text-color-secondary mt-1">
+                {{ selectedMonthLabel }} {{ selectedYear }}
+            </div>
+        </div>
+    </ng-template>
+    <form [formGroup]="addForm" class="px-5 py-4 space-y-5">
+        <div>
+            <label for="categoryId" class="block text-sm font-medium mb-2 text-color">Category</label>
+            <p-dropdown inputId="categoryId" [options]="categoriesList" optionLabel="label" optionValue="value"
+                formControlName="CategoryId" placeholder="Select category"
+                [filter]="true" filterBy="label" [showClear]="false" class="w-full" appendTo="body">
+            </p-dropdown>
+            <small class="text-red-500" *ngIf="submitted && addForm.controls['CategoryId'].invalid">
+                Category is required.
+            </small>
+        </div>
+        <div>
+            <label for="budgetAmount" class="block text-sm font-medium mb-2 text-color">Budget Amount</label>
+            <p-inputNumber inputId="budgetAmount" formControlName="BudgetAmount"
+                mode="currency" currency="INR" locale="en-IN"
+                [minFractionDigits]="0" [maxFractionDigits]="2"
+                class="w-full" placeholder="Enter amount">
+            </p-inputNumber>
+            <small class="text-red-500 mt-1" *ngIf="submitted && addForm.controls['BudgetAmount'].invalid">
+                A valid amount is required.
+            </small>
+        </div>
+    </form>
+    <ng-template pTemplate="footer">
+        <div class="flex justify-end gap-3 px-5 py-3">
+            <p-button label="Cancel" severity="secondary" [text]="true" (click)="closeDialog()"></p-button>
+            <p-button label="Save" icon="pi pi-check" severity="primary" (click)="btnSave()"
+                [disabled]="addForm.invalid && submitted">
+            </p-button>
+        </div>
+    </ng-template>
+</p-dialog>

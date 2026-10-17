@@ -5,7 +5,8 @@
         <div class="flex items-center justify-between gap-2 sm:gap-3">
             <p-iconfield class="flex-1 sm:flex-initial sm:w-72 min-w-0">
                 <p-inputicon styleClass="pi pi-search" />
-                <input pInputText type="text" placeholder="Search categories..." class="w-full" (input)="search(table, $event)" />
+                <input pInputText type="text" placeholder="Search categories..." class="w-full"
+                    (input)="search(table, $event)" />
             </p-iconfield>
             <p-button label="New" icon="pi pi-plus" severity="secondary" class="shrink-0" (onClick)="openDialog()" />
         </div>
@@ -19,6 +20,9 @@
             <th pSortableColumn="categoryType">Type
                 <p-sortIcon field="categoryType" />
             </th>
+            <th pSortableColumn="frequency">Frequency
+                <p-sortIcon field="frequency" />
+            </th>
             <th style="width: 5rem"></th>
         </tr>
     </ng-template>
@@ -27,10 +31,12 @@
         <tr class="hover-row">
             <td class="font-medium text-color">{{ data.categoryName }}</td>
             <td>
-                <p-tag 
-                    [value]="data.categoryType" 
-                    [severity]="data.categoryType === 'Income' ? 'success' : 'danger'"
+                <p-tag [value]="data.categoryType" [severity]="data.categoryType === 'Income' ? 'success' : 'danger'"
                     [icon]="data.categoryType === 'Income' ? 'pi pi-arrow-down' : 'pi pi-arrow-up'">
+                </p-tag>
+            </td>
+            <td>
+                <p-tag [value]="data.frequency || 'Monthly'" severity="info">
                 </p-tag>
             </td>
             <td>
@@ -45,13 +51,13 @@
     <ng-template pTemplate="emptymessage">
         <ng-container *ngIf="isgridloading">
             <tr *ngFor="let _ of [].constructor(5)">
-                <td *ngFor="let _ of [].constructor(3)">
+                <td *ngFor="let _ of [].constructor(4)">
                     <p-skeleton width="100%" height="1.25rem"></p-skeleton>
                 </td>
             </tr>
         </ng-container>
         <tr *ngIf="!isgridloading">
-            <td colspan="3">
+            <td colspan="4">
                 <div class="flex flex-col items-center justify-center p-8 text-color-secondary animate-fade-in">
                     <i class="pi pi-database text-5xl mb-3 opacity-50"></i>
                     <div class="mb-1 text-lg font-medium text-color">No categories found</div>
@@ -78,20 +84,28 @@
     <form [formGroup]="addForm" class="px-5 py-4 space-y-5">
         <div>
             <label for="categoryName" class="block text-sm font-medium mb-2 text-color">Name</label>
-            <input pInputText id="categoryName" formControlName="CategoryName" class="w-full" placeholder="Enter category name" autofocus />
+            <input pInputText id="categoryName" formControlName="CategoryName" class="w-full"
+                placeholder="Enter category name" autofocus />
             <small class="text-red-500" *ngIf="submitted && addForm.controls['CategoryName'].invalid">
                 Name is required.
             </small>
         </div>
         <div>
             <label for="categoryType" class="block text-sm font-medium mb-2 text-color">Type</label>
-            <p-dropdown inputId="categoryType" [options]="categoryTypeData" optionLabel="name"
-                optionValue="value" formControlName="CategoryType" [placeholder]="'Select type'"
-                [filter]="false" [showClear]="false" class="w-full" appendTo="body">
+            <p-dropdown inputId="categoryType" [options]="categoryTypeData" optionLabel="name" optionValue="value"
+                formControlName="CategoryType" [placeholder]="'Select type'" [filter]="false" [showClear]="false"
+                class="w-full" appendTo="body">
             </p-dropdown>
             <small class="text-red-500 mt-1" *ngIf="submitted && addForm.controls['CategoryType'].invalid">
                 Type is required.
             </small>
+        </div>
+        <div>
+            <label for="frequency" class="block text-sm font-medium mb-2 text-color">Billing Frequency</label>
+            <p-dropdown inputId="frequency" [options]="frequencyOptions" optionLabel="label" optionValue="value"
+                formControlName="Frequency" [placeholder]="'Select frequency'" [filter]="false" [showClear]="false"
+                class="w-full" appendTo="body">
+            </p-dropdown>
         </div>
     </form>
     <ng-template pTemplate="footer">
