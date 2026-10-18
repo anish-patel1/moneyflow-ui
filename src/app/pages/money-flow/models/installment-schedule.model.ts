@@ -6,6 +6,8 @@ export interface InstallmentSchedule extends Partial<BaseClass> {
     InstallmentNo?: any;
     DueDate?: any;
     DueDateFormatted?: any;
+    PaymentStartDate?: any;
+    PaymentStartDateFormatted?: any;
     OpeningBalance?: any;
     ScheduledAmount?: any;
     Principal?: any;

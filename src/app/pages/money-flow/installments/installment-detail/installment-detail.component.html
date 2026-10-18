@@ -230,7 +230,7 @@
                 <ng-template pTemplate="header">
                     <tr class="text-color-secondary text-xs uppercase tracking-wider border-b border-surface">
                         <th class="py-3 pl-5 w-14">#</th>
-                        <th class="py-3">Due Date</th>
+                        <th class="py-3">Due Date / Window</th>
                         <th class="py-3 text-right">Opening Bal</th>
                         <th class="py-3 text-right">Principal</th>
                         <th class="py-3 text-right">Interest</th>
@@ -249,9 +249,12 @@
                         {{ row.InstallmentNo }}
                     </td>
 
-                    <!-- Due Date -->
+                    <!-- Due Date / Window -->
                     <td class="text-color whitespace-nowrap">
                         <div class="font-medium">{{ row.DueDate | date:'dd-MMM-yyyy' }}</div>
+                        <div *ngIf="row.PaymentStartDate || row.paymentStartDate" class="text-xs text-color-secondary">
+                            Window: {{ (row.PaymentStartDate || row.paymentStartDate) | date:'dd-MMM' }} – {{ row.DueDate | date:'dd-MMM' }}
+                        </div>
                         <div *ngIf="isOverdue(row.DueDate, row.ScheduleStatus)" class="text-[11px] text-rose-500 font-semibold flex items-center gap-1">
                             <i class="pi pi-exclamation-circle text-[10px]"></i>
                             <span>Overdue</span>
@@ -472,6 +475,17 @@
                     </p-select>
                 </div>
 
+                <!-- Billing Type -->
+                <div>
+                    <label class="block text-xs font-medium text-color mb-1.5">Billing Type</label>
+                    <p-select [options]="[
+                        { label: 'Fixed Due Date', value: 'FixedDate' },
+                        { label: 'Payment Window (Date Range)', value: 'DateRange' }
+                    ]" formControlName="BillingType" optionLabel="label" optionValue="value"
+                        (onChange)="previewSchedule()" styleClass="w-full">
+                    </p-select>
+                </div>
+
                 <!-- Annual Interest Rate % -->
                 <div *ngIf="generateForm.get('CalculationMethod')?.value !== 'ZeroInterest'">
                     <label class="block text-xs font-medium text-color mb-1.5">Annual Interest Rate (%)</label>
@@ -480,10 +494,20 @@
                     </p-inputNumber>
                 </div>
 
-                <!-- Billing Day -->
+                <!-- Billing Day / Window Start Day -->
                 <div>
-                    <label class="block text-xs font-medium text-color mb-1.5">Billing Day of Month</label>
+                    <label class="block text-xs font-medium text-color mb-1.5">
+                        {{ generateForm.get('BillingType')?.value === 'DateRange' ? 'Window Start Day' : 'Billing Day of Month' }}
+                    </label>
                     <p-inputNumber formControlName="BillingDay" [min]="1" [max]="31"
+                        (onInput)="previewSchedule()" styleClass="w-full" inputStyleClass="w-full">
+                    </p-inputNumber>
+                </div>
+
+                <!-- Due / Cutoff Day for DateRange -->
+                <div *ngIf="generateForm.get('BillingType')?.value === 'DateRange'">
+                    <label class="block text-xs font-medium text-color mb-1.5">Due / Cutoff Day of Month</label>
+                    <p-inputNumber formControlName="DueDay" [min]="1" [max]="31"
                         (onInput)="previewSchedule()" styleClass="w-full" inputStyleClass="w-full">
                     </p-inputNumber>
                 </div>
@@ -525,7 +549,7 @@
                     <thead class="bg-surface-50 dark:bg-surface-800 text-color-secondary border-b border-surface sticky top-0">
                         <tr>
                             <th class="p-2">#</th>
-                            <th class="p-2">Due Date</th>
+                            <th class="p-2">Due Date / Window</th>
                             <th class="p-2 text-right">Principal</th>
                             <th class="p-2 text-right">Interest</th>
                             <th class="p-2 text-right">Total EMI</th>
@@ -535,7 +559,12 @@
                     <tbody>
                         <tr *ngFor="let p of previewRows" class="border-b border-surface hover:bg-surface-50/50">
                             <td class="p-2 font-medium">{{ p.InstallmentNo }}</td>
-                            <td class="p-2">{{ p.DueDate }}</td>
+                            <td class="p-2 whitespace-nowrap">
+                                <div>{{ p.DueDate }}</div>
+                                <div *ngIf="p.PaymentStartDate" class="text-[10px] text-color-secondary">
+                                    Window: {{ p.PaymentStartDate }} to {{ p.DueDate }}
+                                </div>
+                            </td>
                             <td class="p-2 text-right tabular-nums">{{ p.Principal | number:'1.2-2' }}</td>
                             <td class="p-2 text-right tabular-nums">{{ p.Interest | number:'1.2-2' }}</td>
                             <td class="p-2 text-right font-bold tabular-nums">{{ p.ScheduledAmount | number:'1.2-2' }}</td>
@@ -636,7 +665,7 @@
 <p-dialog [(visible)]="rowDialog" [modal]="true" [header]="isEditingRow ? 'Edit Schedule Row' : 'Add Schedule Row'"
     [style]="{ width: '38rem', maxWidth: '95vw' }" [draggable]="false" [resizable]="false">
     <form [formGroup]="rowForm" class="space-y-4 pt-1">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
                 <label class="block text-sm font-medium mb-2 text-color">Installment #</label>
                 <p-inputNumber formControlName="InstallmentNo" [min]="1" styleClass="w-full" class="w-full" inputStyleClass="w-full"></p-inputNumber>
@@ -645,12 +674,18 @@
                 </small>
             </div>
             <div>
-                <label class="block text-sm font-medium mb-2 text-color">Due Date</label>
+                <label class="block text-sm font-medium mb-2 text-color">Window Start Date</label>
+                <p-datepicker formControlName="PaymentStartDate" dateFormat="dd-M-yy" [showIcon]="true" appendTo="body" styleClass="w-full" class="w-full" inputStyleClass="w-full" placeholder="Optional"></p-datepicker>
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-2 text-color">Due / Cutoff Date</label>
                 <p-datepicker formControlName="DueDate" dateFormat="dd-M-yy" [showIcon]="true" appendTo="body" styleClass="w-full" class="w-full" inputStyleClass="w-full"></p-datepicker>
                 <small class="text-red-500 mt-1 block" *ngIf="rowSubmitted && rowForm.controls['DueDate'].invalid">
                     Due date is required.
                 </small>
             </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
                 <label class="block text-sm font-medium mb-2 text-color">Opening Principal</label>
                 <p-inputNumber formControlName="OpeningBalance" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2" styleClass="w-full" class="w-full" inputStyleClass="w-full"></p-inputNumber>

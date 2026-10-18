@@ -8,6 +8,8 @@ export interface Installments extends BaseClass {
     MonthlyAmount: any;
     StartDate: any;
     BillingDay: any;
+    BillingType?: any;
+    DueDay?: any;
     Description: any;
     PaidMonths: any;
     RemainingMonths: any;

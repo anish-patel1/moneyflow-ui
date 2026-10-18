@@ -58,7 +58,9 @@ export class InstallmentsComponent {
       EnableInitialPaid: [false],
       InitialPaidMonths: [null],
       StartDate: [null, Validators.required],
+      BillingType: ['FixedDate', Validators.required],
       BillingDay: [null, Validators.required],
+      DueDay: [null],
       Description: [null]
     });
 
@@ -191,7 +193,9 @@ export class InstallmentsComponent {
           EnableInitialPaid: data.initialPaidMonths > 0 ? true : false,
           InitialPaidMonths: data.initialPaidMonths,
           StartDate: dateObject,
+          BillingType: data.billingType || 'FixedDate',
           BillingDay: data.billingDay,
+          DueDay: data.dueDay,
           Description: data.description
         });
       },
@@ -320,7 +324,11 @@ export class InstallmentsComponent {
   // ======================================================
 
   resetForm() {
-    this.addForm.reset();
+    this.addForm.reset({
+      BillingType: 'FixedDate',
+      MonthlyAmount: 0,
+      EnableInitialPaid: false
+    });
     this.submitted = false;
   }
 

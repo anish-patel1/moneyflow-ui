@@ -118,11 +118,13 @@ export class InstallmentDetailComponent implements OnInit {
     // Generate Form
     this.generateForm = this.commonService.formBuilder.group({
       CalculationMethod: ['ReducingBalance', Validators.required],
+      BillingType: ['FixedDate', Validators.required],
       InterestRate: [10.5, [Validators.required, Validators.min(0)]],
       ExtraCharges: [0, [Validators.min(0)]],
       ChargesDescription: ['GST / Extra Charges'],
       StartDate: [new Date(), Validators.required],
       BillingDay: [5, [Validators.required, Validators.min(1), Validators.max(31)]],
+      DueDay: [20, [Validators.min(1), Validators.max(31)]],
       MarkInitialAsPaid: [true]
     });
 
@@ -142,6 +144,7 @@ export class InstallmentDetailComponent implements OnInit {
       InstallmentScheduleId: [null],
       InstallmentId: [this.installmentId],
       InstallmentNo: [1, [Validators.required, Validators.min(1)]],
+      PaymentStartDate: [null],
       DueDate: [new Date(), Validators.required],
       OpeningBalance: [0],
       ScheduledAmount: [0, [Validators.required, Validators.min(0.01)]],
@@ -378,11 +381,13 @@ export class InstallmentDetailComponent implements OnInit {
 
     this.generateForm.patchValue({
       CalculationMethod: 'ReducingBalance',
+      BillingType: this.installmentData.billingType || 'FixedDate',
       InterestRate: 10.5,
       ExtraCharges: 0,
       ChargesDescription: 'GST / Charges',
       StartDate: startDate,
       BillingDay: this.installmentData.billingDay || 5,
+      DueDay: this.installmentData.dueDay || 20,
       MarkInitialAsPaid: (this.installmentData.initialPaidMonths || 0) > 0
     });
 
@@ -394,13 +399,33 @@ export class InstallmentDetailComponent implements OnInit {
     const P = Number(this.installmentData.totalAmount || 0);
     const n = Number(this.installmentData.durationMonths || 12);
     const method = this.generateForm.get('CalculationMethod')?.value;
+    const isDateRange = this.generateForm.get('BillingType')?.value === 'DateRange';
     const annualRate = Number(this.generateForm.get('InterestRate')?.value || 0);
     const extraCharges = Number(this.generateForm.get('ExtraCharges')?.value || 0);
     const chargesDesc = this.generateForm.get('ChargesDescription')?.value || '';
     const baseDate = new Date(this.generateForm.get('StartDate')?.value || new Date());
     const billingDay = Number(this.generateForm.get('BillingDay')?.value || 5);
+    const dueDayVal = Number(this.generateForm.get('DueDay')?.value || billingDay);
     const markInitial = this.generateForm.get('MarkInitialAsPaid')?.value;
     const initialPaid = Number(this.installmentData.initialPaidMonths || 0);
+
+    const getDatePair = (i: number) => {
+      if (isDateRange) {
+        const startWindow = new Date(baseDate.getFullYear(), baseDate.getMonth() + (i - 1), billingDay);
+        const endMonthOffset = dueDayVal < billingDay ? i : (i - 1);
+        const endWindow = new Date(baseDate.getFullYear(), baseDate.getMonth() + endMonthOffset, dueDayVal);
+        return {
+          dueDateStr: this.commonService.formatDate(endWindow),
+          paymentStartStr: this.commonService.formatDate(startWindow)
+        };
+      } else {
+        const dueDate = new Date(baseDate.getFullYear(), baseDate.getMonth() + (i - 1), billingDay);
+        return {
+          dueDateStr: this.commonService.formatDate(dueDate),
+          paymentStartStr: undefined
+        };
+      }
+    };
 
     const generated: InstallmentSchedule[] = [];
     let currentBalance = P;
@@ -416,7 +441,7 @@ export class InstallmentDetailComponent implements OnInit {
       }
 
       for (let i = 1; i <= n; i++) {
-        const dueDate = new Date(baseDate.getFullYear(), baseDate.getMonth() + (i - 1), billingDay);
+        const { dueDateStr, paymentStartStr } = getDatePair(i);
         const opening = currentBalance;
         let interest = Number((opening * monthlyRate).toFixed(2));
         let principal = Number((emi - interest).toFixed(2));
@@ -434,7 +459,8 @@ export class InstallmentDetailComponent implements OnInit {
         generated.push({
           InstallmentId: this.installmentId,
           InstallmentNo: i,
-          DueDate: this.commonService.formatDate(dueDate),
+          PaymentStartDate: paymentStartStr,
+          DueDate: dueDateStr,
           OpeningBalance: opening,
           Principal: principal,
           Interest: interest,
@@ -444,7 +470,7 @@ export class InstallmentDetailComponent implements OnInit {
           ScheduledAmount: Number((principal + interest + extraCharges).toFixed(2)),
           ClosingBalance: closing,
           ScheduleStatus: isPaid ? 'Done' : 'Pending',
-          PaidDate: isPaid ? this.commonService.formatDate(dueDate) : undefined,
+          PaidDate: isPaid ? dueDateStr : undefined,
           PaidAmount: isPaid ? Number((principal + interest + extraCharges).toFixed(2)) : undefined,
           Notes: isPaid ? 'Pre-existing payment before app onboard' : undefined
         });
@@ -455,7 +481,7 @@ export class InstallmentDetailComponent implements OnInit {
       const monthlyInterest = Number((totalInterest / n).toFixed(2));
 
       for (let i = 1; i <= n; i++) {
-        const dueDate = new Date(baseDate.getFullYear(), baseDate.getMonth() + (i - 1), billingDay);
+        const { dueDateStr, paymentStartStr } = getDatePair(i);
         const opening = currentBalance;
         const principal = i === n ? currentBalance : monthlyPrincipal;
         const closing = Math.max(0, Number((opening - principal).toFixed(2)));
@@ -466,7 +492,8 @@ export class InstallmentDetailComponent implements OnInit {
         generated.push({
           InstallmentId: this.installmentId,
           InstallmentNo: i,
-          DueDate: this.commonService.formatDate(dueDate),
+          PaymentStartDate: paymentStartStr,
+          DueDate: dueDateStr,
           OpeningBalance: opening,
           Principal: principal,
           Interest: monthlyInterest,
@@ -476,7 +503,7 @@ export class InstallmentDetailComponent implements OnInit {
           ScheduledAmount: Number((principal + monthlyInterest + extraCharges).toFixed(2)),
           ClosingBalance: closing,
           ScheduleStatus: isPaid ? 'Done' : 'Pending',
-          PaidDate: isPaid ? this.commonService.formatDate(dueDate) : undefined,
+          PaidDate: isPaid ? dueDateStr : undefined,
           PaidAmount: isPaid ? Number((principal + monthlyInterest + extraCharges).toFixed(2)) : undefined,
           Notes: isPaid ? 'Pre-existing payment before app onboard' : undefined
         });
@@ -486,7 +513,7 @@ export class InstallmentDetailComponent implements OnInit {
       const monthlyPrincipal = Number((P / n).toFixed(2));
 
       for (let i = 1; i <= n; i++) {
-        const dueDate = new Date(baseDate.getFullYear(), baseDate.getMonth() + (i - 1), billingDay);
+        const { dueDateStr, paymentStartStr } = getDatePair(i);
         const opening = currentBalance;
         const principal = i === n ? currentBalance : monthlyPrincipal;
         const closing = Math.max(0, Number((opening - principal).toFixed(2)));
@@ -497,7 +524,8 @@ export class InstallmentDetailComponent implements OnInit {
         generated.push({
           InstallmentId: this.installmentId,
           InstallmentNo: i,
-          DueDate: this.commonService.formatDate(dueDate),
+          PaymentStartDate: paymentStartStr,
+          DueDate: dueDateStr,
           OpeningBalance: opening,
           Principal: principal,
           Interest: 0,
@@ -507,7 +535,7 @@ export class InstallmentDetailComponent implements OnInit {
           ScheduledAmount: Number((principal + extraCharges).toFixed(2)),
           ClosingBalance: closing,
           ScheduleStatus: isPaid ? 'Done' : 'Pending',
-          PaidDate: isPaid ? this.commonService.formatDate(dueDate) : undefined,
+          PaidDate: isPaid ? dueDateStr : undefined,
           PaidAmount: isPaid ? Number((principal + extraCharges).toFixed(2)) : undefined,
           Notes: isPaid ? 'Pre-existing payment before app onboard' : undefined
         });
@@ -641,6 +669,7 @@ export class InstallmentDetailComponent implements OnInit {
       InstallmentScheduleId: null,
       InstallmentId: this.installmentId,
       InstallmentNo: nextNo,
+      PaymentStartDate: null,
       DueDate: nextDue,
       OpeningBalance: opening,
       ScheduledAmount: Number(this.installmentData.monthlyAmount || 0),
@@ -668,10 +697,15 @@ export class InstallmentDetailComponent implements OnInit {
     let dueDate = new Date();
     if (row.DueDate) dueDate = new Date(row.DueDate);
 
+    let paymentStartDate: Date | null = null;
+    const startVal = row.PaymentStartDate || (row as any).paymentStartDate;
+    if (startVal) paymentStartDate = new Date(startVal);
+
     this.rowForm.patchValue({
       InstallmentScheduleId: row.InstallmentScheduleId,
       InstallmentId: this.installmentId,
       InstallmentNo: row.InstallmentNo,
+      PaymentStartDate: paymentStartDate,
       DueDate: dueDate,
       OpeningBalance: row.OpeningBalance,
       ScheduledAmount: row.ScheduledAmount,
@@ -700,12 +734,14 @@ export class InstallmentDetailComponent implements OnInit {
 
     const formVal = this.rowForm.value;
     const dueStr = this.commonService.formatDate(new Date(formVal.DueDate));
+    const startStr = formVal.PaymentStartDate ? this.commonService.formatDate(new Date(formVal.PaymentStartDate)) : null;
 
     const payload = {
       ...formVal,
       UserId: this.userId,
       InstallmentId: this.installmentId,
-      DueDate: dueStr
+      DueDate: dueStr,
+      PaymentStartDate: startStr
     };
 
     this.commonService.postData(this.COMMON_API + 'ScheduleInsert', payload).subscribe({
