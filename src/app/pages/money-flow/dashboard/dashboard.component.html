@@ -261,7 +261,19 @@
                         <span class="text-color-secondary">—</span>
                     </ng-container>
                     <ng-template #normalCategory>
-                        {{ data.categoryName }}
+                        <div class="flex flex-col gap-0.5">
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <span>{{ data.categoryName }}</span>
+                                <p-tag *ngIf="data.installmentName"
+                                    [value]="data.installmentName + (data.installmentNo ? ' #' + data.installmentNo : '')"
+                                    severity="secondary"
+                                    [rounded]="true"
+                                    styleClass="text-xs font-normal" />
+                            </div>
+                            <span *ngIf="data.description" class="text-xs text-color-secondary truncate max-w-[200px]" [title]="data.description">
+                                {{ data.description }}
+                            </span>
+                        </div>
                     </ng-template>
                 </td>
 

@@ -591,6 +591,30 @@ export class TransactionsComponent {
     this.addForm.get('TransactionType')?.disable();
     this.addForm.get('CategoryId')?.disable();
     this.addForm.get('Category')?.disable();
+
+    // Auto-fill Amount and Description when adding a transaction
+    const selectedLoan = this.installmentData?.find((x: any) => x.installmentId === id);
+    if (selectedLoan && !this.editId) {
+      const currentAmount = this.addForm.get('Amount')?.value;
+      if (!currentAmount || Number(currentAmount) === 0) {
+        if (selectedLoan.monthlyAmount) {
+          this.addForm.patchValue({ Amount: selectedLoan.monthlyAmount });
+        }
+      }
+
+      const currentDesc = this.addForm.get('Description')?.value;
+      if (!currentDesc || currentDesc.trim() === '' || currentDesc.startsWith('EMI - ')) {
+        this.addForm.patchValue({ Description: `EMI - ${selectedLoan.installmentName}` });
+      }
+    }
+  }
+
+  // Get Monthly Amount for selected loan
+  getSelectedLoanMonthlyAmount(): number | null {
+    const loanId = this.addForm.get('InstallmentId')?.value;
+    if (!loanId) return null;
+    const loan = this.installmentData?.find((x: any) => x.installmentId === loanId);
+    return loan?.monthlyAmount || null;
   }
 
   // Change : Transaction Type
@@ -651,6 +675,7 @@ export class TransactionsComponent {
     this.submitted = false;
     this.addForm.get('TransactionType')?.enable();
     this.addForm.get('CategoryId')?.enable();
+    this.addForm.patchValue({ Category: 'EMI' });
   }
 
   resetTransferForm() {

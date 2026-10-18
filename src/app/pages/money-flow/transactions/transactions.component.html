@@ -118,7 +118,19 @@
                 </ng-container>
 
                 <ng-template #normalCategory>
-                    <span class="text-color">{{ data.categoryName }}</span>
+                    <div class="flex flex-col gap-0.5">
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <span class="text-color">{{ data.categoryName }}</span>
+                            <p-tag *ngIf="data.installmentName"
+                                [value]="data.installmentName + (data.installmentNo ? ' #' + data.installmentNo : '')"
+                                severity="secondary"
+                                [rounded]="true"
+                                styleClass="text-xs font-normal" />
+                        </div>
+                        <span *ngIf="data.description" class="text-xs text-color-secondary truncate max-w-[220px]" [title]="data.description">
+                            {{ data.description }}
+                        </span>
+                    </div>
                 </ng-template>
             </td>
 
@@ -222,7 +234,12 @@
                 formControlName="InstallmentId" [filter]="true" [showClear]="true" placeholder="Select loan"
                 styleClass="w-full" class="w-full" appendTo="body" (onChange)="changeInstallment($event.value)">
             </p-dropdown>
-            <small class="text-color-secondary text-xs mt-1 block">Select in case this is an EMI payment.</small>
+            <div class="flex items-center justify-between mt-1 text-xs text-color-secondary">
+                <span>Select in case this is an EMI payment.</span>
+                <span *ngIf="getSelectedLoanMonthlyAmount()" class="text-primary font-medium">
+                    Monthly EMI: {{ getSelectedLoanMonthlyAmount() | currency:'INR':'symbol':'1.2-2' }}
+                </span>
+            </div>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>

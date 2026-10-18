@@ -1,13 +1,16 @@
+<!-- Top Navigation & Status -->
 <div class="flex items-center justify-between mb-4">
     <p-button icon="pi pi-arrow-left" [label]="'Back to ' + pageFrom" severity="secondary" [text]="true" size="small"
         (onClick)="backNav()">
     </p-button>
     <div class="flex items-center gap-2">
-        <p-tag *ngIf="installmentData?.paidMonths >= installmentData?.durationMonths" severity="success" value="Completed" [rounded]="true" icon="pi pi-check"></p-tag>
-        <p-tag *ngIf="installmentData?.paidMonths < installmentData?.durationMonths" severity="primary" value="Active" [rounded]="true" icon="pi pi-clock"></p-tag>
+        <p-tag *ngIf="installmentData?.status === 'D'" severity="danger" value="Deleted" [rounded]="true" icon="pi pi-trash"></p-tag>
+        <p-tag *ngIf="!isLoanActive && installmentData?.status !== 'D'" severity="success" value="Completed" [rounded]="true" icon="pi pi-check"></p-tag>
+        <p-tag *ngIf="isLoanActive" severity="primary" value="Active" [rounded]="true" icon="pi pi-clock"></p-tag>
     </div>
 </div>
 
+<!-- Loan Header Card -->
 <div class="bg-surface-0 dark:bg-surface-800 rounded-2xl shadow-sm p-5 sm:p-6 mb-5 border border-surface space-y-5">
     <!-- Loan Header Title & Subtitle -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -43,7 +46,7 @@
     <!-- 3 Metric Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
         <div class="p-4 rounded-xl bg-surface-50 dark:bg-surface-900 border border-surface">
-            <div class="text-xs font-medium text-color-secondary uppercase tracking-wider">Total Amount</div>
+            <div class="text-xs font-medium text-color-secondary uppercase tracking-wider">Total Principal</div>
             <div class="text-xl sm:text-2xl font-bold text-color mt-1 tabular-nums">
                 {{ installmentData?.totalAmount | number:'1.2-2' }}
             </div>
@@ -95,7 +98,7 @@
         </div>
     </div>
 
-    <!-- Optional Description Note -->
+    <!-- Description Note -->
     <div *ngIf="installmentData?.description" 
         class="text-xs text-color-secondary bg-surface-50 dark:bg-surface-900/60 p-3 rounded-xl border border-surface flex items-start gap-2">
         <i class="pi pi-info-circle text-xs mt-0.5 opacity-70"></i>
@@ -103,89 +106,602 @@
     </div>
 </div>
 
-<div class="bg-surface-0 dark:bg-surface-800 rounded-2xl shadow-sm overflow-hidden border border-surface">
-    <div class="flex items-center justify-between px-4 py-3 border-b border-surface">
-        <h3 class="text-base sm:text-lg font-semibold flex items-center gap-2 m-0 text-color">
-            <i class="pi pi-list text-color-secondary"></i>
-            Payments
-        </h3>
-        <span class="text-xs text-color-secondary">
-            {{ transactionData?.length || 0 }} records
-        </span>
+<!-- Schedule Summary Strip (When Schedule is Available) -->
+<div *ngIf="scheduleData.length > 0" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+    <div class="p-3.5 rounded-xl bg-surface-0 dark:bg-surface-800 border border-surface shadow-sm">
+        <div class="text-[11px] font-medium text-color-secondary uppercase tracking-wider">Scheduled Payable</div>
+        <div class="text-base sm:text-lg font-bold text-color mt-0.5 tabular-nums">
+            {{ totalScheduledAmount | number:'1.2-2' }}
+        </div>
+        <div class="text-[11px] text-color-secondary mt-0.5">Principal + Interest + Fees</div>
     </div>
-    <p-table #table [value]="transactionData" dataKey="transactionId" [rows]="10" [rowHover]="true" [scrollable]="true"
-        scrollHeight="65vh" [tableStyle]="{ 'min-width': '36rem' }">
-        <ng-template pTemplate="header">
-            <tr class="text-color-secondary text-sm border-b border-surface">
-                <th class="py-3">Date</th>
-                <th>Account</th>
-                <th>Category</th>
-                <th class="text-right pr-4">Amount</th>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-data let-i="rowIndex">
-            <tr class="border-b border-surface hover:bg-surface-50 dark:hover:bg-surface-700/50 transition">
-                <td class="py-3 text-color-secondary whitespace-nowrap">
-                    {{ data.transactionDate }}
-                </td>
-                <td>
-                    <ng-container *ngIf="data.transferGroupId; else normalAccount">
-                        <div class="flex items-center gap-2 font-medium">
-                            <span class="text-color-secondary">
-                                {{ data.fromAccountName }}
-                            </span>
-                            <i class="pi pi-arrow-right text-xs text-color-secondary opacity-75"></i>
-                            <span class="text-color">
-                                {{ data.toAccountName }}
-                            </span>
-                        </div>
-                    </ng-container>
-                    <ng-template #normalAccount>
-                        <span class="text-color font-medium">{{ data.accountName }}</span>
-                    </ng-template>
-                </td>
-                <td class="text-color">
-                    <ng-container *ngIf="data.transferGroupId; else normalCategory">
-                        <span class="text-color-secondary">—</span>
-                    </ng-container>
-                    <ng-template #normalCategory>
-                        {{ data.categoryName }}
-                    </ng-template>
-                </td>
-                <td class="text-right pr-4 font-semibold whitespace-nowrap tabular-nums">
-                    <ng-container *ngIf="data.transferGroupId; else normalAmount">
-                        <span class="text-primary">
-                            {{ data.amount | number:'1.2-2' }}
-                        </span>
-                    </ng-container>
-                    <ng-template #normalAmount>
-                        <span class="text-red-500">
-                            {{ data.amount | number:'1.2-2' }}
-                        </span>
-                    </ng-template>
-                </td>
-            </tr>
-        </ng-template>
+    <div class="p-3.5 rounded-xl bg-surface-0 dark:bg-surface-800 border border-surface shadow-sm">
+        <div class="text-[11px] font-medium text-amber-600 dark:text-amber-400 uppercase tracking-wider">Total Interest</div>
+        <div class="text-base sm:text-lg font-bold text-amber-600 dark:text-amber-400 mt-0.5 tabular-nums">
+            {{ totalInterest | number:'1.2-2' }}
+        </div>
+        <div class="text-[11px] text-color-secondary mt-0.5">Overall borrowing cost</div>
+    </div>
+    <div class="p-3.5 rounded-xl bg-surface-0 dark:bg-surface-800 border border-surface shadow-sm">
+        <div class="text-[11px] font-medium text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Extra Charges / GST</div>
+        <div class="text-base sm:text-lg font-bold text-indigo-600 dark:text-indigo-400 mt-0.5 tabular-nums">
+            {{ totalExtraCharges | number:'1.2-2' }}
+        </div>
+        <div class="text-[11px] text-color-secondary mt-0.5">Tax, fees, and surcharges</div>
+    </div>
+    <div class="p-3.5 rounded-xl bg-surface-0 dark:bg-surface-800 border border-surface shadow-sm">
+        <div class="text-[11px] font-medium text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Schedule Status</div>
+        <div class="text-base sm:text-lg font-bold text-emerald-600 dark:text-emerald-400 mt-0.5 tabular-nums flex items-center gap-1.5">
+            <span>{{ paidCount }} / {{ scheduleData.length }} Paid</span>
+            <span *ngIf="overdueCount > 0" class="text-xs bg-rose-100 text-rose-700 dark:bg-rose-900/60 dark:text-rose-300 px-1.5 py-0.5 rounded font-semibold">
+                {{ overdueCount }} Overdue
+            </span>
+        </div>
+        <div class="text-[11px] text-color-secondary mt-0.5">
+            <span>{{ pendingCount }} pending</span>
+            <span *ngIf="overdueCount > 0"> &bull; {{ overdueCount }} overdue</span>
+        </div>
+    </div>
+</div>
 
-        <ng-template pTemplate="emptymessage">
-            <ng-container *ngIf="isgridloading">
-                <tr *ngFor="let _ of [].constructor(5)">
-                    <td *ngFor="let _ of [].constructor(4)">
-                        <p-skeleton width="100%" height="1.25rem"></p-skeleton>
+<!-- Main Views: Segmented Tab Container -->
+<div class="bg-surface-0 dark:bg-surface-800 rounded-2xl shadow-sm border border-surface overflow-hidden">
+    <!-- View Switcher Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 py-3.5 border-b border-surface bg-surface-50/50 dark:bg-surface-900/30">
+        <!-- Tab Buttons Pill -->
+        <div class="inline-flex p-1 bg-surface-200/80 dark:bg-surface-700/80 rounded-xl">
+            <button type="button"
+                (click)="activeTab = 'schedule'"
+                [ngClass]="activeTab === 'schedule' ? 'bg-surface-0 dark:bg-surface-800 text-primary font-semibold shadow-sm' : 'text-color-secondary hover:text-color'"
+                class="px-4 py-1.5 text-xs sm:text-sm rounded-lg transition-all flex items-center gap-2 cursor-pointer border-0">
+                <i class="pi pi-calendar-clock text-xs"></i>
+                <span>Amortization Schedule</span>
+                <span *ngIf="scheduleData.length > 0" 
+                    [ngClass]="activeTab === 'schedule' ? 'bg-primary/10 text-primary' : 'bg-surface-300 dark:bg-surface-600 text-color-secondary'"
+                    class="text-[11px] px-1.5 py-0.2 rounded-full font-medium">
+                    {{ scheduleData.length }}
+                </span>
+            </button>
+
+            <button type="button"
+                (click)="activeTab = 'transactions'"
+                [ngClass]="activeTab === 'transactions' ? 'bg-surface-0 dark:bg-surface-800 text-primary font-semibold shadow-sm' : 'text-color-secondary hover:text-color'"
+                class="px-4 py-1.5 text-xs sm:text-sm rounded-lg transition-all flex items-center gap-2 cursor-pointer border-0">
+                <i class="pi pi-list text-xs"></i>
+                <span>Payment History</span>
+                <span *ngIf="transactionData.length > 0" 
+                    [ngClass]="activeTab === 'transactions' ? 'bg-primary/10 text-primary' : 'bg-surface-300 dark:bg-surface-600 text-color-secondary'"
+                    class="text-[11px] px-1.5 py-0.2 rounded-full font-medium">
+                    {{ transactionData.length }}
+                </span>
+            </button>
+        </div>
+
+        <!-- Schedule Action Buttons (Visible only on Active Loans) -->
+        <div *ngIf="activeTab === 'schedule' && isLoanActive" class="flex items-center gap-2 flex-wrap">
+            <p-button icon="pi pi-sparkles" label="Auto-Generate Schedule" size="small" [outlined]="scheduleData.length > 0"
+                (onClick)="openGenerateDialog()">
+            </p-button>
+            <p-button *ngIf="scheduleData.length > 0" icon="pi pi-plus" label="Add Row" severity="secondary" size="small"
+                (onClick)="openAddRowDialog()">
+            </p-button>
+        </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- TAB 1: AMORTIZATION SCHEDULE                                   -->
+    <!-- ============================================================== -->
+    <div *ngIf="activeTab === 'schedule'">
+        <!-- Filter Bar (When Schedule Exists) -->
+        <div *ngIf="scheduleData.length > 0" class="flex items-center justify-between px-5 py-2.5 border-b border-surface bg-surface-50/20 text-xs">
+            <div class="flex items-center gap-1.5">
+                <span class="text-color-secondary font-medium mr-1">Filter:</span>
+                <button type="button" (click)="setScheduleFilter('All')"
+                    [ngClass]="scheduleFilter === 'All' ? 'bg-primary text-primary-contrast font-medium' : 'bg-surface-100 dark:bg-surface-700 text-color-secondary hover:text-color'"
+                    class="px-2.5 py-1 rounded-md transition text-xs border-0 cursor-pointer">
+                    All ({{ scheduleData.length }})
+                </button>
+                <button type="button" (click)="setScheduleFilter('Pending')"
+                    [ngClass]="scheduleFilter === 'Pending' ? 'bg-amber-600 text-white font-medium' : 'bg-surface-100 dark:bg-surface-700 text-color-secondary hover:text-color'"
+                    class="px-2.5 py-1 rounded-md transition text-xs border-0 cursor-pointer">
+                    Pending ({{ pendingCount }})
+                </button>
+                <button type="button" (click)="setScheduleFilter('Done')"
+                    [ngClass]="scheduleFilter === 'Done' ? 'bg-emerald-600 text-white font-medium' : 'bg-surface-100 dark:bg-surface-700 text-color-secondary hover:text-color'"
+                    class="px-2.5 py-1 rounded-md transition text-xs border-0 cursor-pointer">
+                    Done ({{ paidCount }})
+                </button>
+                <button *ngIf="overdueCount > 0" type="button" (click)="setScheduleFilter('Overdue')"
+                    [ngClass]="scheduleFilter === 'Overdue' ? 'bg-rose-600 text-white font-medium' : 'bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300'"
+                    class="px-2.5 py-1 rounded-md transition text-xs border-0 cursor-pointer">
+                    Overdue ({{ overdueCount }})
+                </button>
+            </div>
+            <span class="text-color-secondary hidden sm:inline">
+                Showing {{ filteredScheduleData.length }} of {{ scheduleData.length }} installments
+            </span>
+        </div>
+
+        <!-- Schedule Table -->
+        <div class="overflow-x-auto w-full">
+            <p-table *ngIf="scheduleData.length > 0; else noScheduleTemplate"
+                [value]="filteredScheduleData" dataKey="InstallmentScheduleId" [rowHover]="true"
+                styleClass="p-datatable-sm w-full" [tableStyle]="{ 'min-width': '52rem' }">
+                <ng-template pTemplate="header">
+                    <tr class="text-color-secondary text-xs uppercase tracking-wider border-b border-surface">
+                        <th class="py-3 pl-5 w-14">#</th>
+                        <th class="py-3">Due Date</th>
+                        <th class="py-3 text-right">Opening Bal</th>
+                        <th class="py-3 text-right">Principal</th>
+                        <th class="py-3 text-right">Interest</th>
+                        <th class="py-3 text-right">Charges / GST</th>
+                        <th class="py-3 text-right">Scheduled EMI</th>
+                        <th class="py-3 text-center">Status</th>
+                        <th class="py-3">Payment Details</th>
+                        <th *ngIf="isLoanActive" class="py-3 text-right pr-5">Actions</th>
+                    </tr>
+                </ng-template>
+            <ng-template pTemplate="body" let-row>
+                <tr class="border-b border-surface hover:bg-surface-50 dark:hover:bg-surface-700/40 transition text-sm"
+                    [ngClass]="{ 'bg-rose-50/40 dark:bg-rose-950/20': isOverdue(row.DueDate, row.ScheduleStatus) }">
+                    <!-- Installment No -->
+                    <td class="py-3 pl-5 font-semibold text-color">
+                        {{ row.InstallmentNo }}
+                    </td>
+
+                    <!-- Due Date -->
+                    <td class="text-color whitespace-nowrap">
+                        <div class="font-medium">{{ row.DueDate | date:'dd-MMM-yyyy' }}</div>
+                        <div *ngIf="isOverdue(row.DueDate, row.ScheduleStatus)" class="text-[11px] text-rose-500 font-semibold flex items-center gap-1">
+                            <i class="pi pi-exclamation-circle text-[10px]"></i>
+                            <span>Overdue</span>
+                        </div>
+                    </td>
+
+                    <!-- Opening Balance -->
+                    <td class="text-right text-color-secondary tabular-nums whitespace-nowrap">
+                        {{ row.OpeningBalance | number:'1.2-2' }}
+                    </td>
+
+                    <!-- Principal -->
+                    <td class="text-right font-medium text-color tabular-nums whitespace-nowrap">
+                        {{ row.Principal | number:'1.2-2' }}
+                    </td>
+
+                    <!-- Interest -->
+                    <td class="text-right text-color-secondary tabular-nums whitespace-nowrap">
+                        <span>{{ row.Interest | number:'1.2-2' }}</span>
+                        <span *ngIf="row.InterestRate" class="text-[10px] text-color-secondary ml-1 opacity-70">
+                            ({{ row.InterestRate }}%)
+                        </span>
+                    </td>
+
+                    <!-- Extra Charges -->
+                    <td class="text-right tabular-nums whitespace-nowrap">
+                        <span *ngIf="row.ExtraCharges > 0" class="text-indigo-600 dark:text-indigo-400 font-medium">
+                            {{ row.ExtraCharges | number:'1.2-2' }}
+                        </span>
+                        <span *ngIf="!row.ExtraCharges || row.ExtraCharges === 0" class="text-color-secondary opacity-40">—</span>
+                        <div *ngIf="row.ChargesDescription" class="text-[10px] text-color-secondary truncate max-w-[8rem]" [pTooltip]="row.ChargesDescription">
+                            {{ row.ChargesDescription }}
+                        </div>
+                    </td>
+
+                    <!-- Scheduled Amount -->
+                    <td class="text-right font-bold text-color tabular-nums whitespace-nowrap">
+                        {{ row.ScheduledAmount | number:'1.2-2' }}
+                    </td>
+
+                    <!-- Status Badge -->
+                    <td class="text-center whitespace-nowrap">
+                        <p-tag *ngIf="row.ScheduleStatus === 'Done'" severity="success" value="Done" [rounded]="true" icon="pi pi-check"></p-tag>
+                        <p-tag *ngIf="row.ScheduleStatus !== 'Done' && isOverdue(row.DueDate, row.ScheduleStatus)" severity="danger" value="Overdue" [rounded]="true" icon="pi pi-exclamation-triangle"></p-tag>
+                        <p-tag *ngIf="row.ScheduleStatus !== 'Done' && !isOverdue(row.DueDate, row.ScheduleStatus)" severity="warn" value="Pending" [rounded]="true" icon="pi pi-clock"></p-tag>
+                    </td>
+
+                    <!-- Paid Date / Transaction Info -->
+                    <td class="text-xs text-color-secondary whitespace-nowrap">
+                        <ng-container *ngIf="row.ScheduleStatus === 'Done'; else notPaidTemplate">
+                            <div class="font-medium text-emerald-600 dark:text-emerald-400">
+                                Paid {{ row.PaidDate | date:'dd-MMM-yyyy' }}
+                            </div>
+                            <div class="text-[11px] opacity-75">
+                                {{ row.PaidAmount | number:'1.2-2' }} <span *ngIf="row.AccountName">&bull; {{ row.AccountName }}</span>
+                            </div>
+                        </ng-container>
+                        <ng-template #notPaidTemplate>
+                            <span class="opacity-40">—</span>
+                        </ng-template>
+                    </td>
+
+                    <!-- Actions (Only when loan is active) -->
+                    <td *ngIf="isLoanActive" class="text-right pr-5 whitespace-nowrap">
+                        <div class="flex items-center justify-end gap-1">
+                            <!-- Pay EMI Button (Only for Pending rows) -->
+                            <p-button *ngIf="row.ScheduleStatus !== 'Done'"
+                                icon="pi pi-check-circle" label="Pay" size="small" severity="success"
+                                [pTooltip]="'Record payment for installment #' + row.InstallmentNo"
+                                (onClick)="openPayDialog(row)">
+                            </p-button>
+
+                            <!-- Edit Row Button -->
+                            <p-button icon="pi pi-pencil" [text]="true" [rounded]="true" severity="secondary" size="small"
+                                [pTooltip]="'Edit row #' + row.InstallmentNo"
+                                (onClick)="openEditRowDialog(row)">
+                            </p-button>
+
+                            <!-- Delete Row Button -->
+                            <p-button *ngIf="row.ScheduleStatus !== 'Done'"
+                                icon="pi pi-trash" [text]="true" [rounded]="true" severity="danger" size="small"
+                                [pTooltip]="'Delete row #' + row.InstallmentNo"
+                                (onClick)="confirmDeleteRow(row)">
+                            </p-button>
+                        </div>
                     </td>
                 </tr>
-            </ng-container>
-            <tr *ngIf="!isgridloading">
-                <td colspan="4">
-                    <div class="flex flex-col items-center justify-center p-8 text-color-secondary animate-fade-in">
-                        <i class="pi pi-inbox text-5xl mb-3 opacity-50"></i>
-                        <div class="mb-1 text-lg font-medium text-color">No payments yet</div>
-                        <p class="text-sm text-color-secondary m-0">
-                            Add your first EMI payment to track progress
-                        </p>
-                    </div>
-                </td>
-            </tr>
+            </ng-template>
+        </p-table>
+        </div>
+
+        <!-- Empty State for Schedule -->
+        <ng-template #noScheduleTemplate>
+            <div class="p-10 sm:p-14 text-center flex flex-col items-center justify-center">
+                <div class="w-16 h-16 rounded-2xl bg-surface-100 dark:bg-surface-700 flex items-center justify-center text-color-secondary mb-4">
+                    <i class="pi pi-calendar text-3xl"></i>
+                </div>
+                <h3 class="text-lg font-bold text-color m-0">No Amortization Schedule</h3>
+                <p class="text-xs sm:text-sm text-color-secondary mt-1.5 max-w-md">
+                    {{ isLoanActive ? 'Generate the complete month-by-month repayment schedule for this loan with one click. Calculate principal, interest, and extra fees automatically.' : 'No amortization schedule was recorded for this loan.' }}
+                </p>
+                <div *ngIf="isLoanActive" class="mt-5 flex items-center gap-3">
+                    <p-button icon="pi pi-sparkles" label="Auto-Generate Schedule" (onClick)="openGenerateDialog()">
+                    </p-button>
+                    <p-button icon="pi pi-plus" label="Add First Row Manually" severity="secondary" [outlined]="true"
+                        (onClick)="openAddRowDialog()">
+                    </p-button>
+                </div>
+            </div>
         </ng-template>
-    </p-table>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- TAB 2: PAYMENT HISTORY TRANSACTIONS                            -->
+    <!-- ============================================================== -->
+    <div *ngIf="activeTab === 'transactions'">
+        <div class="overflow-x-auto w-full">
+            <p-table #table [value]="transactionData" dataKey="transactionId" [rowHover]="true"
+                styleClass="p-datatable-sm w-full" [tableStyle]="{ 'min-width': '36rem' }">
+            <ng-template pTemplate="header">
+                <tr class="text-color-secondary text-xs uppercase tracking-wider border-b border-surface">
+                    <th class="py-3 pl-5">Date</th>
+                    <th>Account</th>
+                    <th>Category</th>
+                    <th>Description</th>
+                    <th class="text-right pr-5">Amount</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-data>
+                <tr class="border-b border-surface hover:bg-surface-50 dark:hover:bg-surface-700/50 transition text-sm">
+                    <td class="py-3 pl-5 text-color-secondary whitespace-nowrap">
+                        {{ data.transactionDate }}
+                    </td>
+                    <td>
+                        <ng-container *ngIf="data.transferGroupId; else normalAccount">
+                            <div class="flex items-center gap-2 font-medium">
+                                <span class="text-color-secondary">{{ data.fromAccountName }}</span>
+                                <i class="pi pi-arrow-right text-xs text-color-secondary opacity-75"></i>
+                                <span class="text-color">{{ data.toAccountName }}</span>
+                            </div>
+                        </ng-container>
+                        <ng-template #normalAccount>
+                            <span class="text-color font-medium">{{ data.accountName }}</span>
+                        </ng-template>
+                    </td>
+                    <td class="text-color">
+                        <ng-container *ngIf="data.transferGroupId; else normalCategory">
+                            <span class="text-color-secondary">—</span>
+                        </ng-container>
+                        <ng-template #normalCategory>
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <span>{{ data.categoryName }}</span>
+                                <p-tag *ngIf="data.installmentNo"
+                                    [value]="'#' + data.installmentNo"
+                                    severity="secondary"
+                                    [rounded]="true"
+                                    styleClass="text-xs font-normal" />
+                            </div>
+                        </ng-template>
+                    </td>
+                    <td class="text-color-secondary text-xs">
+                        {{ data.description || '—' }}
+                    </td>
+                    <td class="text-right pr-5 font-semibold whitespace-nowrap tabular-nums">
+                        <span class="text-primary font-bold">
+                            {{ data.amount | number:'1.2-2' }}
+                        </span>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="5" class="text-center py-12">
+                        <div class="w-12 h-12 rounded-full bg-surface-100 dark:bg-surface-700 mx-auto flex items-center justify-center text-color-secondary mb-3">
+                            <i class="pi pi-receipt text-xl"></i>
+                        </div>
+                        <div class="text-sm font-semibold text-color">No payments recorded yet</div>
+                        <div class="text-xs text-color-secondary mt-1">
+                            Payments recorded against this loan will appear here automatically.
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+        </div>
+    </div>
 </div>
+
+<!-- ============================================================== -->
+<!-- MODAL: AUTO-GENERATE SCHEDULE DIALOG                           -->
+<!-- ============================================================== -->
+<p-dialog [(visible)]="generateDialog" [modal]="true" header="Auto-Generate Amortization Schedule"
+    [style]="{ width: '48rem', maxWidth: '95vw' }" [draggable]="false" [resizable]="false">
+    <div class="space-y-4 pt-1">
+        <!-- Loan Info Pill -->
+        <div class="flex items-center justify-between p-3 rounded-xl bg-surface-50 dark:bg-surface-900 border border-surface text-xs">
+            <div>
+                <span class="text-color-secondary">Loan Amount: </span>
+                <span class="font-bold text-color">{{ installmentData?.totalAmount | number:'1.2-2' }}</span>
+            </div>
+            <div>
+                <span class="text-color-secondary">Duration: </span>
+                <span class="font-bold text-color">{{ installmentData?.durationMonths }} months</span>
+            </div>
+            <div *ngIf="installmentData?.initialPaidMonths > 0">
+                <span class="text-color-secondary">Initial Paid: </span>
+                <span class="font-bold text-emerald-600">{{ installmentData?.initialPaidMonths }} months</span>
+            </div>
+        </div>
+
+        <form [formGroup]="generateForm" class="space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <!-- Calculation Method -->
+                <div class="sm:col-span-2">
+                    <label class="block text-xs font-medium text-color mb-1.5">Repayment / Interest Method</label>
+                    <p-select [options]="calculationMethods" formControlName="CalculationMethod" optionLabel="label" optionValue="value"
+                        (onChange)="previewSchedule()" styleClass="w-full">
+                    </p-select>
+                </div>
+
+                <!-- Annual Interest Rate % -->
+                <div *ngIf="generateForm.get('CalculationMethod')?.value !== 'ZeroInterest'">
+                    <label class="block text-xs font-medium text-color mb-1.5">Annual Interest Rate (%)</label>
+                    <p-inputNumber formControlName="InterestRate" [minFractionDigits]="2" [maxFractionDigits]="4" [min]="0"
+                        suffix=" %" (onInput)="previewSchedule()" styleClass="w-full" inputStyleClass="w-full">
+                    </p-inputNumber>
+                </div>
+
+                <!-- Billing Day -->
+                <div>
+                    <label class="block text-xs font-medium text-color mb-1.5">Billing Day of Month</label>
+                    <p-inputNumber formControlName="BillingDay" [min]="1" [max]="31"
+                        (onInput)="previewSchedule()" styleClass="w-full" inputStyleClass="w-full">
+                    </p-inputNumber>
+                </div>
+
+                <!-- Extra Charges / Tax per EMI -->
+                <div>
+                    <label class="block text-xs font-medium text-color mb-1.5">Extra Charges / Tax per EMI (Optional)</label>
+                    <p-inputNumber formControlName="ExtraCharges" [minFractionDigits]="2" [maxFractionDigits]="2" [min]="0"
+                        (onInput)="previewSchedule()" styleClass="w-full" inputStyleClass="w-full">
+                    </p-inputNumber>
+                </div>
+
+                <!-- Charges Description -->
+                <div>
+                    <label class="block text-xs font-medium text-color mb-1.5">Charges Description</label>
+                    <input pInputText type="text" formControlName="ChargesDescription" class="w-full" placeholder="e.g. GST on Interest, Fee" />
+                </div>
+            </div>
+
+            <!-- Initial Paid Checkbox -->
+            <div *ngIf="installmentData?.initialPaidMonths > 0" class="flex items-center gap-2 p-2.5 rounded-lg bg-surface-50 dark:bg-surface-900 border border-surface">
+                <p-checkbox formControlName="MarkInitialAsPaid" [binary]="true" (onChange)="previewSchedule()"></p-checkbox>
+                <label class="text-xs text-color cursor-pointer">
+                    Mark first <strong>{{ installmentData.initialPaidMonths }}</strong> installment(s) as already <strong>Done</strong> (since they were paid prior to app onboarding).
+                </label>
+            </div>
+        </form>
+
+        <!-- Live Preview Summary -->
+        <div class="border border-surface rounded-xl overflow-hidden mt-3">
+            <div class="flex items-center justify-between px-3 py-2 bg-surface-100 dark:bg-surface-700 text-xs font-semibold text-color">
+                <span>Preview: {{ previewRows.length }} installments</span>
+                <span *ngIf="previewRows.length > 0">
+                    Est. EMI: {{ previewRows[0].ScheduledAmount | number:'1.2-2' }}
+                </span>
+            </div>
+            <div class="max-h-48 overflow-y-auto">
+                <table class="w-full text-xs text-left">
+                    <thead class="bg-surface-50 dark:bg-surface-800 text-color-secondary border-b border-surface sticky top-0">
+                        <tr>
+                            <th class="p-2">#</th>
+                            <th class="p-2">Due Date</th>
+                            <th class="p-2 text-right">Principal</th>
+                            <th class="p-2 text-right">Interest</th>
+                            <th class="p-2 text-right">Total EMI</th>
+                            <th class="p-2 text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let p of previewRows" class="border-b border-surface hover:bg-surface-50/50">
+                            <td class="p-2 font-medium">{{ p.InstallmentNo }}</td>
+                            <td class="p-2">{{ p.DueDate }}</td>
+                            <td class="p-2 text-right tabular-nums">{{ p.Principal | number:'1.2-2' }}</td>
+                            <td class="p-2 text-right tabular-nums">{{ p.Interest | number:'1.2-2' }}</td>
+                            <td class="p-2 text-right font-bold tabular-nums">{{ p.ScheduledAmount | number:'1.2-2' }}</td>
+                            <td class="p-2 text-center">
+                                <span *ngIf="p.ScheduleStatus === 'Done'" class="text-emerald-600 font-semibold">Done</span>
+                                <span *ngIf="p.ScheduleStatus !== 'Done'" class="text-color-secondary">Pending</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <div class="flex items-center justify-end gap-2 pt-3">
+            <p-button label="Cancel" severity="secondary" [text]="true" (onClick)="generateDialog = false"></p-button>
+            <p-button label="Save Schedule" icon="pi pi-check" (onClick)="saveGeneratedSchedule()"></p-button>
+        </div>
+    </ng-template>
+</p-dialog>
+
+<!-- ============================================================== -->
+<!-- MODAL: PAY EMI TRANSACTION DIALOG                              -->
+<!-- ============================================================== -->
+<p-dialog [(visible)]="payDialog" [modal]="true" header="Record EMI Payment"
+    [style]="{ width: '34rem', maxWidth: '95vw' }" [draggable]="false" [resizable]="false">
+    <form [formGroup]="payForm" class="space-y-4 pt-1">
+        <!-- Installment Badge & Info -->
+        <div class="p-3.5 rounded-xl bg-surface-50 dark:bg-surface-900 border border-surface flex items-center justify-between text-xs">
+            <div>
+                <span class="text-color-secondary">Installment: </span>
+                <span class="font-bold text-color">{{ payForm.get('InstallmentNo')?.value }}</span>
+            </div>
+            <div>
+                <span class="text-color-secondary">Scheduled Date: </span>
+                <span class="font-bold text-color">{{ payForm.get('DueDate')?.value | date:'dd-MMM-yyyy' }}</span>
+            </div>
+        </div>
+
+        <!-- Account Selection -->
+        <div>
+            <label class="block text-sm font-medium mb-2 text-color">Paid From Account</label>
+            <p-dropdown [options]="accountList" formControlName="AccountId" optionLabel="accountName" optionValue="accountId"
+                placeholder="Select payment account" class="w-full" styleClass="w-full" appendTo="body" [filter]="true">
+            </p-dropdown>
+            <small class="text-red-500 mt-1 block" *ngIf="paySubmitted && payForm.controls['AccountId'].invalid">
+                Account is required.
+            </small>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- Payment Date -->
+            <div>
+                <label class="block text-sm font-medium mb-2 text-color">Payment Date</label>
+                <p-datepicker formControlName="TransactionDate" dateFormat="dd-M-yy" [showIcon]="true" appendTo="body"
+                    styleClass="w-full" class="w-full" inputStyleClass="w-full">
+                </p-datepicker>
+                <small class="text-red-500 mt-1 block" *ngIf="paySubmitted && payForm.controls['TransactionDate'].invalid">
+                    Payment date is required.
+                </small>
+            </div>
+
+            <!-- Amount -->
+            <div>
+                <label class="block text-sm font-medium mb-2 text-color">Amount Paid</label>
+                <p-inputNumber formControlName="Amount" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2" [min]="0.01"
+                    styleClass="w-full" class="w-full" inputStyleClass="w-full" placeholder="0.00">
+                </p-inputNumber>
+                <small class="text-red-500 mt-1 block" *ngIf="paySubmitted && payForm.controls['Amount'].invalid">
+                    Valid amount is required.
+                </small>
+            </div>
+        </div>
+
+        <!-- Description / Note -->
+        <div>
+            <label class="block text-sm font-medium mb-2 text-color">Description / Note</label>
+            <textarea pInputTextarea rows="3" formControlName="Description" class="w-full"
+                placeholder="Add a short note (optional)">
+            </textarea>
+        </div>
+    </form>
+
+    <ng-template pTemplate="footer">
+        <div class="flex items-center justify-end gap-2 pt-3">
+            <p-button label="Cancel" severity="secondary" [text]="true" (onClick)="payDialog = false"></p-button>
+            <p-button label="Record Payment" icon="pi pi-check" severity="primary" (onClick)="savePayment()"
+                [disabled]="payForm.invalid && paySubmitted">
+            </p-button>
+        </div>
+    </ng-template>
+</p-dialog>
+
+<!-- ============================================================== -->
+<!-- MODAL: ADD / EDIT SINGLE SCHEDULE ROW                          -->
+<!-- ============================================================== -->
+<p-dialog [(visible)]="rowDialog" [modal]="true" [header]="isEditingRow ? 'Edit Schedule Row' : 'Add Schedule Row'"
+    [style]="{ width: '38rem', maxWidth: '95vw' }" [draggable]="false" [resizable]="false">
+    <form [formGroup]="rowForm" class="space-y-4 pt-1">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium mb-2 text-color">Installment #</label>
+                <p-inputNumber formControlName="InstallmentNo" [min]="1" styleClass="w-full" class="w-full" inputStyleClass="w-full"></p-inputNumber>
+                <small class="text-red-500 mt-1 block" *ngIf="rowSubmitted && rowForm.controls['InstallmentNo'].invalid">
+                    Installment # is required.
+                </small>
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-2 text-color">Due Date</label>
+                <p-datepicker formControlName="DueDate" dateFormat="dd-M-yy" [showIcon]="true" appendTo="body" styleClass="w-full" class="w-full" inputStyleClass="w-full"></p-datepicker>
+                <small class="text-red-500 mt-1 block" *ngIf="rowSubmitted && rowForm.controls['DueDate'].invalid">
+                    Due date is required.
+                </small>
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-2 text-color">Opening Principal</label>
+                <p-inputNumber formControlName="OpeningBalance" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2" styleClass="w-full" class="w-full" inputStyleClass="w-full"></p-inputNumber>
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-2 text-color">Principal Component</label>
+                <p-inputNumber formControlName="Principal" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2" styleClass="w-full" class="w-full" inputStyleClass="w-full"></p-inputNumber>
+                <small class="text-red-500 mt-1 block" *ngIf="rowSubmitted && rowForm.controls['Principal'].invalid">
+                    Principal is required.
+                </small>
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-2 text-color">Interest Component</label>
+                <p-inputNumber formControlName="Interest" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2" styleClass="w-full" class="w-full" inputStyleClass="w-full"></p-inputNumber>
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-2 text-color">Extra Charges / Tax</label>
+                <p-inputNumber formControlName="ExtraCharges" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2" styleClass="w-full" class="w-full" inputStyleClass="w-full"></p-inputNumber>
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-2 text-color">Total Scheduled EMI</label>
+                <p-inputNumber formControlName="ScheduledAmount" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2" styleClass="w-full" class="w-full" inputStyleClass="w-full"></p-inputNumber>
+                <small class="text-red-500 mt-1 block" *ngIf="rowSubmitted && rowForm.controls['ScheduledAmount'].invalid">
+                    Scheduled EMI is required.
+                </small>
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-2 text-color">Closing Principal</label>
+                <p-inputNumber formControlName="ClosingBalance" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2" styleClass="w-full" class="w-full" inputStyleClass="w-full"></p-inputNumber>
+            </div>
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium mb-2 text-color">Charges Description</label>
+            <input pInputText type="text" formControlName="ChargesDescription" class="w-full" placeholder="e.g. 18% GST" />
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium mb-2 text-color">Notes / Remarks</label>
+            <textarea pInputTextarea rows="3" formControlName="Notes" class="w-full"
+                placeholder="Add notes or remarks (optional)">
+            </textarea>
+        </div>
+    </form>
+
+    <ng-template pTemplate="footer">
+        <div class="flex items-center justify-end gap-2 pt-3">
+            <p-button label="Cancel" severity="secondary" [text]="true" (onClick)="rowDialog = false"></p-button>
+            <p-button label="Save Row" icon="pi pi-check" severity="primary" (onClick)="saveRow()"
+                [disabled]="rowForm.invalid && rowSubmitted">
+            </p-button>
+        </div>
+    </ng-template>
+</p-dialog>

@@ -7,6 +7,9 @@ export interface Transactions extends BaseClass {
     CategoryId: any;
     CategoryName: any;
     InstallmentId: any;
+    InstallmentName?: any;
+    InstallmentScheduleId: any;
+    InstallmentNo?: any;
     TransactionDate: any;
     Amount: any;
     TransactionType: any;
