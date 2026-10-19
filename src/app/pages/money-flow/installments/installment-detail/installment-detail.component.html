@@ -4,8 +4,10 @@
         (onClick)="backNav()">
     </p-button>
     <div class="flex items-center gap-2">
-        <p-tag *ngIf="installmentData?.status === 'D'" severity="danger" value="Deleted" [rounded]="true" icon="pi pi-trash"></p-tag>
-        <p-tag *ngIf="!isLoanActive && installmentData?.status !== 'D'" severity="success" value="Completed" [rounded]="true" icon="pi pi-check"></p-tag>
+        <p-tag *ngIf="installmentData?.status === 'D'" severity="danger" value="Deleted" [rounded]="true"
+            icon="pi pi-trash"></p-tag>
+        <p-tag *ngIf="!isLoanActive && installmentData?.status !== 'D'" severity="success" value="Completed"
+            [rounded]="true" icon="pi pi-check"></p-tag>
         <p-tag *ngIf="isLoanActive" severity="primary" value="Active" [rounded]="true" icon="pi pi-clock"></p-tag>
     </div>
 </div>
@@ -30,12 +32,12 @@
 
         <!-- Meta badges: Billing Day & Start Date -->
         <div class="flex items-center gap-2 flex-wrap">
-            <span *ngIf="installmentData?.billingDay" 
+            <span *ngIf="installmentData?.billingDay"
                 class="inline-flex items-center gap-1.5 text-xs text-color-secondary bg-surface-100 dark:bg-surface-700/60 px-2.5 py-1.5 rounded-lg border border-surface">
                 <i class="pi pi-calendar text-xs opacity-70"></i>
                 <span>Day {{ installmentData?.billingDay }} / month</span>
             </span>
-            <span *ngIf="installmentData?.startDate" 
+            <span *ngIf="installmentData?.startDate"
                 class="inline-flex items-center gap-1.5 text-xs text-color-secondary bg-surface-100 dark:bg-surface-700/60 px-2.5 py-1.5 rounded-lg border border-surface">
                 <i class="pi pi-calendar-plus text-xs opacity-70"></i>
                 <span>Starts {{ installmentData?.startDate | date:'dd-MMM-yyyy' }}</span>
@@ -56,7 +58,8 @@
         </div>
 
         <div class="p-4 rounded-xl bg-surface-50 dark:bg-surface-900 border border-surface">
-            <div class="text-xs font-medium text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Paid Amount</div>
+            <div class="text-xs font-medium text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Paid Amount
+            </div>
             <div class="text-xl sm:text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1 tabular-nums">
                 {{ ((installmentData?.paidMonths || 0) * (installmentData?.monthlyAmount || 0)) | number:'1.2-2' }}
             </div>
@@ -66,7 +69,8 @@
         </div>
 
         <div class="p-4 rounded-xl bg-surface-50 dark:bg-surface-900 border border-surface">
-            <div class="text-xs font-medium text-rose-600 dark:text-rose-400 uppercase tracking-wider">Remaining Balance</div>
+            <div class="text-xs font-medium text-rose-600 dark:text-rose-400 uppercase tracking-wider">Remaining Balance
+            </div>
             <div class="text-xl sm:text-2xl font-bold text-rose-600 dark:text-rose-400 mt-1 tabular-nums">
                 {{ ((installmentData?.remainingMonths || 0) * (installmentData?.monthlyAmount || 0)) | number:'1.2-2' }}
             </div>
@@ -84,7 +88,8 @@
                 Repayment Progress
             </span>
             <span class="text-primary font-semibold">
-                {{ (installmentData?.durationMonths ? ((installmentData?.paidMonths / installmentData?.durationMonths) * 100) : 0) | number:'1.0-0' }}% Completed
+                {{ (installmentData?.durationMonths ? ((installmentData?.paidMonths / installmentData?.durationMonths) *
+                100) : 0) | number:'1.0-0' }}% Completed
             </span>
         </div>
         <div class="w-full bg-surface-200 dark:bg-surface-700 rounded-full h-3 overflow-hidden p-0.5">
@@ -93,13 +98,14 @@
             </div>
         </div>
         <div class="flex justify-between text-xs text-color-secondary tabular-nums">
-            <span>{{ installmentData?.paidMonths || 0 }} of {{ installmentData?.durationMonths || 0 }} months paid</span>
+            <span>{{ installmentData?.paidMonths || 0 }} of {{ installmentData?.durationMonths || 0 }} months
+                paid</span>
             <span>{{ installmentData?.remainingMonths || 0 }} months left</span>
         </div>
     </div>
 
     <!-- Description Note -->
-    <div *ngIf="installmentData?.description" 
+    <div *ngIf="installmentData?.description"
         class="text-xs text-color-secondary bg-surface-50 dark:bg-surface-900/60 p-3 rounded-xl border border-surface flex items-start gap-2">
         <i class="pi pi-info-circle text-xs mt-0.5 opacity-70"></i>
         <span>{{ installmentData.description }}</span>
@@ -116,24 +122,29 @@
         <div class="text-[11px] text-color-secondary mt-0.5">Principal + Interest + Fees</div>
     </div>
     <div class="p-3.5 rounded-xl bg-surface-0 dark:bg-surface-800 border border-surface shadow-sm">
-        <div class="text-[11px] font-medium text-amber-600 dark:text-amber-400 uppercase tracking-wider">Total Interest</div>
+        <div class="text-[11px] font-medium text-amber-600 dark:text-amber-400 uppercase tracking-wider">Total Interest
+        </div>
         <div class="text-base sm:text-lg font-bold text-amber-600 dark:text-amber-400 mt-0.5 tabular-nums">
             {{ totalInterest | number:'1.2-2' }}
         </div>
         <div class="text-[11px] text-color-secondary mt-0.5">Overall borrowing cost</div>
     </div>
     <div class="p-3.5 rounded-xl bg-surface-0 dark:bg-surface-800 border border-surface shadow-sm">
-        <div class="text-[11px] font-medium text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Extra Charges / GST</div>
+        <div class="text-[11px] font-medium text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Extra Charges
+            / GST</div>
         <div class="text-base sm:text-lg font-bold text-indigo-600 dark:text-indigo-400 mt-0.5 tabular-nums">
             {{ totalExtraCharges | number:'1.2-2' }}
         </div>
         <div class="text-[11px] text-color-secondary mt-0.5">Tax, fees, and surcharges</div>
     </div>
     <div class="p-3.5 rounded-xl bg-surface-0 dark:bg-surface-800 border border-surface shadow-sm">
-        <div class="text-[11px] font-medium text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Schedule Status</div>
-        <div class="text-base sm:text-lg font-bold text-emerald-600 dark:text-emerald-400 mt-0.5 tabular-nums flex items-center gap-1.5">
+        <div class="text-[11px] font-medium text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Schedule
+            Status</div>
+        <div
+            class="text-base sm:text-lg font-bold text-emerald-600 dark:text-emerald-400 mt-0.5 tabular-nums flex items-center gap-1.5">
             <span>{{ paidCount }} / {{ scheduleData.length }} Paid</span>
-            <span *ngIf="overdueCount > 0" class="text-xs bg-rose-100 text-rose-700 dark:bg-rose-900/60 dark:text-rose-300 px-1.5 py-0.5 rounded font-semibold">
+            <span *ngIf="overdueCount > 0"
+                class="text-xs bg-rose-100 text-rose-700 dark:bg-rose-900/60 dark:text-rose-300 px-1.5 py-0.5 rounded font-semibold">
                 {{ overdueCount }} Overdue
             </span>
         </div>
@@ -147,29 +158,28 @@
 <!-- Main Views: Segmented Tab Container -->
 <div class="bg-surface-0 dark:bg-surface-800 rounded-2xl shadow-sm border border-surface overflow-hidden">
     <!-- View Switcher Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 py-3.5 border-b border-surface bg-surface-50/50 dark:bg-surface-900/30">
+    <div
+        class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 py-3.5 border-b border-surface bg-surface-50/50 dark:bg-surface-900/30">
         <!-- Tab Buttons Pill -->
         <div class="inline-flex p-1 bg-surface-200/80 dark:bg-surface-700/80 rounded-xl">
-            <button type="button"
-                (click)="activeTab = 'schedule'"
+            <button type="button" (click)="activeTab = 'schedule'"
                 [ngClass]="activeTab === 'schedule' ? 'bg-surface-0 dark:bg-surface-800 text-primary font-semibold shadow-sm' : 'text-color-secondary hover:text-color'"
                 class="px-4 py-1.5 text-xs sm:text-sm rounded-lg transition-all flex items-center gap-2 cursor-pointer border-0">
                 <i class="pi pi-calendar-clock text-xs"></i>
                 <span>Amortization Schedule</span>
-                <span *ngIf="scheduleData.length > 0" 
+                <span *ngIf="scheduleData.length > 0"
                     [ngClass]="activeTab === 'schedule' ? 'bg-primary/10 text-primary' : 'bg-surface-300 dark:bg-surface-600 text-color-secondary'"
                     class="text-[11px] px-1.5 py-0.2 rounded-full font-medium">
                     {{ scheduleData.length }}
                 </span>
             </button>
 
-            <button type="button"
-                (click)="activeTab = 'transactions'"
+            <button type="button" (click)="activeTab = 'transactions'"
                 [ngClass]="activeTab === 'transactions' ? 'bg-surface-0 dark:bg-surface-800 text-primary font-semibold shadow-sm' : 'text-color-secondary hover:text-color'"
                 class="px-4 py-1.5 text-xs sm:text-sm rounded-lg transition-all flex items-center gap-2 cursor-pointer border-0">
                 <i class="pi pi-list text-xs"></i>
                 <span>Payment History</span>
-                <span *ngIf="transactionData.length > 0" 
+                <span *ngIf="transactionData.length > 0"
                     [ngClass]="activeTab === 'transactions' ? 'bg-primary/10 text-primary' : 'bg-surface-300 dark:bg-surface-600 text-color-secondary'"
                     class="text-[11px] px-1.5 py-0.2 rounded-full font-medium">
                     {{ transactionData.length }}
@@ -179,11 +189,15 @@
 
         <!-- Schedule Action Buttons (Visible only on Active Loans) -->
         <div *ngIf="activeTab === 'schedule' && isLoanActive" class="flex items-center gap-2 flex-wrap">
-            <p-button icon="pi pi-sparkles" label="Auto-Generate Schedule" size="small" [outlined]="scheduleData.length > 0"
-                (onClick)="openGenerateDialog()">
+            <p-button *ngIf="scheduleData.length > 0 && pendingScheduleRows.length >= 2" icon="pi pi-check-circle"
+                label="Pay Multiple EMIs" severity="success" size="small" [outlined]="true"
+                (onClick)="openPayMultipleDialog()">
             </p-button>
-            <p-button *ngIf="scheduleData.length > 0" icon="pi pi-plus" label="Add Row" severity="secondary" size="small"
-                (onClick)="openAddRowDialog()">
+            <p-button icon="pi pi-sparkles" label="Auto-Generate Schedule" size="small"
+                [outlined]="scheduleData.length > 0" (onClick)="openGenerateDialog()">
+            </p-button>
+            <p-button *ngIf="scheduleData.length > 0" icon="pi pi-plus" label="Add Row" severity="secondary"
+                size="small" (onClick)="openAddRowDialog()">
             </p-button>
         </div>
     </div>
@@ -193,7 +207,8 @@
     <!-- ============================================================== -->
     <div *ngIf="activeTab === 'schedule'">
         <!-- Filter Bar (When Schedule Exists) -->
-        <div *ngIf="scheduleData.length > 0" class="flex items-center justify-between px-5 py-2.5 border-b border-surface bg-surface-50/20 text-xs">
+        <div *ngIf="scheduleData.length > 0"
+            class="flex items-center justify-between px-5 py-2.5 border-b border-surface bg-surface-50/20 text-xs">
             <div class="flex items-center gap-1.5">
                 <span class="text-color-secondary font-medium mr-1">Filter:</span>
                 <button type="button" (click)="setScheduleFilter('All')"
@@ -224,9 +239,9 @@
 
         <!-- Schedule Table -->
         <div class="overflow-x-auto w-full">
-            <p-table *ngIf="scheduleData.length > 0; else noScheduleTemplate"
-                [value]="filteredScheduleData" dataKey="InstallmentScheduleId" [rowHover]="true"
-                styleClass="p-datatable-sm w-full" [tableStyle]="{ 'min-width': '52rem' }">
+            <p-table *ngIf="scheduleData.length > 0; else noScheduleTemplate" [value]="filteredScheduleData"
+                dataKey="InstallmentScheduleId" [rowHover]="true" styleClass="p-datatable-sm w-full"
+                [tableStyle]="{ 'min-width': '52rem' }">
                 <ng-template pTemplate="header">
                     <tr class="text-color-secondary text-xs uppercase tracking-wider border-b border-surface">
                         <th class="py-3 pl-5 w-14">#</th>
@@ -241,120 +256,133 @@
                         <th *ngIf="isLoanActive" class="py-3 text-right pr-5">Actions</th>
                     </tr>
                 </ng-template>
-            <ng-template pTemplate="body" let-row>
-                <tr class="border-b border-surface hover:bg-surface-50 dark:hover:bg-surface-700/40 transition text-sm"
-                    [ngClass]="{ 'bg-rose-50/40 dark:bg-rose-950/20': isOverdue(row.DueDate, row.ScheduleStatus) }">
-                    <!-- Installment No -->
-                    <td class="py-3 pl-5 font-semibold text-color">
-                        {{ row.InstallmentNo }}
-                    </td>
+                <ng-template pTemplate="body" let-row>
+                    <tr class="border-b border-surface hover:bg-surface-50 dark:hover:bg-surface-700/40 transition text-sm"
+                        [ngClass]="{ 'bg-rose-50/40 dark:bg-rose-950/20': isOverdue(row.DueDate, row.ScheduleStatus) }">
+                        <!-- Installment No -->
+                        <td class="py-3 pl-5 font-semibold text-color">
+                            {{ row.InstallmentNo }}
+                        </td>
 
-                    <!-- Due Date / Window -->
-                    <td class="text-color whitespace-nowrap">
-                        <div class="font-medium">{{ row.DueDate | date:'dd-MMM-yyyy' }}</div>
-                        <div *ngIf="row.PaymentStartDate || row.paymentStartDate" class="text-xs text-color-secondary">
-                            Window: {{ (row.PaymentStartDate || row.paymentStartDate) | date:'dd-MMM' }} – {{ row.DueDate | date:'dd-MMM' }}
-                        </div>
-                        <div *ngIf="isOverdue(row.DueDate, row.ScheduleStatus)" class="text-[11px] text-rose-500 font-semibold flex items-center gap-1">
-                            <i class="pi pi-exclamation-circle text-[10px]"></i>
-                            <span>Overdue</span>
-                        </div>
-                    </td>
-
-                    <!-- Opening Balance -->
-                    <td class="text-right text-color-secondary tabular-nums whitespace-nowrap">
-                        {{ row.OpeningBalance | number:'1.2-2' }}
-                    </td>
-
-                    <!-- Principal -->
-                    <td class="text-right font-medium text-color tabular-nums whitespace-nowrap">
-                        {{ row.Principal | number:'1.2-2' }}
-                    </td>
-
-                    <!-- Interest -->
-                    <td class="text-right text-color-secondary tabular-nums whitespace-nowrap">
-                        <span>{{ row.Interest | number:'1.2-2' }}</span>
-                        <span *ngIf="row.InterestRate" class="text-[10px] text-color-secondary ml-1 opacity-70">
-                            ({{ row.InterestRate }}%)
-                        </span>
-                    </td>
-
-                    <!-- Extra Charges -->
-                    <td class="text-right tabular-nums whitespace-nowrap">
-                        <span *ngIf="row.ExtraCharges > 0" class="text-indigo-600 dark:text-indigo-400 font-medium">
-                            {{ row.ExtraCharges | number:'1.2-2' }}
-                        </span>
-                        <span *ngIf="!row.ExtraCharges || row.ExtraCharges === 0" class="text-color-secondary opacity-40">—</span>
-                        <div *ngIf="row.ChargesDescription" class="text-[10px] text-color-secondary truncate max-w-[8rem]" [pTooltip]="row.ChargesDescription">
-                            {{ row.ChargesDescription }}
-                        </div>
-                    </td>
-
-                    <!-- Scheduled Amount -->
-                    <td class="text-right font-bold text-color tabular-nums whitespace-nowrap">
-                        {{ row.ScheduledAmount | number:'1.2-2' }}
-                    </td>
-
-                    <!-- Status Badge -->
-                    <td class="text-center whitespace-nowrap">
-                        <p-tag *ngIf="row.ScheduleStatus === 'Done'" severity="success" value="Done" [rounded]="true" icon="pi pi-check"></p-tag>
-                        <p-tag *ngIf="row.ScheduleStatus !== 'Done' && isOverdue(row.DueDate, row.ScheduleStatus)" severity="danger" value="Overdue" [rounded]="true" icon="pi pi-exclamation-triangle"></p-tag>
-                        <p-tag *ngIf="row.ScheduleStatus !== 'Done' && !isOverdue(row.DueDate, row.ScheduleStatus)" severity="warn" value="Pending" [rounded]="true" icon="pi pi-clock"></p-tag>
-                    </td>
-
-                    <!-- Paid Date / Transaction Info -->
-                    <td class="text-xs text-color-secondary whitespace-nowrap">
-                        <ng-container *ngIf="row.ScheduleStatus === 'Done'; else notPaidTemplate">
-                            <div class="font-medium text-emerald-600 dark:text-emerald-400">
-                                Paid {{ row.PaidDate | date:'dd-MMM-yyyy' }}
+                        <!-- Due Date / Window -->
+                        <td class="text-color whitespace-nowrap">
+                            <div class="font-medium">{{ row.DueDate | date:'dd-MMM-yyyy' }}</div>
+                            <div *ngIf="row.PaymentStartDate || row.paymentStartDate"
+                                class="text-xs text-color-secondary">
+                                Window: {{ (row.PaymentStartDate || row.paymentStartDate) | date:'dd-MMM' }} – {{
+                                row.DueDate | date:'dd-MMM' }}
                             </div>
-                            <div class="text-[11px] opacity-75">
-                                {{ row.PaidAmount | number:'1.2-2' }} <span *ngIf="row.AccountName">&bull; {{ row.AccountName }}</span>
+                            <div *ngIf="isOverdue(row.DueDate, row.ScheduleStatus)"
+                                class="text-[11px] text-rose-500 font-semibold flex items-center gap-1">
+                                <i class="pi pi-exclamation-circle text-[10px]"></i>
+                                <span>Overdue</span>
                             </div>
-                        </ng-container>
-                        <ng-template #notPaidTemplate>
-                            <span class="opacity-40">—</span>
-                        </ng-template>
-                    </td>
+                        </td>
 
-                    <!-- Actions (Only when loan is active) -->
-                    <td *ngIf="isLoanActive" class="text-right pr-5 whitespace-nowrap">
-                        <div class="flex items-center justify-end gap-1">
-                            <!-- Pay EMI Button (Only for Pending rows) -->
-                            <p-button *ngIf="row.ScheduleStatus !== 'Done'"
-                                icon="pi pi-check-circle" label="Pay" size="small" severity="success"
-                                [pTooltip]="'Record payment for installment #' + row.InstallmentNo"
-                                (onClick)="openPayDialog(row)">
-                            </p-button>
+                        <!-- Opening Balance -->
+                        <td class="text-right text-color-secondary tabular-nums whitespace-nowrap">
+                            {{ row.OpeningBalance | number:'1.2-2' }}
+                        </td>
 
-                            <!-- Edit Row Button -->
-                            <p-button icon="pi pi-pencil" [text]="true" [rounded]="true" severity="secondary" size="small"
-                                [pTooltip]="'Edit row #' + row.InstallmentNo"
-                                (onClick)="openEditRowDialog(row)">
-                            </p-button>
+                        <!-- Principal -->
+                        <td class="text-right font-medium text-color tabular-nums whitespace-nowrap">
+                            {{ row.Principal | number:'1.2-2' }}
+                        </td>
 
-                            <!-- Delete Row Button -->
-                            <p-button *ngIf="row.ScheduleStatus !== 'Done'"
-                                icon="pi pi-trash" [text]="true" [rounded]="true" severity="danger" size="small"
-                                [pTooltip]="'Delete row #' + row.InstallmentNo"
-                                (onClick)="confirmDeleteRow(row)">
-                            </p-button>
-                        </div>
-                    </td>
-                </tr>
-            </ng-template>
-        </p-table>
+                        <!-- Interest -->
+                        <td class="text-right text-color-secondary tabular-nums whitespace-nowrap">
+                            <span>{{ row.Interest | number:'1.2-2' }}</span>
+                            <span *ngIf="row.InterestRate" class="text-[10px] text-color-secondary ml-1 opacity-70">
+                                ({{ row.InterestRate }}%)
+                            </span>
+                        </td>
+
+                        <!-- Extra Charges -->
+                        <td class="text-right tabular-nums whitespace-nowrap">
+                            <span *ngIf="row.ExtraCharges > 0" class="text-indigo-600 dark:text-indigo-400 font-medium">
+                                {{ row.ExtraCharges | number:'1.2-2' }}
+                            </span>
+                            <span *ngIf="!row.ExtraCharges || row.ExtraCharges === 0"
+                                class="text-color-secondary opacity-40">—</span>
+                            <div *ngIf="row.ChargesDescription"
+                                class="text-[10px] text-color-secondary truncate max-w-[8rem]"
+                                [pTooltip]="row.ChargesDescription">
+                                {{ row.ChargesDescription }}
+                            </div>
+                        </td>
+
+                        <!-- Scheduled Amount -->
+                        <td class="text-right font-bold text-color tabular-nums whitespace-nowrap">
+                            {{ row.ScheduledAmount | number:'1.2-2' }}
+                        </td>
+
+                        <!-- Status Badge -->
+                        <td class="text-center whitespace-nowrap">
+                            <p-tag *ngIf="row.ScheduleStatus === 'Done'" severity="success" value="Done"
+                                [rounded]="true" icon="pi pi-check"></p-tag>
+                            <p-tag *ngIf="row.ScheduleStatus !== 'Done' && isOverdue(row.DueDate, row.ScheduleStatus)"
+                                severity="danger" value="Overdue" [rounded]="true"
+                                icon="pi pi-exclamation-triangle"></p-tag>
+                            <p-tag *ngIf="row.ScheduleStatus !== 'Done' && !isOverdue(row.DueDate, row.ScheduleStatus)"
+                                severity="warn" value="Pending" [rounded]="true" icon="pi pi-clock"></p-tag>
+                        </td>
+
+                        <!-- Paid Date / Transaction Info -->
+                        <td class="text-xs text-color-secondary whitespace-nowrap">
+                            <ng-container *ngIf="row.ScheduleStatus === 'Done'; else notPaidTemplate">
+                                <div class="font-medium text-emerald-600 dark:text-emerald-400">
+                                    Paid {{ row.PaidDate | date:'dd-MMM-yyyy' }}
+                                </div>
+                                <div class="text-[11px] opacity-75">
+                                    {{ row.PaidAmount | number:'1.2-2' }} <span *ngIf="row.AccountName">&bull; {{
+                                        row.AccountName }}</span>
+                                </div>
+                            </ng-container>
+                            <ng-template #notPaidTemplate>
+                                <span class="opacity-40">—</span>
+                            </ng-template>
+                        </td>
+
+                        <!-- Actions (Only when loan is active) -->
+                        <td *ngIf="isLoanActive" class="text-right pr-5 whitespace-nowrap">
+                            <div class="flex items-center justify-end gap-1">
+                                <!-- Pay EMI Button (Only for Pending rows) -->
+                                <p-button *ngIf="row.ScheduleStatus !== 'Done'" icon="pi pi-check-circle" label="Pay"
+                                    size="small" severity="success"
+                                    [pTooltip]="'Record payment for installment #' + row.InstallmentNo"
+                                    (onClick)="openPayDialog(row)">
+                                </p-button>
+
+                                <!-- Edit Row Button -->
+                                <p-button icon="pi pi-pencil" [text]="true" [rounded]="true" severity="secondary"
+                                    size="small" [pTooltip]="'Edit row #' + row.InstallmentNo"
+                                    (onClick)="openEditRowDialog(row)">
+                                </p-button>
+
+                                <!-- Delete Row Button -->
+                                <p-button *ngIf="row.ScheduleStatus !== 'Done'" icon="pi pi-trash" [text]="true"
+                                    [rounded]="true" severity="danger" size="small"
+                                    [pTooltip]="'Delete row #' + row.InstallmentNo" (onClick)="confirmDeleteRow(row)">
+                                </p-button>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
         </div>
 
         <!-- Empty State for Schedule -->
         <ng-template #noScheduleTemplate>
             <div class="p-10 sm:p-14 text-center flex flex-col items-center justify-center">
-                <div class="w-16 h-16 rounded-2xl bg-surface-100 dark:bg-surface-700 flex items-center justify-center text-color-secondary mb-4">
+                <div
+                    class="w-16 h-16 rounded-2xl bg-surface-100 dark:bg-surface-700 flex items-center justify-center text-color-secondary mb-4">
                     <i class="pi pi-calendar text-3xl"></i>
                 </div>
                 <h3 class="text-lg font-bold text-color m-0">No Amortization Schedule</h3>
                 <p class="text-xs sm:text-sm text-color-secondary mt-1.5 max-w-md">
-                    {{ isLoanActive ? 'Generate the complete month-by-month repayment schedule for this loan with one click. Calculate principal, interest, and extra fees automatically.' : 'No amortization schedule was recorded for this loan.' }}
+                    {{ isLoanActive ? 'Generate the complete month-by-month repayment schedule for this loan with one
+                    click. Calculate principal, interest, and extra fees automatically.' : 'No amortization schedule was
+                    recorded for this loan.' }}
                 </p>
                 <div *ngIf="isLoanActive" class="mt-5 flex items-center gap-3">
                     <p-button icon="pi pi-sparkles" label="Auto-Generate Schedule" (onClick)="openGenerateDialog()">
@@ -374,71 +402,70 @@
         <div class="overflow-x-auto w-full">
             <p-table #table [value]="transactionData" dataKey="transactionId" [rowHover]="true"
                 styleClass="p-datatable-sm w-full" [tableStyle]="{ 'min-width': '36rem' }">
-            <ng-template pTemplate="header">
-                <tr class="text-color-secondary text-xs uppercase tracking-wider border-b border-surface">
-                    <th class="py-3 pl-5">Date</th>
-                    <th>Account</th>
-                    <th>Category</th>
-                    <th>Description</th>
-                    <th class="text-right pr-5">Amount</th>
-                </tr>
-            </ng-template>
-            <ng-template pTemplate="body" let-data>
-                <tr class="border-b border-surface hover:bg-surface-50 dark:hover:bg-surface-700/50 transition text-sm">
-                    <td class="py-3 pl-5 text-color-secondary whitespace-nowrap">
-                        {{ data.transactionDate }}
-                    </td>
-                    <td>
-                        <ng-container *ngIf="data.transferGroupId; else normalAccount">
-                            <div class="flex items-center gap-2 font-medium">
-                                <span class="text-color-secondary">{{ data.fromAccountName }}</span>
-                                <i class="pi pi-arrow-right text-xs text-color-secondary opacity-75"></i>
-                                <span class="text-color">{{ data.toAccountName }}</span>
+                <ng-template pTemplate="header">
+                    <tr class="text-color-secondary text-xs uppercase tracking-wider border-b border-surface">
+                        <th class="py-3 pl-5">Date</th>
+                        <th>Account</th>
+                        <th>Category</th>
+                        <th>Description</th>
+                        <th class="text-right pr-5">Amount</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-data>
+                    <tr
+                        class="border-b border-surface hover:bg-surface-50 dark:hover:bg-surface-700/50 transition text-sm">
+                        <td class="py-3 pl-5 text-color-secondary whitespace-nowrap">
+                            {{ data.transactionDate }}
+                        </td>
+                        <td>
+                            <ng-container *ngIf="data.transferGroupId; else normalAccount">
+                                <div class="flex items-center gap-2 font-medium">
+                                    <span class="text-color-secondary">{{ data.fromAccountName }}</span>
+                                    <i class="pi pi-arrow-right text-xs text-color-secondary opacity-75"></i>
+                                    <span class="text-color">{{ data.toAccountName }}</span>
+                                </div>
+                            </ng-container>
+                            <ng-template #normalAccount>
+                                <span class="text-color font-medium">{{ data.accountName }}</span>
+                            </ng-template>
+                        </td>
+                        <td class="text-color">
+                            <ng-container *ngIf="data.transferGroupId; else normalCategory">
+                                <span class="text-color-secondary">—</span>
+                            </ng-container>
+                            <ng-template #normalCategory>
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    <span>{{ data.categoryName }}</span>
+                                    <p-tag *ngIf="data.installmentNo" [value]="'#' + data.installmentNo"
+                                        severity="secondary" [rounded]="true" styleClass="text-xs font-normal" />
+                                </div>
+                            </ng-template>
+                        </td>
+                        <td class="text-color-secondary text-xs">
+                            {{ data.description || '—' }}
+                        </td>
+                        <td class="text-right pr-5 font-semibold whitespace-nowrap tabular-nums">
+                            <span class="text-primary font-bold">
+                                {{ data.amount | number:'1.2-2' }}
+                            </span>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="5" class="text-center py-12">
+                            <div
+                                class="w-12 h-12 rounded-full bg-surface-100 dark:bg-surface-700 mx-auto flex items-center justify-center text-color-secondary mb-3">
+                                <i class="pi pi-receipt text-xl"></i>
                             </div>
-                        </ng-container>
-                        <ng-template #normalAccount>
-                            <span class="text-color font-medium">{{ data.accountName }}</span>
-                        </ng-template>
-                    </td>
-                    <td class="text-color">
-                        <ng-container *ngIf="data.transferGroupId; else normalCategory">
-                            <span class="text-color-secondary">—</span>
-                        </ng-container>
-                        <ng-template #normalCategory>
-                            <div class="flex items-center gap-1.5 flex-wrap">
-                                <span>{{ data.categoryName }}</span>
-                                <p-tag *ngIf="data.installmentNo"
-                                    [value]="'#' + data.installmentNo"
-                                    severity="secondary"
-                                    [rounded]="true"
-                                    styleClass="text-xs font-normal" />
+                            <div class="text-sm font-semibold text-color">No payments recorded yet</div>
+                            <div class="text-xs text-color-secondary mt-1">
+                                Payments recorded against this loan will appear here automatically.
                             </div>
-                        </ng-template>
-                    </td>
-                    <td class="text-color-secondary text-xs">
-                        {{ data.description || '—' }}
-                    </td>
-                    <td class="text-right pr-5 font-semibold whitespace-nowrap tabular-nums">
-                        <span class="text-primary font-bold">
-                            {{ data.amount | number:'1.2-2' }}
-                        </span>
-                    </td>
-                </tr>
-            </ng-template>
-            <ng-template pTemplate="emptymessage">
-                <tr>
-                    <td colspan="5" class="text-center py-12">
-                        <div class="w-12 h-12 rounded-full bg-surface-100 dark:bg-surface-700 mx-auto flex items-center justify-center text-color-secondary mb-3">
-                            <i class="pi pi-receipt text-xl"></i>
-                        </div>
-                        <div class="text-sm font-semibold text-color">No payments recorded yet</div>
-                        <div class="text-xs text-color-secondary mt-1">
-                            Payments recorded against this loan will appear here automatically.
-                        </div>
-                    </td>
-                </tr>
-            </ng-template>
-        </p-table>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
         </div>
     </div>
 </div>
@@ -450,7 +477,8 @@
     [style]="{ width: '48rem', maxWidth: '95vw' }" [draggable]="false" [resizable]="false">
     <div class="space-y-4 pt-1">
         <!-- Loan Info Pill -->
-        <div class="flex items-center justify-between p-3 rounded-xl bg-surface-50 dark:bg-surface-900 border border-surface text-xs">
+        <div
+            class="flex items-center justify-between p-3 rounded-xl bg-surface-50 dark:bg-surface-900 border border-surface text-xs">
             <div>
                 <span class="text-color-secondary">Loan Amount: </span>
                 <span class="font-bold text-color">{{ installmentData?.totalAmount | number:'1.2-2' }}</span>
@@ -470,8 +498,8 @@
                 <!-- Calculation Method -->
                 <div class="sm:col-span-2">
                     <label class="block text-xs font-medium text-color mb-1.5">Repayment / Interest Method</label>
-                    <p-select [options]="calculationMethods" formControlName="CalculationMethod" optionLabel="label" optionValue="value"
-                        (onChange)="previewSchedule()" styleClass="w-full">
+                    <p-select [options]="calculationMethods" formControlName="CalculationMethod" optionLabel="label"
+                        optionValue="value" (onChange)="previewSchedule()" styleClass="w-full">
                     </p-select>
                 </div>
 
@@ -489,56 +517,64 @@
                 <!-- Annual Interest Rate % -->
                 <div *ngIf="generateForm.get('CalculationMethod')?.value !== 'ZeroInterest'">
                     <label class="block text-xs font-medium text-color mb-1.5">Annual Interest Rate (%)</label>
-                    <p-inputNumber formControlName="InterestRate" [minFractionDigits]="2" [maxFractionDigits]="4" [min]="0"
-                        suffix=" %" (onInput)="previewSchedule()" styleClass="w-full" inputStyleClass="w-full">
+                    <p-inputNumber formControlName="InterestRate" [minFractionDigits]="2" [maxFractionDigits]="4"
+                        [min]="0" suffix=" %" (onInput)="previewSchedule()" styleClass="w-full"
+                        inputStyleClass="w-full">
                     </p-inputNumber>
                 </div>
 
                 <!-- Billing Day / Window Start Day -->
                 <div>
                     <label class="block text-xs font-medium text-color mb-1.5">
-                        {{ generateForm.get('BillingType')?.value === 'DateRange' ? 'Window Start Day' : 'Billing Day of Month' }}
+                        {{ generateForm.get('BillingType')?.value === 'DateRange' ? 'Window Start Day' : 'Billing Day of
+                        Month' }}
                     </label>
-                    <p-inputNumber formControlName="BillingDay" [min]="1" [max]="31"
-                        (onInput)="previewSchedule()" styleClass="w-full" inputStyleClass="w-full">
+                    <p-inputNumber formControlName="BillingDay" [min]="1" [max]="31" (onInput)="previewSchedule()"
+                        styleClass="w-full" inputStyleClass="w-full">
                     </p-inputNumber>
                 </div>
 
                 <!-- Due / Cutoff Day for DateRange -->
                 <div *ngIf="generateForm.get('BillingType')?.value === 'DateRange'">
                     <label class="block text-xs font-medium text-color mb-1.5">Due / Cutoff Day of Month</label>
-                    <p-inputNumber formControlName="DueDay" [min]="1" [max]="31"
-                        (onInput)="previewSchedule()" styleClass="w-full" inputStyleClass="w-full">
+                    <p-inputNumber formControlName="DueDay" [min]="1" [max]="31" (onInput)="previewSchedule()"
+                        styleClass="w-full" inputStyleClass="w-full">
                     </p-inputNumber>
                 </div>
 
                 <!-- Extra Charges / Tax per EMI -->
                 <div>
-                    <label class="block text-xs font-medium text-color mb-1.5">Extra Charges / Tax per EMI (Optional)</label>
-                    <p-inputNumber formControlName="ExtraCharges" [minFractionDigits]="2" [maxFractionDigits]="2" [min]="0"
-                        (onInput)="previewSchedule()" styleClass="w-full" inputStyleClass="w-full">
+                    <label class="block text-xs font-medium text-color mb-1.5">Extra Charges / Tax per EMI
+                        (Optional)</label>
+                    <p-inputNumber formControlName="ExtraCharges" [minFractionDigits]="2" [maxFractionDigits]="2"
+                        [min]="0" (onInput)="previewSchedule()" styleClass="w-full" inputStyleClass="w-full">
                     </p-inputNumber>
                 </div>
 
                 <!-- Charges Description -->
                 <div>
                     <label class="block text-xs font-medium text-color mb-1.5">Charges Description</label>
-                    <input pInputText type="text" formControlName="ChargesDescription" class="w-full" placeholder="e.g. GST on Interest, Fee" />
+                    <input pInputText type="text" formControlName="ChargesDescription" class="w-full"
+                        placeholder="e.g. GST on Interest, Fee" />
                 </div>
             </div>
 
             <!-- Initial Paid Checkbox -->
-            <div *ngIf="installmentData?.initialPaidMonths > 0" class="flex items-center gap-2 p-2.5 rounded-lg bg-surface-50 dark:bg-surface-900 border border-surface">
-                <p-checkbox formControlName="MarkInitialAsPaid" [binary]="true" (onChange)="previewSchedule()"></p-checkbox>
+            <div *ngIf="installmentData?.initialPaidMonths > 0"
+                class="flex items-center gap-2 p-2.5 rounded-lg bg-surface-50 dark:bg-surface-900 border border-surface">
+                <p-checkbox formControlName="MarkInitialAsPaid" [binary]="true"
+                    (onChange)="previewSchedule()"></p-checkbox>
                 <label class="text-xs text-color cursor-pointer">
-                    Mark first <strong>{{ installmentData.initialPaidMonths }}</strong> installment(s) as already <strong>Done</strong> (since they were paid prior to app onboarding).
+                    Mark first <strong>{{ installmentData.initialPaidMonths }}</strong> installment(s) as already
+                    <strong>Done</strong> (since they were paid prior to app onboarding).
                 </label>
             </div>
         </form>
 
         <!-- Live Preview Summary -->
         <div class="border border-surface rounded-xl overflow-hidden mt-3">
-            <div class="flex items-center justify-between px-3 py-2 bg-surface-100 dark:bg-surface-700 text-xs font-semibold text-color">
+            <div
+                class="flex items-center justify-between px-3 py-2 bg-surface-100 dark:bg-surface-700 text-xs font-semibold text-color">
                 <span>Preview: {{ previewRows.length }} installments</span>
                 <span *ngIf="previewRows.length > 0">
                     Est. EMI: {{ previewRows[0].ScheduledAmount | number:'1.2-2' }}
@@ -546,7 +582,8 @@
             </div>
             <div class="max-h-48 overflow-y-auto">
                 <table class="w-full text-xs text-left">
-                    <thead class="bg-surface-50 dark:bg-surface-800 text-color-secondary border-b border-surface sticky top-0">
+                    <thead
+                        class="bg-surface-50 dark:bg-surface-800 text-color-secondary border-b border-surface sticky top-0">
                         <tr>
                             <th class="p-2">#</th>
                             <th class="p-2">Due Date / Window</th>
@@ -567,9 +604,11 @@
                             </td>
                             <td class="p-2 text-right tabular-nums">{{ p.Principal | number:'1.2-2' }}</td>
                             <td class="p-2 text-right tabular-nums">{{ p.Interest | number:'1.2-2' }}</td>
-                            <td class="p-2 text-right font-bold tabular-nums">{{ p.ScheduledAmount | number:'1.2-2' }}</td>
+                            <td class="p-2 text-right font-bold tabular-nums">{{ p.ScheduledAmount | number:'1.2-2' }}
+                            </td>
                             <td class="p-2 text-center">
-                                <span *ngIf="p.ScheduleStatus === 'Done'" class="text-emerald-600 font-semibold">Done</span>
+                                <span *ngIf="p.ScheduleStatus === 'Done'"
+                                    class="text-emerald-600 font-semibold">Done</span>
                                 <span *ngIf="p.ScheduleStatus !== 'Done'" class="text-color-secondary">Pending</span>
                             </td>
                         </tr>
@@ -594,7 +633,8 @@
     [style]="{ width: '34rem', maxWidth: '95vw' }" [draggable]="false" [resizable]="false">
     <form [formGroup]="payForm" class="space-y-4 pt-1">
         <!-- Installment Badge & Info -->
-        <div class="p-3.5 rounded-xl bg-surface-50 dark:bg-surface-900 border border-surface flex items-center justify-between text-xs">
+        <div
+            class="p-3.5 rounded-xl bg-surface-50 dark:bg-surface-900 border border-surface flex items-center justify-between text-xs">
             <div>
                 <span class="text-color-secondary">Installment: </span>
                 <span class="font-bold text-color">{{ payForm.get('InstallmentNo')?.value }}</span>
@@ -608,8 +648,9 @@
         <!-- Account Selection -->
         <div>
             <label class="block text-sm font-medium mb-2 text-color">Paid From Account</label>
-            <p-dropdown [options]="accountList" formControlName="AccountId" optionLabel="accountName" optionValue="accountId"
-                placeholder="Select payment account" class="w-full" styleClass="w-full" appendTo="body" [filter]="true">
+            <p-dropdown [options]="accountList" formControlName="AccountId" optionLabel="accountName"
+                optionValue="accountId" placeholder="Select payment account" class="w-full" styleClass="w-full"
+                appendTo="body" [filter]="true">
             </p-dropdown>
             <small class="text-red-500 mt-1 block" *ngIf="paySubmitted && payForm.controls['AccountId'].invalid">
                 Account is required.
@@ -619,24 +660,49 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <!-- Payment Date -->
             <div>
-                <label class="block text-sm font-medium mb-2 text-color">Payment Date</label>
+                <label class="block text-sm font-medium mb-1.5 text-color">Payment Date</label>
                 <p-datepicker formControlName="TransactionDate" dateFormat="dd-M-yy" [showIcon]="true" appendTo="body"
                     styleClass="w-full" class="w-full" inputStyleClass="w-full">
                 </p-datepicker>
-                <small class="text-red-500 mt-1 block" *ngIf="paySubmitted && payForm.controls['TransactionDate'].invalid">
+                <small class="text-red-500 mt-1 block"
+                    *ngIf="paySubmitted && payForm.controls['TransactionDate'].invalid">
                     Payment date is required.
                 </small>
             </div>
 
-            <!-- Amount -->
+            <!-- Late Fee / Penalty (Optional) -->
             <div>
-                <label class="block text-sm font-medium mb-2 text-color">Amount Paid</label>
-                <p-inputNumber formControlName="Amount" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2" [min]="0.01"
-                    styleClass="w-full" class="w-full" inputStyleClass="w-full" placeholder="0.00">
+                <label class="block text-sm font-medium mb-1.5 text-color">Late Fee / Penalty (Optional)</label>
+                <p-inputNumber formControlName="ExtraCharges" mode="decimal" [minFractionDigits]="2"
+                    [maxFractionDigits]="2" [min]="0" (onInput)="onSingleExtraChargesChange()" styleClass="w-full"
+                    class="w-full" inputStyleClass="w-full" placeholder="0.00">
                 </p-inputNumber>
-                <small class="text-red-500 mt-1 block" *ngIf="paySubmitted && payForm.controls['Amount'].invalid">
-                    Valid amount is required.
-                </small>
+            </div>
+        </div>
+
+        <!-- Charges Description (if ExtraCharges > 0) -->
+        <div *ngIf="payForm.get('ExtraCharges')?.value > 0">
+            <label class="block text-xs font-medium mb-1 text-color">Penalty / Charges Note</label>
+            <input pInputText type="text" formControlName="ChargesDescription" class="w-full"
+                placeholder="e.g. Late fee for overdue month">
+        </div>
+
+        <!-- Total Deduction Display -->
+        <div
+            class="p-3 rounded-xl bg-surface-50 dark:bg-surface-900 border border-surface flex items-center justify-between text-xs">
+            <div>
+                <span class="text-color-secondary">Scheduled EMI: </span>
+                <span class="font-bold text-color">{{ payForm.get('ScheduledAmount')?.value | number:'1.2-2' }}</span>
+                <span *ngIf="payForm.get('ExtraCharges')?.value > 0"
+                    class="text-rose-600 dark:text-rose-400 font-semibold ml-1">
+                    + {{ payForm.get('ExtraCharges')?.value | number:'1.2-2' }} penalty
+                </span>
+            </div>
+            <div class="text-right">
+                <span class="text-color-secondary">Total Bank Debit: </span>
+                <span class="font-bold text-emerald-600 dark:text-emerald-400 text-sm">
+                    {{ payForm.get('Amount')?.value | number:'1.2-2' }}
+                </span>
             </div>
         </div>
 
@@ -660,6 +726,149 @@
 </p-dialog>
 
 <!-- ============================================================== -->
+<!-- MODAL: BATCH / MULTIPLE EMIs PAYMENT DIALOG (CASE 1)           -->
+<!-- ============================================================== -->
+<p-dialog [(visible)]="payMultipleDialog" [modal]="true" header="Record Batch EMI Payment"
+    [style]="{ width: '40rem', maxWidth: '95vw' }" [draggable]="false" [resizable]="false">
+    <div class="space-y-4 pt-1">
+        <!-- Info Banner -->
+        <div class="flex items-center gap-2 p-3 rounded-xl bg-primary/10 border border-primary/20 text-xs text-primary">
+            <i class="pi pi-info-circle text-base"></i>
+            <span>
+                Combines multiple consecutive installments into a single bank account debit and a consolidated expense
+                transaction.
+            </span>
+        </div>
+
+        <form [formGroup]="payMultipleForm" class="space-y-4">
+            <!-- Count Selector & Installment Badges -->
+            <div class="p-3.5 rounded-xl bg-surface-50 dark:bg-surface-900 border border-surface space-y-2">
+                <div class="flex items-center justify-between">
+                    <label class="text-xs font-semibold uppercase tracking-wider text-color-secondary">
+                        Number of Installments
+                    </label>
+                    <div class="w-36">
+                        <p-inputNumber formControlName="Count" [min]="2" [max]="maxMultiCount" [showButtons]="true"
+                            buttonLayout="horizontal" incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus"
+                            (onInput)="onMultiCountChange($event.value)" styleClass="w-full text-center"
+                            inputStyleClass="w-full text-center font-bold">
+                        </p-inputNumber>
+                    </div>
+                </div>
+
+                <!-- Chips of Selected Installments -->
+                <div class="flex items-center gap-1.5 flex-wrap pt-1">
+                    <span class="text-xs text-color-secondary mr-1">Paying:</span>
+                    <p-tag *ngFor="let item of selectedMultiRows" [value]="'EMI #' + item.InstallmentNo"
+                        severity="info"></p-tag>
+                </div>
+            </div>
+
+            <!-- Breakdown Table of Selected Installments -->
+            <div class="border border-surface rounded-xl overflow-hidden text-xs">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-surface-100 dark:bg-surface-800 text-color-secondary">
+                        <tr>
+                            <th class="p-2 pl-3">EMI #</th>
+                            <th class="p-2">Due Date</th>
+                            <th class="p-2 text-right pr-3">Scheduled Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-surface">
+                        <tr *ngFor="let row of selectedMultiRows">
+                            <td class="p-2 pl-3 font-semibold text-color">Installment #{{ row.InstallmentNo }}</td>
+                            <td class="p-2 text-color-secondary">{{ row.DueDate | date:'dd-MMM-yyyy' }}</td>
+                            <td class="p-2 text-right pr-3 font-semibold text-color">{{ row.ScheduledAmount |
+                                number:'1.2-2' }}</td>
+                        </tr>
+                        <tr class="bg-surface-50 dark:bg-surface-900 font-bold">
+                            <td colspan="2" class="p-2 pl-3 text-color">Total Scheduled Principal & Interest</td>
+                            <td class="p-2 text-right pr-3 text-primary">{{
+                                payMultipleForm.get('ScheduledAmount')?.value | number:'1.2-2' }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Account Selection -->
+            <div>
+                <label class="block text-sm font-medium mb-1.5 text-color">Paid From Account</label>
+                <p-dropdown [options]="accountList" formControlName="AccountId" optionLabel="accountName"
+                    optionValue="accountId" placeholder="Select payment account" class="w-full" styleClass="w-full"
+                    appendTo="body" [filter]="true">
+                </p-dropdown>
+                <small class="text-red-500 mt-1 block"
+                    *ngIf="payMultipleSubmitted && payMultipleForm.controls['AccountId'].invalid">
+                    Account is required.
+                </small>
+            </div>
+
+            <!-- Payment Date & Optional Penalty / Extra Charges -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <!-- Payment Date -->
+                <div>
+                    <label class="block text-sm font-medium mb-1.5 text-color">Payment Date</label>
+                    <p-datepicker formControlName="TransactionDate" dateFormat="dd-M-yy" [showIcon]="true"
+                        appendTo="body" styleClass="w-full" class="w-full" inputStyleClass="w-full">
+                    </p-datepicker>
+                    <small class="text-red-500 mt-1 block"
+                        *ngIf="payMultipleSubmitted && payMultipleForm.controls['TransactionDate'].invalid">
+                        Payment date is required.
+                    </small>
+                </div>
+
+                <!-- Late Fee / Penalty (Optional) -->
+                <div>
+                    <label class="block text-sm font-medium mb-1.5 text-color">Late Fee / Penalty (Optional)</label>
+                    <p-inputNumber formControlName="ExtraCharges" mode="decimal" [minFractionDigits]="2"
+                        [maxFractionDigits]="2" [min]="0" (onInput)="onMultiExtraChargesChange()" styleClass="w-full"
+                        class="w-full" inputStyleClass="w-full" placeholder="0.00">
+                    </p-inputNumber>
+                </div>
+            </div>
+
+            <!-- Charges Description (if ExtraCharges > 0) -->
+            <div *ngIf="payMultipleForm.get('ExtraCharges')?.value > 0">
+                <label class="block text-xs font-medium mb-1 text-color">Penalty / Charges Note</label>
+                <input pInputText type="text" formControlName="ChargesDescription" class="w-full"
+                    placeholder="e.g. Late fee for overdue month">
+            </div>
+
+            <!-- Total Net Deduction Summary Card -->
+            <div
+                class="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/40 flex items-center justify-between">
+                <div>
+                    <span class="text-xs text-emerald-700 dark:text-emerald-300 font-medium block">Total Net Bank
+                        Debit</span>
+                    <span class="text-xs text-color-secondary">Scheduled EMI + any penalty / extra charges</span>
+                </div>
+                <div class="text-lg font-extrabold text-emerald-600 dark:text-emerald-400">
+                    {{ payMultipleForm.get('Amount')?.value | number:'1.2-2' }}
+                </div>
+            </div>
+
+            <!-- Description / Note -->
+            <div>
+                <label class="block text-sm font-medium mb-1.5 text-color">Description / Note</label>
+                <textarea pInputTextarea rows="2" formControlName="Description" class="w-full"
+                    placeholder="Add a note (optional)">
+                </textarea>
+            </div>
+        </form>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <div class="flex items-center justify-end gap-2 pt-3">
+            <p-button label="Cancel" severity="secondary" [text]="true"
+                (onClick)="payMultipleDialog = false"></p-button>
+            <p-button label="Record Batch Payment" icon="pi pi-check" severity="success" (onClick)="savePayMultiple()"
+                [disabled]="payMultipleForm.invalid && payMultipleSubmitted">
+            </p-button>
+        </div>
+    </ng-template>
+</p-dialog>
+
+<!-- ============================================================== -->
 <!-- MODAL: ADD / EDIT SINGLE SCHEDULE ROW                          -->
 <!-- ============================================================== -->
 <p-dialog [(visible)]="rowDialog" [modal]="true" [header]="isEditingRow ? 'Edit Schedule Row' : 'Add Schedule Row'"
@@ -668,18 +877,22 @@
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
                 <label class="block text-sm font-medium mb-2 text-color">Installment #</label>
-                <p-inputNumber formControlName="InstallmentNo" [min]="1" styleClass="w-full" class="w-full" inputStyleClass="w-full"></p-inputNumber>
-                <small class="text-red-500 mt-1 block" *ngIf="rowSubmitted && rowForm.controls['InstallmentNo'].invalid">
+                <p-inputNumber formControlName="InstallmentNo" [min]="1" styleClass="w-full" class="w-full"
+                    inputStyleClass="w-full"></p-inputNumber>
+                <small class="text-red-500 mt-1 block"
+                    *ngIf="rowSubmitted && rowForm.controls['InstallmentNo'].invalid">
                     Installment # is required.
                 </small>
             </div>
             <div>
                 <label class="block text-sm font-medium mb-2 text-color">Window Start Date</label>
-                <p-datepicker formControlName="PaymentStartDate" dateFormat="dd-M-yy" [showIcon]="true" appendTo="body" styleClass="w-full" class="w-full" inputStyleClass="w-full" placeholder="Optional"></p-datepicker>
+                <p-datepicker formControlName="PaymentStartDate" dateFormat="dd-M-yy" [showIcon]="true" appendTo="body"
+                    styleClass="w-full" class="w-full" inputStyleClass="w-full" placeholder="Optional"></p-datepicker>
             </div>
             <div>
                 <label class="block text-sm font-medium mb-2 text-color">Due / Cutoff Date</label>
-                <p-datepicker formControlName="DueDate" dateFormat="dd-M-yy" [showIcon]="true" appendTo="body" styleClass="w-full" class="w-full" inputStyleClass="w-full"></p-datepicker>
+                <p-datepicker formControlName="DueDate" dateFormat="dd-M-yy" [showIcon]="true" appendTo="body"
+                    styleClass="w-full" class="w-full" inputStyleClass="w-full"></p-datepicker>
                 <small class="text-red-500 mt-1 block" *ngIf="rowSubmitted && rowForm.controls['DueDate'].invalid">
                     Due date is required.
                 </small>
@@ -688,39 +901,47 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
                 <label class="block text-sm font-medium mb-2 text-color">Opening Principal</label>
-                <p-inputNumber formControlName="OpeningBalance" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2" styleClass="w-full" class="w-full" inputStyleClass="w-full"></p-inputNumber>
+                <p-inputNumber formControlName="OpeningBalance" mode="decimal" [minFractionDigits]="2"
+                    [maxFractionDigits]="2" styleClass="w-full" class="w-full" inputStyleClass="w-full"></p-inputNumber>
             </div>
             <div>
                 <label class="block text-sm font-medium mb-2 text-color">Principal Component</label>
-                <p-inputNumber formControlName="Principal" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2" styleClass="w-full" class="w-full" inputStyleClass="w-full"></p-inputNumber>
+                <p-inputNumber formControlName="Principal" mode="decimal" [minFractionDigits]="2"
+                    [maxFractionDigits]="2" styleClass="w-full" class="w-full" inputStyleClass="w-full"></p-inputNumber>
                 <small class="text-red-500 mt-1 block" *ngIf="rowSubmitted && rowForm.controls['Principal'].invalid">
                     Principal is required.
                 </small>
             </div>
             <div>
                 <label class="block text-sm font-medium mb-2 text-color">Interest Component</label>
-                <p-inputNumber formControlName="Interest" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2" styleClass="w-full" class="w-full" inputStyleClass="w-full"></p-inputNumber>
+                <p-inputNumber formControlName="Interest" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2"
+                    styleClass="w-full" class="w-full" inputStyleClass="w-full"></p-inputNumber>
             </div>
             <div>
                 <label class="block text-sm font-medium mb-2 text-color">Extra Charges / Tax</label>
-                <p-inputNumber formControlName="ExtraCharges" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2" styleClass="w-full" class="w-full" inputStyleClass="w-full"></p-inputNumber>
+                <p-inputNumber formControlName="ExtraCharges" mode="decimal" [minFractionDigits]="2"
+                    [maxFractionDigits]="2" styleClass="w-full" class="w-full" inputStyleClass="w-full"></p-inputNumber>
             </div>
             <div>
                 <label class="block text-sm font-medium mb-2 text-color">Total Scheduled EMI</label>
-                <p-inputNumber formControlName="ScheduledAmount" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2" styleClass="w-full" class="w-full" inputStyleClass="w-full"></p-inputNumber>
-                <small class="text-red-500 mt-1 block" *ngIf="rowSubmitted && rowForm.controls['ScheduledAmount'].invalid">
+                <p-inputNumber formControlName="ScheduledAmount" mode="decimal" [minFractionDigits]="2"
+                    [maxFractionDigits]="2" styleClass="w-full" class="w-full" inputStyleClass="w-full"></p-inputNumber>
+                <small class="text-red-500 mt-1 block"
+                    *ngIf="rowSubmitted && rowForm.controls['ScheduledAmount'].invalid">
                     Scheduled EMI is required.
                 </small>
             </div>
             <div>
                 <label class="block text-sm font-medium mb-2 text-color">Closing Principal</label>
-                <p-inputNumber formControlName="ClosingBalance" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2" styleClass="w-full" class="w-full" inputStyleClass="w-full"></p-inputNumber>
+                <p-inputNumber formControlName="ClosingBalance" mode="decimal" [minFractionDigits]="2"
+                    [maxFractionDigits]="2" styleClass="w-full" class="w-full" inputStyleClass="w-full"></p-inputNumber>
             </div>
         </div>
 
         <div>
             <label class="block text-sm font-medium mb-2 text-color">Charges Description</label>
-            <input pInputText type="text" formControlName="ChargesDescription" class="w-full" placeholder="e.g. 18% GST" />
+            <input pInputText type="text" formControlName="ChargesDescription" class="w-full"
+                placeholder="e.g. 18% GST" />
         </div>
 
         <div>

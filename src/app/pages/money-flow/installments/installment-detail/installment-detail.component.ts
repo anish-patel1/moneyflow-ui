@@ -79,6 +79,14 @@ export class InstallmentDetailComponent implements OnInit {
   paySubmitted: boolean = false;
 
   // ==========================================
+  // Batch / Multi-EMI Payment Dialog State (Case 1)
+  // ==========================================
+  payMultipleDialog: boolean = false;
+  payMultipleForm!: UntypedFormGroup;
+  selectedMultiRows: InstallmentSchedule[] = [];
+  payMultipleSubmitted: boolean = false;
+
+  // ==========================================
   // Single Row Edit/Add Dialog State
   // ==========================================
   rowDialog: boolean = false;
@@ -135,6 +143,21 @@ export class InstallmentDetailComponent implements OnInit {
       DueDate: [{ value: '', disabled: true }],
       AccountId: [null, Validators.required],
       TransactionDate: [new Date(), Validators.required],
+      ScheduledAmount: [{ value: 0, disabled: true }],
+      ExtraCharges: [0, [Validators.min(0)]],
+      ChargesDescription: ['Late Fee / Penalty'],
+      Amount: [0, [Validators.required, Validators.min(0.01)]],
+      Description: ['']
+    });
+
+    // Pay Multiple (Batch) Form
+    this.payMultipleForm = this.commonService.formBuilder.group({
+      AccountId: [null, Validators.required],
+      TransactionDate: [new Date(), Validators.required],
+      Count: [2, [Validators.required, Validators.min(2)]],
+      ScheduledAmount: [{ value: 0, disabled: true }],
+      ExtraCharges: [0, [Validators.min(0)]],
+      ChargesDescription: ['Late Fee / Penalty'],
       Amount: [0, [Validators.required, Validators.min(0.01)]],
       Description: ['']
     });
@@ -336,6 +359,16 @@ export class InstallmentDetailComponent implements OnInit {
     }
 
     return true;
+  }
+
+  get pendingScheduleRows(): InstallmentSchedule[] {
+    return (this.scheduleData || [])
+      .filter((r) => (r.ScheduleStatus || '').toLowerCase() !== 'done')
+      .sort((a, b) => (Number(a.InstallmentNo) || 0) - (Number(b.InstallmentNo) || 0));
+  }
+
+  get maxMultiCount(): number {
+    return Math.max(2, this.pendingScheduleRows.length);
   }
 
   isOverdue(dueDate: any, status?: string): boolean {
@@ -585,17 +618,30 @@ export class InstallmentDetailComponent implements OnInit {
     this.selectedScheduleRow = row;
     this.paySubmitted = false;
 
+    const scheduled = Number(row.ScheduledAmount) || 0;
+
     this.payForm.patchValue({
       InstallmentScheduleId: row.InstallmentScheduleId,
       InstallmentNo: `Installment #${row.InstallmentNo}`,
       DueDate: row.DueDate,
       AccountId: this.accountList.length > 0 ? this.accountList[0].accountId : null,
       TransactionDate: new Date(),
-      Amount: row.ScheduledAmount,
+      ScheduledAmount: scheduled,
+      ExtraCharges: 0,
+      ChargesDescription: 'Late Fee / Penalty',
+      Amount: scheduled,
       Description: `EMI #${row.InstallmentNo} - ${this.installmentData?.installmentName || 'Loan'}`
     });
 
     this.payDialog = true;
+  }
+
+  onSingleExtraChargesChange(): void {
+    const scheduled = Number(this.payForm.get('ScheduledAmount')?.value || 0);
+    const extraCharges = Number(this.payForm.get('ExtraCharges')?.value || 0);
+    this.payForm.patchValue({
+      Amount: Number((scheduled + extraCharges).toFixed(2))
+    });
   }
 
   savePayment(): void {
@@ -608,21 +654,22 @@ export class InstallmentDetailComponent implements OnInit {
       return;
     }
 
-    const formVal = this.payForm.value;
+    const formVal = this.payForm.getRawValue();
     const transDateStr = this.commonService.formatDate(new Date(formVal.TransactionDate));
 
     const payload = {
       UserId: this.userId,
-      AccountId: formVal.AccountId,
       InstallmentId: this.installmentId,
-      InstallmentScheduleId: this.selectedScheduleRow?.InstallmentScheduleId,
+      ScheduleIds: this.selectedScheduleRow?.InstallmentScheduleId.toString(),
+      AccountId: formVal.AccountId,
       TransactionDate: transDateStr,
       Amount: formVal.Amount,
-      TransactionType: 'Expense',
+      ExtraCharges: formVal.ExtraCharges || 0,
+      ChargesDescription: formVal.ExtraCharges > 0 ? formVal.ChargesDescription : null,
       Description: formVal.Description
     };
 
-    this.commonService.postData(this.TRANSACTION_API + 'Insert', payload).subscribe({
+    this.commonService.postData(this.COMMON_API + 'SchedulePayMultiple', payload).subscribe({
       next: (res: any) => {
         if (res.success) {
           this.notification.showToast('success', 'EMI Payment recorded successfully!');
@@ -636,6 +683,114 @@ export class InstallmentDetailComponent implements OnInit {
       },
       error: (err) => {
         this.notification.showToast('error', err.message || 'Error recording payment');
+      }
+    });
+  }
+
+  // ======================================================
+  // Batch / Multi-EMI Payment Handlers (Case 1)
+  // ======================================================
+  openPayMultipleDialog(): void {
+    if (!this.isLoanActive) {
+      this.notification.showToast('warn', 'This loan is closed / completed and is in view-only mode.');
+      return;
+    }
+    const pending = this.pendingScheduleRows;
+    if (pending.length < 2) {
+      this.notification.showToast('warn', 'At least 2 pending installments are required for batch payment.');
+      return;
+    }
+
+    this.payMultipleSubmitted = false;
+    const count = 2;
+    this.selectedMultiRows = pending.slice(0, count);
+
+    const scheduledSum = this.selectedMultiRows.reduce((acc, r) => acc + (Number(r.ScheduledAmount) || 0), 0);
+    const nos = this.selectedMultiRows.map((r) => r.InstallmentNo).join(', ');
+
+    this.payMultipleForm.patchValue({
+      AccountId: this.accountList.length > 0 ? this.accountList[0].accountId : null,
+      TransactionDate: new Date(),
+      Count: count,
+      ScheduledAmount: scheduledSum,
+      ExtraCharges: 0,
+      ChargesDescription: 'Late Fee / Penalty',
+      Amount: scheduledSum,
+      Description: `EMI #${nos} - ${this.installmentData?.installmentName || 'Loan'}`
+    });
+
+    this.payMultipleDialog = true;
+  }
+
+  onMultiCountChange(count: any): void {
+    const totalPending = this.pendingScheduleRows.length;
+    const parsed = Number(count);
+    let validCount = isNaN(parsed) || count == null ? 2 : parsed;
+    if (validCount < 2) validCount = 2;
+    if (validCount > totalPending) validCount = totalPending;
+
+    this.selectedMultiRows = this.pendingScheduleRows.slice(0, validCount);
+
+    const scheduledSum = this.selectedMultiRows.reduce((acc, r) => acc + (Number(r.ScheduledAmount) || 0), 0);
+    const extraCharges = Number(this.payMultipleForm.get('ExtraCharges')?.value || 0);
+    const nos = this.selectedMultiRows.map((r) => r.InstallmentNo).join(', ');
+
+    this.payMultipleForm.patchValue({
+      Count: validCount,
+      ScheduledAmount: scheduledSum,
+      Amount: Number((scheduledSum + extraCharges).toFixed(2)),
+      Description: `EMI #${nos} - ${this.installmentData?.installmentName || 'Loan'}`
+    });
+  }
+
+  onMultiExtraChargesChange(): void {
+    const scheduledSum = Number(this.payMultipleForm.get('ScheduledAmount')?.value || 0);
+    const extraCharges = Number(this.payMultipleForm.get('ExtraCharges')?.value || 0);
+    this.payMultipleForm.patchValue({
+      Amount: Number((scheduledSum + extraCharges).toFixed(2))
+    });
+  }
+
+  savePayMultiple(): void {
+    if (!this.isLoanActive) {
+      this.notification.showToast('warn', 'This loan is closed / completed and is in view-only mode.');
+      return;
+    }
+    this.payMultipleSubmitted = true;
+    if (this.payMultipleForm.invalid || this.selectedMultiRows.length < 2) {
+      return;
+    }
+
+    const formVal = this.payMultipleForm.getRawValue();
+    const transDateStr = this.commonService.formatDate(new Date(formVal.TransactionDate));
+    const scheduleIds = this.selectedMultiRows.map((r) => r.InstallmentScheduleId).join(',');
+
+    const payload = {
+      UserId: this.userId,
+      InstallmentId: this.installmentId,
+      ScheduleIds: scheduleIds,
+      AccountId: formVal.AccountId,
+      TransactionDate: transDateStr,
+      Amount: formVal.Amount,
+      ExtraCharges: formVal.ExtraCharges || 0,
+      ChargesDescription: formVal.ExtraCharges > 0 ? formVal.ChargesDescription : null,
+      Description: formVal.Description
+    };
+
+    this.commonService.postData(this.COMMON_API + 'SchedulePayMultiple', payload).subscribe({
+      next: (res: any) => {
+        if (res.success) {
+          this.notification.showToast('success', res.message || 'Batch EMI payment recorded successfully!');
+          this.payMultipleDialog = false;
+          this.getLoanDetail(this.installmentId);
+          this.loadTransactions(this.installmentId);
+          this.loadSchedule(this.installmentId);
+        } else {
+          this.notification.showToast('warn', res.message || 'Batch payment failed');
+        }
+      },
+      error: (err) => {
+        this.notification.showToast('error', err.message || 'Error recording batch payment');
       }
     });
   }
