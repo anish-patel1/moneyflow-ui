@@ -66,7 +66,8 @@ export class CategoriesComponent {
     this.addForm = this.commonService.formBuilder.group({
       CategoryName: ['', Validators.required],
       CategoryType: [null, Validators.required],
-      Frequency: ['Monthly']
+      Frequency: ['Monthly'],
+      IsExcludeFromIncome: [false]
     });
 
     this.selectAll();
@@ -158,6 +159,7 @@ export class CategoriesComponent {
         this.addForm.controls['CategoryName'].setValue(data[0].categoryName);
         this.addForm.controls['CategoryType'].setValue(data[0].categoryType);
         this.addForm.controls['Frequency'].setValue(data[0].frequency || 'Monthly');
+        this.addForm.controls['IsExcludeFromIncome'].setValue(data[0].isExcludeFromIncome || false);
       },
       error: (err) => {
         // this.loader = false;
@@ -232,7 +234,8 @@ export class CategoriesComponent {
 
   resetForm() {
     this.addForm.reset({
-      Frequency: 'Monthly'
+      Frequency: 'Monthly',
+      IsExcludeFromIncome: false
     });
     this.submitted = false;
   }

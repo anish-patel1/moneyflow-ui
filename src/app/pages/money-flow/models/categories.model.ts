@@ -5,4 +5,6 @@ export interface Categories extends BaseClass {
     CategoryName: any;
     CategoryType: any;
     Frequency?: string | null;
+    IsExcludeFromIncome?: boolean;
+    isExcludeFromIncome?: boolean;
 }

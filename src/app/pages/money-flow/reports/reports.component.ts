@@ -43,6 +43,7 @@ export class ReportsComponent implements OnInit {
 
   accounts: AccountReconciliation[] = [];
   incomeCategories: CategoryReconciliation[] = [];
+  nonIncomeCategories: CategoryReconciliation[] = [];
   expenseCategories: CategoryReconciliation[] = [];
   summary: ReconciliationSummary | null = null;
 
@@ -172,7 +173,8 @@ export class ReportsComponent implements OnInit {
         this.summary = this.calculateSummary(this.accounts);
 
         const cats = res.categories || [];
-        this.incomeCategories = cats.filter(c => c.transactionType === 'Income');
+        this.incomeCategories = cats.filter(c => c.transactionType === 'Income' && !c.isExcludeFromIncome);
+        this.nonIncomeCategories = cats.filter(c => c.transactionType === 'Income' && c.isExcludeFromIncome);
         this.expenseCategories = cats.filter(c => c.transactionType === 'Expense');
       },
       error: (err: any) => {

@@ -31,13 +31,20 @@
         <tr class="hover-row">
             <td class="font-medium text-color">{{ data.categoryName }}</td>
             <td>
-                <p-tag [value]="data.categoryType" [severity]="data.categoryType === 'Income' ? 'success' : 'danger'"
-                    [icon]="data.categoryType === 'Income' ? 'pi pi-arrow-down' : 'pi pi-arrow-up'">
-                </p-tag>
+                <div class="flex items-center gap-1.5 flex-wrap">
+                    <p-tag [value]="data.categoryType" [severity]="data.categoryType === 'Income' ? 'success' : 'danger'"
+                        [icon]="data.categoryType === 'Income' ? 'pi pi-arrow-down' : 'pi pi-arrow-up'">
+                    </p-tag>
+                    <span *ngIf="data.isExcludeFromIncome" 
+                        class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20"
+                        pTooltip="Increases account balance but excluded from personal income & savings reports" tooltipPosition="top">
+                        Non-Income Inflow
+                    </span>
+                </div>
             </td>
             <td>
-                <p-tag [value]="data.frequency || 'Monthly'" severity="info">
-                </p-tag>
+                <p-tag *ngIf="data.categoryType === 'Expense'" [value]="data.frequency || 'Monthly'" severity="info"></p-tag>
+                <span *ngIf="data.categoryType !== 'Expense'" class="text-xs text-color-secondary">—</span>
             </td>
             <td>
                 <p-menu #menu [model]="items" [popup]="true" appendTo="body"></p-menu>
@@ -81,7 +88,7 @@
             </div>
         </div>
     </ng-template>
-    <form [formGroup]="addForm" class="px-5 py-4 space-y-5">
+    <form [formGroup]="addForm" class="px-5 py-4 space-y-4">
         <div>
             <label for="categoryName" class="block text-sm font-medium mb-2 text-color">Name</label>
             <input pInputText id="categoryName" formControlName="CategoryName" class="w-full"
@@ -100,7 +107,26 @@
                 Type is required.
             </small>
         </div>
-        <div>
+
+        <!-- Exclude from Income Option (Only for Income Category Type) -->
+        <div *ngIf="addForm.controls['CategoryType'].value === 'Income'"
+            class="p-3.5 rounded-xl border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800/60 transition">
+            <div class="flex items-start gap-3">
+                <p-checkbox formControlName="IsExcludeFromIncome" [binary]="true" inputId="isExcludeToggle" class="mt-0.5">
+                </p-checkbox>
+                <div class="space-y-1">
+                    <label for="isExcludeToggle" class="text-sm font-semibold text-color cursor-pointer select-none">
+                        Exclude from Personal Income & Savings
+                    </label>
+                    <p class="text-xs text-color-secondary leading-relaxed m-0">
+                        Enable for non-earning inflows (third-party deposits, external contributions, or reimbursements) that increase account balance but are not actual personal income.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Billing Frequency (Only for Expense Category Type) -->
+        <div *ngIf="addForm.controls['CategoryType'].value === 'Expense'">
             <label for="frequency" class="block text-sm font-medium mb-2 text-color">Billing Frequency</label>
             <p-dropdown inputId="frequency" [options]="frequencyOptions" optionLabel="label" optionValue="value"
                 formControlName="Frequency" [placeholder]="'Select frequency'" [filter]="false" [showClear]="false"

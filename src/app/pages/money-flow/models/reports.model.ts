@@ -40,6 +40,7 @@ export interface CategoryReconciliation {
   transactionType: 'Income' | 'Expense';
   totalAmount: number;
   transactionCount: number;
+  isExcludeFromIncome?: boolean;
 }
 
 export interface YearAtAGlanceItem {
