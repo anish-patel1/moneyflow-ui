@@ -41,3 +41,52 @@ export interface CategoryReconciliation {
   totalAmount: number;
   transactionCount: number;
 }
+
+export interface YearAtAGlanceItem {
+  categoryId: number;
+  categoryName: string;
+  frequency: string;
+  jan: number;
+  feb: number;
+  mar: number;
+  apr: number;
+  may: number;
+  jun: number;
+  jul: number;
+  aug: number;
+  sep: number;
+  oct: number;
+  nov: number;
+  dec: number;
+  totalAmount: number;
+  monthlyAverage: number;
+}
+
+export interface SavingsSummaryItem {
+  month: number;
+  monthName: string;
+  income: number;
+  expense: number;
+  transfers: number;
+  netSavings: number;
+  savingsRate: number;
+  cumulativeSavings: number;
+}
+
+export interface YearAtAGlanceSummary {
+  totalAnnualExpense: number;
+  topCategoryName: string;
+  topCategoryAmount: number;
+  monthlyAverageExpense: number;
+  monthTotals: { [key: string]: number };
+}
+
+export interface AnnualSavingsKPISummary {
+  totalAnnualIncome: number;
+  totalAnnualExpense: number;
+  totalAnnualTransfers: number;
+  netAnnualSavings: number;
+  annualSavingsRate: number;
+  peakMonthName: string;
+  peakMonthSavings: number;
+}

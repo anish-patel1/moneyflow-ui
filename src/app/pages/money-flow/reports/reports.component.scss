@@ -8,6 +8,10 @@
   min-width: 52rem;
 }
 
+:host ::ng-deep .glance-table .p-datatable-table {
+  min-width: 68rem;
+}
+
 // ==================================================
 // PRISTINE FINANCIAL STATEMENT (PRINT)
 // ==================================================

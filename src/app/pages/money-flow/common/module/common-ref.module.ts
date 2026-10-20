@@ -39,6 +39,7 @@ import { PanelModule } from 'primeng/panel';
 import { ImageModule } from 'primeng/image';
 import { PopoverModule } from 'primeng/popover';
 import { SelectButtonModule } from 'primeng/selectbutton';
+import { ChartModule } from 'primeng/chart';
 
 @NgModule({
   declarations: [],
@@ -83,7 +84,8 @@ import { SelectButtonModule } from 'primeng/selectbutton';
     PanelModule,
     ImageModule,
     PopoverModule,
-    SelectButtonModule
+    SelectButtonModule,
+    ChartModule
   ],
   exports: [
     TableModule,
@@ -125,7 +127,8 @@ import { SelectButtonModule } from 'primeng/selectbutton';
     PanelModule,
     ImageModule,
     PopoverModule,
-    SelectButtonModule
+    SelectButtonModule,
+    ChartModule
   ]
 })
 export class CommonRefModule { }
