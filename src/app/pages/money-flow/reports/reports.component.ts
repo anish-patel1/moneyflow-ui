@@ -132,8 +132,11 @@ export class ReportsComponent implements OnInit {
 
   private calculateSummary(accountList: AccountReconciliation[]): ReconciliationSummary {
     const totalOpeningBalance = accountList.reduce((acc, a) => acc + (a.openingBalance || 0), 0);
-    const totalInflow = accountList.reduce((acc, a) => acc + (a.inflow || 0), 0);
-    const totalOutflow = accountList.reduce((acc, a) => acc + (a.outflow || 0), 0);
+    const totalAccountInflow = accountList.reduce((acc, a) => acc + (a.inflow || 0), 0);
+    const totalAccountOutflow = accountList.reduce((acc, a) => acc + (a.outflow || 0), 0);
+    const totalInflow = accountList.reduce((acc, a) => acc + (a.externalInflow !== undefined ? a.externalInflow : (a.inflow || 0)), 0);
+    const totalOutflow = accountList.reduce((acc, a) => acc + (a.externalOutflow !== undefined ? a.externalOutflow : (a.outflow || 0)), 0);
+    const totalTransfers = accountList.reduce((acc, a) => acc + (a.transferOut || 0), 0);
     const netFlow = totalInflow - totalOutflow;
     const totalClosingBalance = accountList.reduce((acc, a) => acc + (a.closingBalance || 0), 0);
     const savingsRate = totalInflow > 0 ? (netFlow > 0 ? (netFlow / totalInflow) * 100 : 0) : 0;
@@ -144,6 +147,9 @@ export class ReportsComponent implements OnInit {
       totalOpeningBalance,
       totalInflow,
       totalOutflow,
+      totalTransfers,
+      totalAccountInflow,
+      totalAccountOutflow,
       netFlow,
       totalClosingBalance,
       savingsRate

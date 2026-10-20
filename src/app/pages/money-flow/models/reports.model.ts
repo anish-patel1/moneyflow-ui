@@ -9,8 +9,13 @@ export interface Reports extends BaseClass {
   openingBalance?: number;
   inflow?: number;
   outflow?: number;
+  externalInflow?: number;
+  externalOutflow?: number;
+  transferIn?: number;
+  transferOut?: number;
   closingBalance?: number;
   netChange?: number;
+  transactionCount?: number;
 }
 
 export type AccountReconciliation = Reports;
@@ -21,6 +26,9 @@ export interface ReconciliationSummary {
   totalOpeningBalance: number;
   totalInflow: number;
   totalOutflow: number;
+  totalTransfers: number;
+  totalAccountInflow: number;
+  totalAccountOutflow: number;
   netFlow: number;
   totalClosingBalance: number;
   savingsRate: number;

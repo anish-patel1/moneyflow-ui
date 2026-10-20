@@ -123,6 +123,10 @@
                 {{ summaryData.netFlow > 0 ? '+' : '' }}
                 {{ summaryData.netFlow | number:'1.2-2' }}
             </div>
+            <div *ngIf="summaryData.monthlyTransfers && summaryData.monthlyTransfers > 0" class="text-xs text-color-secondary mt-1 flex items-center gap-1">
+                <i class="pi pi-arrows-h text-[10px]"></i>
+                <span>Transfers: {{ summaryData.monthlyTransfers | number:'1.2-2' }}</span>
+            </div>
         </ng-container>
         <ng-template #netFlowSkeleton>
             <p-skeleton width="60%" height="2rem" styleClass="mt-2"></p-skeleton>
