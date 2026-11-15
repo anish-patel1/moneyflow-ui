@@ -53,6 +53,7 @@ export class InstallmentDetailComponent implements OnInit {
   totalInterest: number = 0;
   totalExtraCharges: number = 0;
   paidScheduleAmount: number = 0;
+  paidPrincipalAmount: number = 0;
   paidCount: number = 0;
   pendingCount: number = 0;
   overdueCount: number = 0;
@@ -180,6 +181,78 @@ export class InstallmentDetailComponent implements OnInit {
       ScheduleStatus: ['Pending', Validators.required],
       Notes: ['']
     });
+
+    // Auto-calculate ScheduledAmount & ClosingBalance whenever components change
+    ['Principal', 'Interest', 'ExtraCharges', 'OpeningBalance'].forEach((field) => {
+      this.rowForm.get(field)?.valueChanges.subscribe(() => {
+        this.calculateRowBalances();
+      });
+    });
+
+    // When changing InstallmentNo in add mode, resolve previous row's closing balance as opening, and recalculate dates
+    this.rowForm.get('InstallmentNo')?.valueChanges.subscribe((val) => {
+      if (!this.isEditingRow && val) {
+        const parsedNo = Number(val);
+        const prevRow = this.scheduleData.find((s) => s.InstallmentNo === parsedNo - 1);
+        const newOpening = prevRow && prevRow.ClosingBalance != null
+          ? Number(prevRow.ClosingBalance)
+          : (parsedNo === 1 ? Number(this.installmentData?.totalAmount || 0) : 0);
+
+        const dates = this.calculateRowDates(parsedNo);
+
+        this.rowForm.patchValue({
+          OpeningBalance: newOpening,
+          PaymentStartDate: dates.paymentStartDate,
+          DueDate: dates.dueDate
+        });
+      }
+    });
+  }
+
+  calculateRowDates(installmentNo: number): { paymentStartDate: Date | null; dueDate: Date } {
+    const isDateRange = (this.installmentData?.billingType || 'FixedDate') === 'DateRange';
+    let baseDate = new Date();
+    if (this.installmentData?.startDate) {
+      baseDate = new Date(this.installmentData.startDate);
+    }
+
+    const billingDay = Number(this.installmentData?.billingDay || 5);
+    const dueDay = Number(this.installmentData?.dueDay || billingDay);
+    const i = Math.max(1, Number(installmentNo) || 1);
+
+    if (isDateRange) {
+      const startWindow = new Date(baseDate.getFullYear(), baseDate.getMonth() + (i - 1), billingDay);
+      const endMonthOffset = dueDay < billingDay ? i : (i - 1);
+      const endWindow = new Date(baseDate.getFullYear(), baseDate.getMonth() + endMonthOffset, dueDay);
+      return {
+        paymentStartDate: startWindow,
+        dueDate: endWindow
+      };
+    } else {
+      const dueDate = new Date(baseDate.getFullYear(), baseDate.getMonth() + (i - 1), billingDay);
+      return {
+        paymentStartDate: null,
+        dueDate: dueDate
+      };
+    }
+  }
+
+  calculateRowBalances(): void {
+    const opening = Number(this.rowForm.get('OpeningBalance')?.value || 0);
+    const principal = Number(this.rowForm.get('Principal')?.value || 0);
+    const interest = Number(this.rowForm.get('Interest')?.value || 0);
+    const extraCharges = Number(this.rowForm.get('ExtraCharges')?.value || 0);
+
+    const scheduled = Number((principal + interest + extraCharges).toFixed(2));
+    const closing = Math.max(0, Number((opening - principal).toFixed(2)));
+
+    this.rowForm.patchValue(
+      {
+        ScheduledAmount: scheduled,
+        ClosingBalance: closing
+      },
+      { emitEvent: false }
+    );
   }
 
   // ======================================================
@@ -257,6 +330,8 @@ export class InstallmentDetailComponent implements OnInit {
           InstallmentNo: item.installmentNo ?? item.InstallmentNo,
           DueDate: item.dueDateFormatted || item.DueDateFormatted || item.dueDate || item.DueDate,
           DueDateFormatted: item.dueDateFormatted ?? item.DueDateFormatted,
+          PaymentStartDate: item.paymentStartDateFormatted || item.PaymentStartDateFormatted || item.paymentStartDate || item.PaymentStartDate,
+          PaymentStartDateFormatted: item.paymentStartDateFormatted ?? item.PaymentStartDateFormatted,
           OpeningBalance: Number(item.openingBalance ?? item.OpeningBalance ?? 0),
           ScheduledAmount: Number(item.scheduledAmount ?? item.ScheduledAmount ?? 0),
           Principal: Number(item.principal ?? item.Principal ?? 0),
@@ -294,6 +369,7 @@ export class InstallmentDetailComponent implements OnInit {
     this.totalInterest = 0;
     this.totalExtraCharges = 0;
     this.paidScheduleAmount = 0;
+    this.paidPrincipalAmount = 0;
     this.paidCount = 0;
     this.pendingCount = 0;
     this.overdueCount = 0;
@@ -308,12 +384,42 @@ export class InstallmentDetailComponent implements OnInit {
       if (isDone) {
         this.paidCount++;
         this.paidScheduleAmount += row.PaidAmount != null ? row.PaidAmount : row.ScheduledAmount;
+        this.paidPrincipalAmount += Number(row.Principal || 0);
       } else if (this.isOverdue(row.DueDate, row.ScheduleStatus)) {
         this.overdueCount++;
       } else {
         this.pendingCount++;
       }
     }
+  }
+
+  get actualPaidPrincipal(): number {
+    if (this.scheduleData && this.scheduleData.length > 0) {
+      return this.paidPrincipalAmount;
+    }
+    const paidMonths = Number(this.installmentData?.paidMonths || 0);
+    const duration = Number(this.installmentData?.durationMonths || 1);
+    const totalAmount = Number(this.installmentData?.totalAmount || 0);
+    return duration > 0 ? (paidMonths * (totalAmount / duration)) : 0;
+  }
+
+  get actualRemainingPrincipal(): number {
+    const total = Number(this.installmentData?.totalAmount || this.totalPrincipal || 0);
+    return Math.max(0, total - this.actualPaidPrincipal);
+  }
+
+  get actualProgressPercent(): number {
+    const total = Number(this.installmentData?.totalAmount || this.totalPrincipal || 0);
+    if (!total || total <= 0) return 0;
+    return Math.min(100, Math.max(0, (this.actualPaidPrincipal / total) * 100));
+  }
+
+  get scheduledEmiAmount(): number | null {
+    if (this.scheduleData && this.scheduleData.length > 0) {
+      const pendingRow = this.scheduleData.find((r) => (r.ScheduleStatus || '').toLowerCase() !== 'done');
+      return pendingRow ? pendingRow.ScheduledAmount : this.scheduleData[0]?.ScheduledAmount;
+    }
+    return null;
   }
 
   // ======================================================
@@ -809,31 +915,33 @@ export class InstallmentDetailComponent implements OnInit {
     const nextNo = this.scheduleData.length > 0 ? Math.max(...this.scheduleData.map(s => s.InstallmentNo)) + 1 : 1;
     const lastRow = this.scheduleData.length > 0 ? this.scheduleData[this.scheduleData.length - 1] : null;
 
-    let nextDue = new Date();
     let opening = Number(this.installmentData.totalAmount || 0);
-
     if (lastRow) {
-      opening = lastRow.ClosingBalance != null ? lastRow.ClosingBalance : 0;
-      if (lastRow.DueDate) {
-        const d = new Date(lastRow.DueDate);
-        nextDue = new Date(d.getFullYear(), d.getMonth() + 1, d.getDate());
-      }
+      opening = lastRow.ClosingBalance != null ? Number(lastRow.ClosingBalance) : 0;
     }
+
+    const dates = this.calculateRowDates(nextNo);
+
+    const defaultPrincipal = Number(this.installmentData.monthlyAmount || 0);
+    const defaultInterest = 0;
+    const defaultExtraCharges = 0;
+    const defaultScheduled = Number((defaultPrincipal + defaultInterest + defaultExtraCharges).toFixed(2));
+    const defaultClosing = Math.max(0, Number((opening - defaultPrincipal).toFixed(2)));
 
     this.rowForm.patchValue({
       InstallmentScheduleId: null,
       InstallmentId: this.installmentId,
       InstallmentNo: nextNo,
-      PaymentStartDate: null,
-      DueDate: nextDue,
+      PaymentStartDate: dates.paymentStartDate,
+      DueDate: dates.dueDate,
       OpeningBalance: opening,
-      ScheduledAmount: Number(this.installmentData.monthlyAmount || 0),
-      Principal: Number(this.installmentData.monthlyAmount || 0),
-      Interest: 0,
+      ScheduledAmount: defaultScheduled,
+      Principal: defaultPrincipal,
+      Interest: defaultInterest,
       InterestRate: 0,
-      ExtraCharges: 0,
+      ExtraCharges: defaultExtraCharges,
       ChargesDescription: '',
-      ClosingBalance: Math.max(0, opening - Number(this.installmentData.monthlyAmount || 0)),
+      ClosingBalance: defaultClosing,
       ScheduleStatus: 'Pending',
       Notes: ''
     });
@@ -853,8 +961,22 @@ export class InstallmentDetailComponent implements OnInit {
     if (row.DueDate) dueDate = new Date(row.DueDate);
 
     let paymentStartDate: Date | null = null;
-    const startVal = row.PaymentStartDate || (row as any).paymentStartDate;
-    if (startVal) paymentStartDate = new Date(startVal);
+    const isDateRange = (this.installmentData?.billingType || 'FixedDate') === 'DateRange';
+    if (isDateRange) {
+      const startVal = row.PaymentStartDate || row.PaymentStartDateFormatted || (row as any).paymentStartDate;
+      if (startVal) {
+        paymentStartDate = new Date(startVal);
+      } else {
+        // Fallback for legacy rows saved before window start was captured
+        paymentStartDate = this.calculateRowDates(row.InstallmentNo).paymentStartDate;
+      }
+    }
+
+    let opening = row.OpeningBalance;
+    if (opening == null) {
+      const prevRow = this.scheduleData.find((s) => s.InstallmentNo === row.InstallmentNo - 1);
+      opening = prevRow && prevRow.ClosingBalance != null ? Number(prevRow.ClosingBalance) : Number(this.installmentData?.totalAmount || 0);
+    }
 
     this.rowForm.patchValue({
       InstallmentScheduleId: row.InstallmentScheduleId,
@@ -862,7 +984,7 @@ export class InstallmentDetailComponent implements OnInit {
       InstallmentNo: row.InstallmentNo,
       PaymentStartDate: paymentStartDate,
       DueDate: dueDate,
-      OpeningBalance: row.OpeningBalance,
+      OpeningBalance: opening,
       ScheduledAmount: row.ScheduledAmount,
       Principal: row.Principal,
       Interest: row.Interest,
@@ -874,6 +996,7 @@ export class InstallmentDetailComponent implements OnInit {
       Notes: row.Notes
     });
 
+    this.calculateRowBalances();
     this.rowDialog = true;
   }
 
@@ -887,9 +1010,12 @@ export class InstallmentDetailComponent implements OnInit {
       return;
     }
 
-    const formVal = this.rowForm.value;
+    const formVal = this.rowForm.getRawValue();
     const dueStr = this.commonService.formatDate(new Date(formVal.DueDate));
-    const startStr = formVal.PaymentStartDate ? this.commonService.formatDate(new Date(formVal.PaymentStartDate)) : null;
+    const isDateRange = (this.installmentData?.billingType || 'FixedDate') === 'DateRange';
+    const startStr = (isDateRange && formVal.PaymentStartDate)
+      ? this.commonService.formatDate(new Date(formVal.PaymentStartDate))
+      : null;
 
     const payload = {
       ...formVal,

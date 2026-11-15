@@ -24,7 +24,8 @@
                 </h2>
             </div>
             <div class="text-xs sm:text-sm text-color-secondary mt-1 flex items-center gap-2 flex-wrap">
-                <span>{{ installmentData?.monthlyAmount | number:'1.2-2' }} / month</span>
+                <span *ngIf="scheduledEmiAmount != null">{{ scheduledEmiAmount | number:'1.2-2' }} / month (EMI)</span>
+                <span *ngIf="scheduledEmiAmount == null">{{ installmentData?.monthlyAmount | number:'1.2-2' }} / month</span>
                 <span>&bull;</span>
                 <span>{{ installmentData?.durationMonths }} months duration</span>
             </div>
@@ -53,29 +54,30 @@
                 {{ installmentData?.totalAmount | number:'1.2-2' }}
             </div>
             <div class="text-xs text-color-secondary mt-1">
-                {{ installmentData?.monthlyAmount | number:'1.2-2' }} × {{ installmentData?.durationMonths }}
+                {{ installmentData?.durationMonths }} installments tenure
             </div>
         </div>
 
         <div class="p-4 rounded-xl bg-surface-50 dark:bg-surface-900 border border-surface">
-            <div class="text-xs font-medium text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Paid Amount
+            <div class="text-xs font-medium text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Paid Principal
             </div>
             <div class="text-xl sm:text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1 tabular-nums">
-                {{ ((installmentData?.paidMonths || 0) * (installmentData?.monthlyAmount || 0)) | number:'1.2-2' }}
+                {{ actualPaidPrincipal | number:'1.2-2' }}
             </div>
             <div class="text-xs text-color-secondary mt-1">
-                {{ installmentData?.paidMonths || 0 }} installments completed
+                {{ paidCount }} of {{ scheduleData.length || installmentData?.durationMonths || 0 }} paid
+                <span *ngIf="paidScheduleAmount > 0"> ({{ paidScheduleAmount | number:'1.2-2' }} cash)</span>
             </div>
         </div>
 
         <div class="p-4 rounded-xl bg-surface-50 dark:bg-surface-900 border border-surface">
-            <div class="text-xs font-medium text-rose-600 dark:text-rose-400 uppercase tracking-wider">Remaining Balance
+            <div class="text-xs font-medium text-rose-600 dark:text-rose-400 uppercase tracking-wider">Remaining Principal
             </div>
             <div class="text-xl sm:text-2xl font-bold text-rose-600 dark:text-rose-400 mt-1 tabular-nums">
-                {{ ((installmentData?.remainingMonths || 0) * (installmentData?.monthlyAmount || 0)) | number:'1.2-2' }}
+                {{ actualRemainingPrincipal | number:'1.2-2' }}
             </div>
             <div class="text-xs text-color-secondary mt-1">
-                {{ installmentData?.remainingMonths || 0 }} installments left
+                {{ (scheduleData.length || installmentData?.durationMonths || 0) - paidCount }} installments left
             </div>
         </div>
     </div>
@@ -85,22 +87,20 @@
         <div class="flex items-center justify-between text-xs text-color-secondary font-medium tabular-nums">
             <span class="flex items-center gap-1.5 text-color">
                 <i class="pi pi-chart-line text-xs text-primary"></i>
-                Repayment Progress
+                Principal Repayment Progress
             </span>
             <span class="text-primary font-semibold">
-                {{ (installmentData?.durationMonths ? ((installmentData?.paidMonths / installmentData?.durationMonths) *
-                100) : 0) | number:'1.0-0' }}% Completed
+                {{ actualProgressPercent | number:'1.0-0' }}% Completed
             </span>
         </div>
         <div class="w-full bg-surface-200 dark:bg-surface-700 rounded-full h-3 overflow-hidden p-0.5">
             <div class="bg-primary h-2 rounded-full transition-all duration-500 shadow-sm"
-                [style.width.%]="installmentData?.durationMonths ? ((installmentData.paidMonths / installmentData.durationMonths) * 100) : 0">
+                [style.width.%]="actualProgressPercent">
             </div>
         </div>
         <div class="flex justify-between text-xs text-color-secondary tabular-nums">
-            <span>{{ installmentData?.paidMonths || 0 }} of {{ installmentData?.durationMonths || 0 }} months
-                paid</span>
-            <span>{{ installmentData?.remainingMonths || 0 }} months left</span>
+            <span>{{ paidCount }} of {{ scheduleData.length || installmentData?.durationMonths || 0 }} months paid</span>
+            <span>{{ (scheduleData.length || installmentData?.durationMonths || 0) - paidCount }} months left</span>
         </div>
     </div>
 
@@ -874,7 +874,9 @@
 <p-dialog [(visible)]="rowDialog" [modal]="true" [header]="isEditingRow ? 'Edit Schedule Row' : 'Add Schedule Row'"
     [style]="{ width: '38rem', maxWidth: '95vw' }" [draggable]="false" [resizable]="false">
     <form [formGroup]="rowForm" class="space-y-4 pt-1">
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <!-- Installment # & Date selection (Adapts to FixedDate vs DateRange) -->
+        <div class="grid grid-cols-1 gap-4"
+            [ngClass]="installmentData?.billingType === 'DateRange' ? 'sm:grid-cols-3' : 'sm:grid-cols-2'">
             <div>
                 <label class="block text-sm font-medium mb-2 text-color">Installment #</label>
                 <p-inputNumber formControlName="InstallmentNo" [min]="1" styleClass="w-full" class="w-full"
@@ -884,13 +886,19 @@
                     Installment # is required.
                 </small>
             </div>
-            <div>
+
+            <!-- Window Start Date (Only visible for DateRange loans) -->
+            <div *ngIf="installmentData?.billingType === 'DateRange'">
                 <label class="block text-sm font-medium mb-2 text-color">Window Start Date</label>
                 <p-datepicker formControlName="PaymentStartDate" dateFormat="dd-M-yy" [showIcon]="true" appendTo="body"
-                    styleClass="w-full" class="w-full" inputStyleClass="w-full" placeholder="Optional"></p-datepicker>
+                    styleClass="w-full" class="w-full" inputStyleClass="w-full" placeholder="dd-M-yy"></p-datepicker>
             </div>
+
+            <!-- Due Date (or Due / Cutoff Date if DateRange) -->
             <div>
-                <label class="block text-sm font-medium mb-2 text-color">Due / Cutoff Date</label>
+                <label class="block text-sm font-medium mb-2 text-color">
+                    {{ installmentData?.billingType === 'DateRange' ? 'Due / Cutoff Date' : 'Due Date' }}
+                </label>
                 <p-datepicker formControlName="DueDate" dateFormat="dd-M-yy" [showIcon]="true" appendTo="body"
                     styleClass="w-full" class="w-full" inputStyleClass="w-full"></p-datepicker>
                 <small class="text-red-500 mt-1 block" *ngIf="rowSubmitted && rowForm.controls['DueDate'].invalid">
@@ -900,12 +908,19 @@
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-                <label class="block text-sm font-medium mb-2 text-color">Opening Principal</label>
+                <div class="flex items-center justify-between mb-1.5">
+                    <label class="text-sm font-medium text-color">Opening Principal</label>
+                    <span class="text-[10px] text-color-secondary bg-surface-100 dark:bg-surface-800 border border-surface px-1.5 py-0.5 rounded font-medium">Auto / Locked</span>
+                </div>
                 <p-inputNumber formControlName="OpeningBalance" mode="decimal" [minFractionDigits]="2"
-                    [maxFractionDigits]="2" styleClass="w-full" class="w-full" inputStyleClass="w-full"></p-inputNumber>
+                    [maxFractionDigits]="2" [readonly]="true" styleClass="w-full" class="w-full"
+                    inputStyleClass="w-full bg-surface-100 dark:bg-surface-800 cursor-not-allowed opacity-85"></p-inputNumber>
+                <small class="text-color-secondary text-[11px] mt-1 block">
+                    Derived from previous installment balance
+                </small>
             </div>
             <div>
-                <label class="block text-sm font-medium mb-2 text-color">Principal Component</label>
+                <label class="block text-sm font-medium mb-1.5 text-color">Principal Component</label>
                 <p-inputNumber formControlName="Principal" mode="decimal" [minFractionDigits]="2"
                     [maxFractionDigits]="2" styleClass="w-full" class="w-full" inputStyleClass="w-full"></p-inputNumber>
                 <small class="text-red-500 mt-1 block" *ngIf="rowSubmitted && rowForm.controls['Principal'].invalid">
@@ -913,28 +928,38 @@
                 </small>
             </div>
             <div>
-                <label class="block text-sm font-medium mb-2 text-color">Interest Component</label>
+                <label class="block text-sm font-medium mb-1.5 text-color">Interest Component</label>
                 <p-inputNumber formControlName="Interest" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2"
                     styleClass="w-full" class="w-full" inputStyleClass="w-full"></p-inputNumber>
             </div>
             <div>
-                <label class="block text-sm font-medium mb-2 text-color">Extra Charges / Tax</label>
+                <label class="block text-sm font-medium mb-1.5 text-color">Extra Charges / Tax</label>
                 <p-inputNumber formControlName="ExtraCharges" mode="decimal" [minFractionDigits]="2"
                     [maxFractionDigits]="2" styleClass="w-full" class="w-full" inputStyleClass="w-full"></p-inputNumber>
             </div>
             <div>
-                <label class="block text-sm font-medium mb-2 text-color">Total Scheduled EMI</label>
+                <div class="flex items-center justify-between mb-1.5">
+                    <label class="text-sm font-medium text-color">Total Scheduled EMI</label>
+                    <span class="text-[10px] text-primary bg-primary/10 border border-primary/20 px-1.5 py-0.5 rounded font-semibold">Auto-calculated</span>
+                </div>
                 <p-inputNumber formControlName="ScheduledAmount" mode="decimal" [minFractionDigits]="2"
-                    [maxFractionDigits]="2" styleClass="w-full" class="w-full" inputStyleClass="w-full"></p-inputNumber>
-                <small class="text-red-500 mt-1 block"
-                    *ngIf="rowSubmitted && rowForm.controls['ScheduledAmount'].invalid">
-                    Scheduled EMI is required.
+                    [maxFractionDigits]="2" [readonly]="true" styleClass="w-full" class="w-full"
+                    inputStyleClass="w-full bg-surface-100 dark:bg-surface-800 font-bold text-primary cursor-not-allowed"></p-inputNumber>
+                <small class="text-color-secondary text-[11px] mt-1 block">
+                    Principal + Interest + Extra Charges
                 </small>
             </div>
             <div>
-                <label class="block text-sm font-medium mb-2 text-color">Closing Principal</label>
+                <div class="flex items-center justify-between mb-1.5">
+                    <label class="text-sm font-medium text-color">Closing Principal</label>
+                    <span class="text-[10px] text-color-secondary bg-surface-100 dark:bg-surface-800 border border-surface px-1.5 py-0.5 rounded font-medium">Auto-calculated</span>
+                </div>
                 <p-inputNumber formControlName="ClosingBalance" mode="decimal" [minFractionDigits]="2"
-                    [maxFractionDigits]="2" styleClass="w-full" class="w-full" inputStyleClass="w-full"></p-inputNumber>
+                    [maxFractionDigits]="2" [readonly]="true" styleClass="w-full" class="w-full"
+                    inputStyleClass="w-full bg-surface-100 dark:bg-surface-800 cursor-not-allowed opacity-85"></p-inputNumber>
+                <small class="text-color-secondary text-[11px] mt-1 block">
+                    Opening Principal − Principal Component
+                </small>
             </div>
         </div>
 

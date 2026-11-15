@@ -54,7 +54,6 @@ export class InstallmentsComponent {
       InstallmentName: [null, Validators.required],
       TotalAmount: [null, Validators.required],
       DurationMonths: [null, Validators.required],
-      MonthlyAmount: [0],
       EnableInitialPaid: [false],
       InitialPaidMonths: [null],
       StartDate: [null, Validators.required],
@@ -64,10 +63,7 @@ export class InstallmentsComponent {
       Description: [null]
     });
 
-    this.addForm.get('TotalAmount')?.valueChanges.subscribe(() => this.calculateEmi());
     this.addForm.get('DurationMonths')?.valueChanges.subscribe((duration) => {
-      this.calculateEmi();
-
       const initialPaidControl = this.addForm.get('InitialPaidMonths');
 
       if (this.addForm.get('EnableInitialPaid')?.value) {
@@ -189,7 +185,6 @@ export class InstallmentsComponent {
           InstallmentName: data.installmentName,
           TotalAmount: data.totalAmount,
           DurationMonths: data.durationMonths,
-          MonthlyAmount: data.monthlyAmount,
           EnableInitialPaid: data.initialPaidMonths > 0 ? true : false,
           InitialPaidMonths: data.initialPaidMonths,
           StartDate: dateObject,
@@ -268,20 +263,6 @@ export class InstallmentsComponent {
   }
 
   // ======================================================
-  // Estimate EMI calculation
-  // ======================================================
-  calculateEmi() {
-    const total = this.addForm.get('TotalAmount')?.value || 0;
-    const months = this.addForm.get('DurationMonths')?.value || 0;
-
-    let estimatedEMI = 0;
-    if (total > 0 && months > 0)
-      estimatedEMI = total / months;
-
-    this.addForm.get('MonthlyAmount')?.setValue(estimatedEMI, { emitEvent: false });
-  }
-
-  // ======================================================
   // Change Event
   // ======================================================
   changeInitialPaidToggle(event: any) {
@@ -326,7 +307,6 @@ export class InstallmentsComponent {
   resetForm() {
     this.addForm.reset({
       BillingType: 'FixedDate',
-      MonthlyAmount: 0,
       EnableInitialPaid: false
     });
     this.submitted = false;
